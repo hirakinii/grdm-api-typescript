@@ -1,0 +1,73 @@
+{
+  "name": "grdm-api-typescript",
+  "version": "0.1.0",
+  "description": "",
+  "main": "./dist/cjs/index.js",
+  "module": "./dist/esm/index.js",
+  "types": "./dist/cjs/index.d.ts",
+  "exports": {
+    ".": {
+      "import": {
+        "types": "./dist/esm/index.d.ts",
+        "default": "./dist/esm/index.js"
+      },
+      "require": {
+        "types": "./dist/cjs/index.d.ts",
+        "default": "./dist/cjs/index.js"
+      },
+      "default": "./dist/cjs/index.js"
+    }
+  },
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE"
+  ],
+  "scripts": {
+    "test": "jest",
+    "build": "npm run build:cjs && npm run build:esm && npm run build:umd",
+    "build:cjs": "tsc",
+    "build:esm": "tsc -p tsconfig.esm.json && echo '{\"type\":\"module\"}' > dist/esm/package.json && node scripts/fix-esm-imports.mjs",
+    "build:umd": "node scripts/build-umd.mjs",
+    "prepack": "npm run build",
+    "lint": "eslint '{src,examples}/**/*.{ts,tsx}'",
+    "format": "prettier --write '{src,examples}/**/*.{ts,tsx}'"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/hirakinii/grdm-api-typescript.git"
+  },
+  "keywords": [
+    "grdm",
+    "gakunin-rdm",
+    "api",
+    "client",
+    "json-api",
+    "typescript"
+  ],
+  "author": "hirakinii",
+  "license": "Apache-2.0",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/hirakinii/grdm-api-typescript/issues"
+  },
+  "homepage": "https://github.com/hirakinii/grdm-api-typescript#readme",
+  "dependencies": {
+    "osf-api-v2-typescript": "^0.3.1"
+  },
+  "devDependencies": {
+    "@types/jest": "^30.0.0",
+    "@types/node": "^25.2.3",
+    "@typescript-eslint/eslint-plugin": "^8.55.0",
+    "@typescript-eslint/parser": "^8.55.0",
+    "eslint": "^9.39.2",
+    "eslint-config-prettier": "^10.1.8",
+    "eslint-plugin-prettier": "^5.5.5",
+    "jest": "^30.2.0",
+    "jest-fetch-mock": "^3.0.3",
+    "prettier": "^3.8.1",
+    "ts-jest": "^29.4.6",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.9.3"
+  }
+}
