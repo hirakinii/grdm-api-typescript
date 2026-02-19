@@ -30,6 +30,7 @@
     "build:esm": "tsc -p tsconfig.esm.json && echo '{\"type\":\"module\"}' > dist/esm/package.json && node scripts/fix-esm-imports.mjs",
     "build:umd": "node scripts/build-umd.mjs",
     "prepack": "npm run build",
+    "type-check": "tsc -b",
     "lint": "eslint '{src,examples}/**/*.{ts,tsx}'",
     "format": "prettier --write '{src,examples}/**/*.{ts,tsx}'"
   },
