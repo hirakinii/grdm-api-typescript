@@ -1,4 +1,4 @@
-import { GrdmRegisteredMeta, GrdmRegisteredFile, GrdmFileMetadataField, GrdmCreator } from '../src/types/project-metadata';
+import { GrdmRegisteredMeta, GrdmRegisteredFile, GrdmFileMetadataField, GrdmCreator } from '../../src/types/project-metadata';
 
 describe('ProjectMetadata Types', () => {
   it('should allow valid GrdmRegisteredMeta object', () => {
