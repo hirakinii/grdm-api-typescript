@@ -1,5 +1,5 @@
 {
-  "name": "grdm-api-typescript",
+  "name": "@hirakinii-packages/grdm-api-typescript",
   "version": "0.1.0",
   "description": "",
   "main": "./dist/cjs/index.js",
@@ -37,6 +37,9 @@
   "repository": {
     "type": "git",
     "url": "git+https://github.com/hirakinii/grdm-api-typescript.git"
+  },
+  "publishConfig": {
+    "access": "public"
   },
   "keywords": [
     "grdm",
