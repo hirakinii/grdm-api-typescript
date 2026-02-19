@@ -498,20 +498,20 @@ export * from './utils';
 
 ## Success Criteria
 
-- [ ] `GrdmClient` が `OsfClient` を正しく継承し、全 22 種の OSF リソースにアクセスできる
-- [ ] `osf-api-v2-typescript` の全エクスポートが `grdm-api-typescript` から再エクスポートされる
-- [ ] `client.projectMetadata.listByNode(nodeId)` で v2 API からプロジェクトメタデータを取得できる
-- [ ] `client.projectMetadata.getById(registrationId)` で単一の登録メタデータを取得できる
-- [ ] `client.fileMetadata.getByProject(projectId)` で v1 API からファイルメタデータを取得できる
-- [ ] `client.fileMetadata.findFileByPath(projectId, path)` でファイルをパスで検索できる
-- [ ] `client.fileMetadata.getActiveMetadata(projectId, path)` でアクティブなメタデータを取得できる
-- [ ] `v1BaseUrl` が `baseUrl` から正しく自動推論される
-- [ ] `registered_meta` の `{ value, extra }` ラッパーが自動的に展開される
-- [ ] `grdm-files` の JSON 文字列が `GrdmRegisteredFile[]` に自動パースされる
-- [ ] `npm run build` で CJS/ESM/UMD ビルドが成功する
-- [ ] `npm run test` でテストカバレッジ 80% 以上を達成する
-- [ ] `npm run lint` がエラーなしで通過する
-- [ ] 全型定義が正確で、TypeScript の strict モードでコンパイルが通る
+- [x] `GrdmClient` が `OsfClient` を正しく継承し、全 22 種の OSF リソースにアクセスできる
+- [x] `osf-api-v2-typescript` の全エクスポートが `grdm-api-typescript` から再エクスポートされる
+- [x] `client.projectMetadata.listByNode(nodeId)` で v2 API からプロジェクトメタデータを取得できる
+- [x] `client.projectMetadata.getById(registrationId)` で単一の登録メタデータを取得できる
+- [x] `client.fileMetadata.getByProject(projectId)` で v1 API からファイルメタデータを取得できる
+- [x] `client.fileMetadata.findFileByPath(projectId, path)` でファイルをパスで検索できる
+- [x] `client.fileMetadata.getActiveMetadata(projectId, path)` でアクティブなメタデータを取得できる
+- [x] `v1BaseUrl` が `baseUrl` から正しく自動推論される
+- [x] `registered_meta` の `{ value, extra }` ラッパーが自動的に展開される
+- [x] `grdm-files` の JSON 文字列が `GrdmRegisteredFile[]` に自動パースされる
+- [x] `npm run build` で CJS/ESM/UMD ビルドが成功する
+- [x] `npm run test` でテストカバレッジ 80% 以上を達成する（実績: 100%）
+- [x] `npm run lint` がエラーなしで通過する
+- [x] 全型定義が正確で、TypeScript の strict モードでコンパイルが通る
 
 ## Implementation Order Summary
 
