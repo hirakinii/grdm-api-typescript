@@ -1,5 +1,5 @@
-import { GrdmFileMetadataResponse } from '../src/types/file-metadata';
-import { GrdmCreator } from '../src/types/project-metadata';
+import { GrdmFileMetadataResponse } from '../../src/types/file-metadata';
+import { GrdmCreator } from '../../src/types/project-metadata';
 
 describe('FileMetadata Types', () => {
   it('should allow valid GrdmFileMetadataResponse object', () => {

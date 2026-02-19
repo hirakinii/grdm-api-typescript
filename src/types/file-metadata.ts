@@ -70,9 +70,5 @@ export interface GrdmFileMetadataSchema extends Record<string, unknown> {
   'grdm-file:remarks-ja'?: GrdmFileMetadataField;
   'grdm-file:remarks-en'?: GrdmFileMetadataField;
   'grdm-file:metadata-access-rights'?: GrdmFileMetadataField;
-  'grdm-file:creators'?: {
-    value: unknown; // Can be GrdmCreator[] or other depending on the schema
-    extra: unknown[];
-    comments?: unknown[];
-  };
+  'grdm-file:creators'?: GrdmFileMetadataField;
 }
