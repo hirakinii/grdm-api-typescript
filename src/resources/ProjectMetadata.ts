@@ -48,16 +48,16 @@ export class ProjectMetadata extends BaseResource {
   /**
    * Parse GRDM metadata from registration attributes
    */
-  private parseGrdmMeta(attributes: Record<string, unknown>): GrdmRegisteredMeta {
+  private parseGrdmMeta(attributes: GrdmProjectMetadataAttributes): GrdmRegisteredMeta {
     const meta: GrdmRegisteredMeta = {};
-    const registeredMeta = attributes.registered_meta as Record<string, unknown>;
+    const registeredMeta = attributes.registered_meta as Record<string, unknown> | undefined;
 
     if (!registeredMeta) {
       return meta;
     }
 
     const unwrap = (key: string) => {
-      const field = registeredMeta[key] as Record<string, unknown> | undefined;
+      const field = registeredMeta[key];
       return field && typeof field === 'object' && 'value' in field ? field.value : undefined;
     };
 
