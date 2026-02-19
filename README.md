@@ -2,6 +2,8 @@
 
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.9-blue.svg)](https://www.typescriptlang.org/)
 [![License: Apache-2.0](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
+[![CI](https://github.com/hirakinii/grdm-api-typescript/actions/workflows/ci.yml/badge.svg)](https://github.com/hirakinii/grdm-api-typescript/actions/workflows/ci.yml)
+[![npm](https://img.shields.io/npm/v/grdm-api-typescript.svg)](https://www.npmjs.com/package/grdm-api-typescript)
 
 TypeScript client library for the [GakuNin RDM](https://support.rdm.nii.ac.jp/en/) API.
 
@@ -177,6 +179,32 @@ const user = await client.users.getMe();
 For the full list of OSF resources, see the [`osf-api-v2-typescript` documentation](https://github.com/hirakinii/osf-api-v2-typescript).
 
 
+## Examples
+
+The [`examples/`](./examples/) directory contains sample scripts demonstrating common use cases:
+
+| Example | Description |
+|---|---|
+| [`basic_usage.ts`](./examples/basic_usage.ts) | Basic operations: user info, node list, project metadata, file metadata |
+| [`fetch_project_and_file_metadata.ts`](./examples/fetch_project_and_file_metadata.ts) | Detailed project and file metadata retrieval for a specific node |
+| [`list_all_projects.ts`](./examples/list_all_projects.ts) | Paginated listing of all accessible projects using `PaginatedResult` |
+
+Run examples with `ts-node`:
+
+```bash
+# Basic usage
+GRDM_TOKEN=<your-token> npx ts-node examples/basic_usage.ts
+
+# Fetch metadata for a specific node
+GRDM_TOKEN=<your-token> GRDM_NODE_ID=<node-id> npx ts-node examples/fetch_project_and_file_metadata.ts
+
+# List all projects
+GRDM_TOKEN=<your-token> npx ts-node examples/list_all_projects.ts
+```
+
+See [`examples/README.md`](./examples/README.md) for details on each example and available environment variables.
+
+
 ## Development
 
 ### Install dependencies
@@ -207,6 +235,23 @@ npm run lint
 
 ```bash
 npm run format
+```
+
+
+## CI / CD
+
+This project uses GitHub Actions for continuous integration and delivery.
+
+| Workflow | Trigger | Description |
+|---|---|---|
+| [CI](./.github/workflows/ci.yml) | Push / PR to `main` | Lint, type-check, test, and build on Node.js 20, 22, and 24 |
+| [CD](./.github/workflows/cd.yml) | Push of `v*` tag | Run tests and publish to npm with provenance |
+
+To release a new version, create and push a version tag:
+
+```bash
+npm version patch   # or minor / major
+git push --follow-tags
 ```
 
 
