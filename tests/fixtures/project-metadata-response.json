@@ -5,6 +5,21 @@
       "type": "registrations",
       "attributes": {
         "title": "Test Project with GRDM Metadata",
+        "registration_supplement": "GRDM Metadata Schema",
+        "registered_meta": {
+          "funder": { "value": "JSPS", "extra": [] },
+          "program-name-ja": { "value": "科学研究費助成事業", "extra": [] },
+          "program-name-en": { "value": "Grants-in-Aid for Scientific Research", "extra": [] },
+          "project-name-ja": { "value": "テストプロジェクト", "extra": [] },
+          "project-name-en": { "value": "Test Project", "extra": [] },
+          "japan-grant-number": { "value": "20K12345", "extra": [] },
+          "funding-stream-code": { "value": "123", "extra": [] },
+          "project-research-field": { "value": "456", "extra": [] },
+          "grdm-files": {
+            "value": "[{\"path\": \"osfstorage/README.md\", \"urlpath\": \"/uzdsn/files/osfstorage/README.md/\", \"metadata\": {\"grdm-file:title-ja\": {\"value\": \"プロジェクト用README\", \"extra\": []}, \"grdm-file:creators\": {\"value\": [{\"number\": \"12345\", \"name_ja\": \"山田 太郎\", \"name_en\": \"Taro Yamada\"}], \"extra\": []}}}]",
+            "extra": []
+          }
+        },
         "registration_responses": {
           "funder": "JSPS",
           "program-name-ja": "科学研究費助成事業",

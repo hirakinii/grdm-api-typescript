@@ -1,3 +1,12 @@
+import { OsfRegistrationAttributes } from 'osf-api-v2-typescript';
+
+/**
+ * Extended registration attributes including parsed GRDM metadata.
+ */
+export interface GrdmProjectMetadataAttributes extends OsfRegistrationAttributes {
+  grdmMeta?: GrdmRegisteredMeta;
+}
+
 /**
  * Metadata fields stored in the `registered_meta` / `registration_responses`
  * attributes of a registration resource.

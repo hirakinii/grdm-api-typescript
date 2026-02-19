@@ -10,7 +10,7 @@
  */
 export function inferV1BaseUrl(v2BaseUrl: string): string {
   // Normalize by removing trailing slash
-  let normalizedUrl = v2BaseUrl.endsWith('/') ? v2BaseUrl.slice(0, -1) : v2BaseUrl;
+  const normalizedUrl = v2BaseUrl.endsWith('/') ? v2BaseUrl.slice(0, -1) : v2BaseUrl;
 
   // Pattern match for GRDM standard URL with subdomain: https://api.{subdomain}.rdm.nii.ac.jp/v2
   const grdmSubdomainPattern = /^https:\/\/api\.([^.]+)\.rdm\.nii\.ac\.jp\/v2$/;
