@@ -28,7 +28,7 @@ export interface GrdmRegisteredFile {
  * Common wrapper structure for GRDM file metadata fields.
  */
 export interface GrdmFileMetadataField {
-  value: any;
+  value: unknown;
   extra: unknown[];
   comments?: unknown[];
 }

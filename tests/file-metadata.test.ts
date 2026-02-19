@@ -1,4 +1,5 @@
-import { GrdmFileMetadataResponse, GrdmFileItem, GrdmFileMetadataSchema } from '../src/types/file-metadata';
+import { GrdmFileMetadataResponse } from '../src/types/file-metadata';
+import { GrdmCreator } from '../src/types/project-metadata';
 
 describe('FileMetadata Types', () => {
   it('should allow valid GrdmFileMetadataResponse object', () => {
@@ -43,6 +44,7 @@ describe('FileMetadata Types', () => {
     const file = response.data.attributes.files[0];
     expect(file.path).toBe('osfstorage/README.md');
     expect(file.items[0]['grdm-file:title-ja']?.value).toBe('タイトル');
-    expect(file.items[0]['grdm-file:creators']?.value[0].nameJa).toBe('氏名');
+    const creators = file.items[0]['grdm-file:creators']?.value as GrdmCreator[];
+    expect(creators[0].nameJa).toBe('氏名');
   });
 });

@@ -33,7 +33,7 @@ export interface GrdmFileItem {
  * Contains the actual metadata fields.
  * Based on Section 5.2 of the specification.
  */
-export interface GrdmFileMetadataSchema extends Record<string, any> {
+export interface GrdmFileMetadataSchema extends Record<string, unknown> {
   schema: string;
   active: boolean;
   'grdm-file:data-number'?: GrdmFileMetadataField;
@@ -71,7 +71,7 @@ export interface GrdmFileMetadataSchema extends Record<string, any> {
   'grdm-file:remarks-en'?: GrdmFileMetadataField;
   'grdm-file:metadata-access-rights'?: GrdmFileMetadataField;
   'grdm-file:creators'?: {
-    value: any; // Can be GrdmCreator[] or other depending on the schema
+    value: unknown; // Can be GrdmCreator[] or other depending on the schema
     extra: unknown[];
     comments?: unknown[];
   };
