@@ -20,6 +20,24 @@ describe('ProjectMetadata Types', () => {
     };
     expect(meta.funder).toBe('JSPS');
     expect(meta.grdmFiles?.[0].path).toBe('osfstorage/README.md');
+    expect(meta.grdmFiles?.[0].metadata['grdm-file:title-ja'].value).toBe('タイトル');
+  });
+
+  it('should allow creators in metadata', () => {
+    const creators: GrdmCreator[] = [
+      { number: '123', nameJa: '氏名', nameEn: 'Name' }
+    ];
+    const file: GrdmRegisteredFile = {
+      path: 'test',
+      urlpath: 'test',
+      metadata: {
+        'grdm-file:creators': {
+          value: creators,
+          extra: []
+        }
+      }
+    };
+    expect(file.metadata['grdm-file:creators'].value).toEqual(creators);
   });
 
   it('should allow valid GrdmCreator object', () => {

@@ -21,7 +21,17 @@ describe('FileMetadata Types', () => {
               items: [
                 {
                   schema: 'schema_id',
-                  active: true
+                  active: true,
+                  'grdm-file:title-ja': {
+                    value: 'タイトル',
+                    extra: []
+                  },
+                  'grdm-file:creators': {
+                    value: [
+                      { number: '123', nameJa: '氏名', nameEn: 'Name' }
+                    ],
+                    extra: []
+                  }
                 }
               ]
             }
@@ -30,6 +40,9 @@ describe('FileMetadata Types', () => {
       }
     };
     expect(response.data.id).toBe('project_id');
-    expect(response.data.attributes.files[0].path).toBe('osfstorage/README.md');
+    const file = response.data.attributes.files[0];
+    expect(file.path).toBe('osfstorage/README.md');
+    expect(file.items[0]['grdm-file:title-ja']?.value).toBe('タイトル');
+    expect(file.items[0]['grdm-file:creators']?.value[0].nameJa).toBe('氏名');
   });
 });

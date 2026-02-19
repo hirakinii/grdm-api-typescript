@@ -25,7 +25,13 @@
               "grdm-file:data-description-ja": { "value": "これはテスト用のREADMEファイルです。", "extra": [] },
               "grdm-file:data-description-en": { "value": "This is a test README file.", "extra": [] },
               "grdm-file:data-research-field": { "value": "001", "extra": [] },
-              "grdm-file:data-type": { "value": "dataset", "extra": [] }
+              "grdm-file:data-type": { "value": "dataset", "extra": [] },
+              "grdm-file:creators": {
+                "value": [
+                  { "number": "12345", "name_ja": "山田 太郎", "name_en": "Taro Yamada" }
+                ],
+                "extra": []
+              }
             }
           ]
         },

@@ -14,7 +14,7 @@
           "japan-grant-number": "20K12345",
           "funding-stream-code": "123",
           "project-research-field": "456",
-          "grdm-files": "[{\"path\": \"osfstorage/README.md\", \"urlpath\": \"/uzdsn/files/osfstorage/README.md/\", \"metadata\": {\"grdm-file:title-ja\": {\"value\": \"プロジェクト用README\", \"extra\": []}}}]",
+          "grdm-files": "[{\"path\": \"osfstorage/README.md\", \"urlpath\": \"/uzdsn/files/osfstorage/README.md/\", \"metadata\": {\"grdm-file:title-ja\": {\"value\": \"プロジェクト用README\", \"extra\": []}, \"grdm-file:creators\": {\"value\": [{\"number\": \"12345\", \"name_ja\": \"山田 太郎\", \"name_en\": \"Taro Yamada\"}], \"extra\": []}}}]",
           "registration_supplement": "GRDM Metadata Schema"
         }
       },
