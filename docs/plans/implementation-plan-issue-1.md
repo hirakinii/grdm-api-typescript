@@ -16,7 +16,7 @@
 
 ## Architecture Changes
 
-```
+```plaintext
 src/
 ├── index.ts                          # メインエントリポイント（全エクスポート）
 ├── client.ts                         # GrdmClient クラス
@@ -88,8 +88,8 @@ scripts/
 import { OsfClientConfig } from 'osf-api-v2-typescript';
 
 export interface GrdmClientConfig extends OsfClientConfig {
-  baseUrl?: string;    // default: 'https://api.rdm.nii.ac.jp/v2/'
-  v1BaseUrl?: string;  // auto-inferred or manual
+  baseUrl?: string; // default: 'https://api.rdm.nii.ac.jp/v2/'
+  v1BaseUrl?: string; // auto-inferred or manual
 }
 ```
 
@@ -212,7 +212,8 @@ export interface GrdmFileMetadataSchema {
 - **Action (GREEN):** `inferV1BaseUrl(v2BaseUrl: string): string` を実装する。
 
 推論ロジック:
-```
+
+```plaintext
 https://api.{subdomain}.rdm.nii.ac.jp/v2/
   → https://{subdomain}.rdm.nii.ac.jp/api/v1
 
@@ -250,6 +251,7 @@ https://api.rdm.nii.ac.jp/v2/
 - **Action (GREEN):** `ProjectMetadata` クラスを実装する。
 
 設計方針:
+
 - `BaseResource` を継承する（`Registrations` は継承しない。既に `OsfClient.registrations` として存在するため、独立したリソースとして実装する）
 - 内部的には `nodes/{nodeId}/registrations/` エンドポイントを呼び出す
 - レスポンスの `registered_meta` を解析して `GrdmRegisteredMeta` に変換するロジックを含む
@@ -259,12 +261,10 @@ https://api.rdm.nii.ac.jp/v2/
 export class ProjectMetadata extends BaseResource {
   async listByNode(
     nodeId: string,
-    params?: Record<string, unknown>
+    params?: Record<string, unknown>,
   ): Promise<PaginatedResult<GrdmProjectMetadataAttributes>>;
 
-  async getById(
-    registrationId: string
-  ): Promise<TransformedResource<GrdmProjectMetadataAttributes>>;
+  async getById(registrationId: string): Promise<TransformedResource<GrdmProjectMetadataAttributes>>;
 }
 ```
 
@@ -287,6 +287,7 @@ export class ProjectMetadata extends BaseResource {
 - **Action (GREEN):** `FileMetadata` クラスを実装する。
 
 設計方針:
+
 - `BaseResource` を直接継承せず、独自に `HttpClient` を利用する（v1 API は JSON:API 形式ではないため）
 - v1 エンドポイント: `{v1BaseUrl}/project/{projectId}/metadata/project`
 - レスポンスは独自の JSON 構造（JSON:API ではない）
@@ -346,8 +347,12 @@ export class GrdmClient extends OsfClient {
     this.v1BaseUrl = config.v1BaseUrl ?? inferV1BaseUrl(baseUrl);
   }
 
-  get projectMetadata(): ProjectMetadata { /* lazy init */ }
-  get fileMetadata(): FileMetadata { /* lazy init */ }
+  get projectMetadata(): ProjectMetadata {
+    /* lazy init */
+  }
+  get fileMetadata(): FileMetadata {
+    /* lazy init */
+  }
 }
 ```
 
@@ -361,6 +366,7 @@ export class GrdmClient extends OsfClient {
 **前提作業:** `osf-api-v2-typescript` 側で `OsfClient.httpClient` を `private` → `protected` に変更し、新バージョンをリリースする。その後、`grdm-api-typescript` の依存バージョンを更新する。
 
 これにより:
+
 - 型安全性が完全に維持される（`as any` キャスト不要）
 - `HttpClient` インスタンスが1つで済む（重複生成しない）
 - 認証状態の一貫性が保証される（親子で同じ `httpClient` を共有）
@@ -440,12 +446,12 @@ export * from './utils';
 
 ### Unit Tests
 
-| テスト対象 | テストファイル | テスト内容 |
-|-----------|-------------|-----------|
-| URL 推論ロジック | `tests/utils/url.test.ts` | 各 URL パターンの変換結果 |
-| GrdmClient | `tests/client.test.ts` | 設定、リソースアクセス、認証 |
-| ProjectMetadata | `tests/resources/ProjectMetadata.test.ts` | API 呼び出し、レスポンスパース |
-| FileMetadata | `tests/resources/FileMetadata.test.ts` | API 呼び出し、ファイル検索 |
+| テスト対象       | テストファイル                            | テスト内容                     |
+| ---------------- | ----------------------------------------- | ------------------------------ |
+| URL 推論ロジック | `tests/utils/url.test.ts`                 | 各 URL パターンの変換結果      |
+| GrdmClient       | `tests/client.test.ts`                    | 設定、リソースアクセス、認証   |
+| ProjectMetadata  | `tests/resources/ProjectMetadata.test.ts` | API 呼び出し、レスポンスパース |
+| FileMetadata     | `tests/resources/FileMetadata.test.ts`    | API 呼び出し、ファイル検索     |
 
 ### Integration Tests
 
@@ -502,7 +508,7 @@ export * from './utils';
 
 ## Implementation Order Summary
 
-```
+```plaintext
 Phase 1: 基盤セットアップ        (tests/setup.ts, fixtures)
     ↓
 Phase 2: 型定義                  (src/types/)
