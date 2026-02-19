@@ -14,6 +14,13 @@
 - デュアルパッケージ対応（CJS/ESM/UMD）のビルドスクリプトを作成する
 - テストカバレッジ 80% 以上を達成する
 
+### See reference if necessary
+
+これらのファイルは `.gitignore` で同期対象となっていることに留意すること。
+
+- `docs/reference/project-metadata.md`
+- `docs/reference/file-metadata.md`
+
 ## Architecture Changes
 
 ```plaintext
