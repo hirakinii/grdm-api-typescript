@@ -1,0 +1,39 @@
+{
+  "data": [
+    {
+      "id": "uzdsn",
+      "type": "registrations",
+      "attributes": {
+        "title": "Test Project with GRDM Metadata",
+        "registration_responses": {
+          "funder": "JSPS",
+          "program-name-ja": "科学研究費助成事業",
+          "program-name-en": "Grants-in-Aid for Scientific Research",
+          "project-name-ja": "テストプロジェクト",
+          "project-name-en": "Test Project",
+          "japan-grant-number": "20K12345",
+          "funding-stream-code": "123",
+          "project-research-field": "456",
+          "grdm-files": "[{\"path\": \"osfstorage/README.md\", \"urlpath\": \"/uzdsn/files/osfstorage/README.md/\", \"metadata\": {\"grdm-file:title-ja\": {\"value\": \"プロジェクト用README\", \"extra\": []}, \"grdm-file:creators\": {\"value\": [{\"number\": \"12345\", \"name_ja\": \"山田 太郎\", \"name_en\": \"Taro Yamada\"}], \"extra\": []}}}]",
+          "registration_supplement": "GRDM Metadata Schema"
+        }
+      },
+      "relationships": {
+        "node": {
+          "data": {
+            "id": "abcde",
+            "type": "nodes"
+          }
+        }
+      },
+      "links": {
+        "self": "https://api.rdm.nii.ac.jp/v2/registrations/uzdsn/"
+      }
+    }
+  ],
+  "links": {
+    "meta": {
+      "total": 1
+    }
+  }
+}

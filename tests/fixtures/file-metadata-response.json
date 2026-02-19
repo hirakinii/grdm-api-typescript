@@ -1,0 +1,49 @@
+{
+  "data": {
+    "id": "uzdsn",
+    "type": "project-metadata",
+    "attributes": {
+      "editable": true,
+      "features": {
+        "sharing": true
+      },
+      "files": [
+        {
+          "path": "osfstorage/README.md",
+          "hash": "abcdef1234567890",
+          "folder": false,
+          "urlpath": "/uzdsn/files/osfstorage/README.md/",
+          "generated": false,
+          "items": [
+            {
+              "schema": "grdm-file-metadata-schema",
+              "active": true,
+              "grdm-file:data-number": { "value": "D001", "extra": [] },
+              "grdm-file:title-ja": { "value": "プロジェクト用README", "extra": [] },
+              "grdm-file:title-en": { "value": "Project README", "extra": [] },
+              "grdm-file:date-issued-updated": { "value": "2023-10-27", "extra": [] },
+              "grdm-file:data-description-ja": { "value": "これはテスト用のREADMEファイルです。", "extra": [] },
+              "grdm-file:data-description-en": { "value": "This is a test README file.", "extra": [] },
+              "grdm-file:data-research-field": { "value": "001", "extra": [] },
+              "grdm-file:data-type": { "value": "dataset", "extra": [] },
+              "grdm-file:creators": {
+                "value": [
+                  { "number": "12345", "name_ja": "山田 太郎", "name_en": "Taro Yamada" }
+                ],
+                "extra": []
+              }
+            }
+          ]
+        },
+        {
+          "path": "osfstorage/data/",
+          "hash": null,
+          "folder": true,
+          "urlpath": "/uzdsn/files/osfstorage/data/",
+          "generated": false,
+          "items": []
+        }
+      ]
+    }
+  }
+}
