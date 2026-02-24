@@ -1,9 +1,9 @@
 # GakuNin RDM API TypeScript Client
 
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.9-blue.svg)](https://www.typescriptlang.org/)
-[![License: Apache-2.0](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
 [![CI](https://github.com/hirakinii/grdm-api-typescript/actions/workflows/ci.yml/badge.svg)](https://github.com/hirakinii/grdm-api-typescript/actions/workflows/ci.yml)
-[![npm](https://img.shields.io/npm/v/grdm-api-typescript.svg)](https://www.npmjs.com/package/grdm-api-typescript)
+[![npm version](https://badge.fury.io/js/@hirakinii-packages%2Fgrdm-api-typescript.svg)](https://badge.fury.io/js/@hirakinii-packages%2Fgrdm-api-typescript)
+[![License: Apache-2.0](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
 
 TypeScript client library for the [GakuNin RDM](https://support.rdm.nii.ac.jp/en/) API.
 
