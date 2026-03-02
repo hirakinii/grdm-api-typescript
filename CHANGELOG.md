@@ -5,7 +5,13 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [0.1.4] - 2026-02-25
+## [0.1.2] - 2026-03-02
+
+### Fixed
+
+- Fixed ESM build error where directory-based imports (e.g. `./types`, `./resources`, `./utils`) were incorrectly resolved as `./types.js` instead of `./types/index.js`. Updated `scripts/fix-esm-imports.mjs` to distinguish between file and directory paths when appending `.js` extensions.
+
+## [0.1.1] - 2026-02-25
 
 ### Changed
 
@@ -35,4 +41,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - `list_all_projects.ts` — paginated listing of all accessible projects using three `PaginatedResult` patterns.
   - `examples/README.md` — usage instructions and environment variable reference for each example.
 
+[0.1.2]: https://github.com/hirakinii/grdm-api-typescript/releases/tag/v0.1.2
+[0.1.1]: https://github.com/hirakinii/grdm-api-typescript/releases/tag/v0.1.1
 [0.1.0]: https://github.com/hirakinii/grdm-api-typescript/releases/tag/v0.1.0
