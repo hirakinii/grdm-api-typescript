@@ -1,7 +1,7 @@
 {
   "name": "@hirakinii-packages/grdm-api-typescript",
-  "version": "0.1.1",
-  "description": "",
+  "version": "0.1.2",
+  "description": "GakuNin RDM API TypeScript client library built on top of osf-api-v2-typescript. Provides access to all 22 OSF API v2 resources plus GRDM-specific metadata endpoints for project and file metadata management.",
   "main": "./dist/cjs/index.js",
   "module": "./dist/esm/index.js",
   "types": "./dist/cjs/index.d.ts",
@@ -32,7 +32,8 @@
     "prepack": "npm run build",
     "type-check": "tsc -b",
     "lint": "eslint '{src,examples}/**/*.{ts,tsx}'",
-    "format": "prettier --write '{src,examples}/**/*.{ts,tsx}'"
+    "format": "prettier --write '{src,examples}/**/*.{ts,tsx}'",
+    "prepublishOnly": "npm run format && npm run lint && npm run type-check && npm run build && npm run test"
   },
   "repository": {
     "type": "git",

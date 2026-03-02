@@ -6,8 +6,8 @@
  * compiled .js files in dist/esm/ to add .js extensions.
  */
 
-import { readFileSync, writeFileSync, readdirSync, statSync } from 'fs';
-import { join, extname } from 'path';
+import { readFileSync, writeFileSync, readdirSync, statSync, existsSync } from 'fs';
+import { join, extname, resolve, dirname } from 'path';
 
 /**
  * Recursively fix relative imports in all .js files under the given directory.
@@ -31,6 +31,10 @@ function fixImports(dir) {
         /((?:import|export)[^'"]*['"])(\.{1,2}\/[^'"]*?)(["'])/g,
         (_match, prefix, importPath, suffix) => {
           if (extname(importPath) === '') {
+            const resolvedPath = resolve(dirname(fullPath), importPath);
+            if (existsSync(resolvedPath) && statSync(resolvedPath).isDirectory()) {
+              return `${prefix}${importPath}/index.js${suffix}`;
+            }
             return `${prefix}${importPath}.js${suffix}`;
           }
           return `${prefix}${importPath}${suffix}`;
