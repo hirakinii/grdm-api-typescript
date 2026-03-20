@@ -45,6 +45,50 @@ GRDM_TOKEN=<your-token> GRDM_NODE_ID=<node-id> npx ts-node examples/fetch_projec
 
 ---
 
+### [file_operations.ts](./file_operations.ts)
+
+**`GrdmClient` を使ったファイル操作を一通り示すサンプルです。**
+
+- ストレージプロバイダの一覧取得 (`client.files.listProviders()`)
+- ルートレベルのファイル一覧 (`client.files.listByNode()`)
+- サブフォルダの内容取得（一括） (`client.grdmFiles.listByPath()`)
+- サブフォルダの内容取得（ページネーション） (`client.grdmFiles.listByPathPaginated()`)
+- ファイルのダウンロード (`client.files.download()`)
+- 新規ファイルのアップロード → 更新 → 削除 (`client.files.uploadNew()` / `upload()` / `deleteFile()`)
+
+```bash
+GRDM_TOKEN=<your-token> npx ts-node examples/file_operations.ts [nodeId]
+```
+
+| 環境変数 | 必須 | 説明 |
+|---|---|---|
+| `GRDM_TOKEN` | ✅ | パーソナルアクセストークン |
+| `GRDM_BASE_URL` | - | v2 API のベース URL（デフォルト: `https://api.rdm.nii.ac.jp/v2/`） |
+
+`nodeId` を省略した場合は、認証ユーザーの最初のプロジェクトが自動的に選択されます。
+
+---
+
+### [nodes_management.ts](./nodes_management.ts)
+
+**ノード（プロジェクト）の作成・取得・更新を示すサンプルです。**
+
+> ⚠️ このサンプルはお使いのアカウントに実際のプロジェクトを作成します。
+
+- プロジェクトの新規作成 (`client.nodes.create()`)
+- プロジェクト情報の更新 (`client.nodes.update()`)
+- プロジェクトの取得・確認 (`client.nodes.getById()`)
+
+```bash
+GRDM_TOKEN=<your-token> npx ts-node examples/nodes_management.ts
+```
+
+| 環境変数 | 必須 | 説明 |
+|---|---|---|
+| `GRDM_TOKEN` | ✅ | パーソナルアクセストークン |
+
+---
+
 ### [list_all_projects.ts](./list_all_projects.ts)
 
 **ページネーションを使って、認証ユーザーがアクセスできる全プロジェクトを取得するサンプルです。**

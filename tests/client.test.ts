@@ -3,6 +3,7 @@ import { GrdmClientConfig } from '../src/types/config';
 import { GrdmClient } from '../src/client';
 import { ProjectMetadata } from '../src/resources/ProjectMetadata';
 import { FileMetadata } from '../src/resources/FileMetadata';
+import { GrdmFiles } from '../src/resources/GrdmFiles';
 
 describe('GrdmClientConfig', () => {
   it('should allow optional baseUrl and v1BaseUrl', () => {
@@ -81,6 +82,16 @@ describe('GrdmClient', () => {
       expect(first).toBe(second);
     });
 
+    it('should expose grdmFiles as a GrdmFiles instance', () => {
+      expect(client.grdmFiles).toBeInstanceOf(GrdmFiles);
+    });
+
+    it('should return the same grdmFiles instance on repeated access (lazy init)', () => {
+      const first = client.grdmFiles;
+      const second = client.grdmFiles;
+      expect(first).toBe(second);
+    });
+
     it('should expose inherited OsfClient nodes resource', () => {
       expect(client.nodes).toBeDefined();
     });
@@ -134,6 +145,24 @@ describe('GrdmClient', () => {
       expect(fetchMock).toHaveBeenCalledTimes(1);
       const calledUrl = fetchMock.mock.calls[0][0] as string;
       expect(calledUrl).toContain('nodes/node123/registrations/');
+    });
+  });
+
+  describe('grdmFiles integration', () => {
+    it('should call the correct v2 endpoint for listByPath', async () => {
+      fetchMock.mockResponseOnce(
+        JSON.stringify({
+          data: [],
+          links: { self: '', first: null, last: null, prev: null, next: null },
+          meta: { total: 0, per_page: 10 },
+        }),
+      );
+
+      const client = new GrdmClient({ token: 'test-token' });
+      await client.grdmFiles.listByPath('node123', 'osfstorage', '/abc123/');
+
+      const calledUrl = fetchMock.mock.calls[0][0] as string;
+      expect(calledUrl).toContain('nodes/node123/files/osfstorage/abc123/');
     });
   });
 
