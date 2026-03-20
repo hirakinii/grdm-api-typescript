@@ -2,6 +2,7 @@ import { OsfClient } from 'osf-api-v2-typescript';
 import { GrdmClientConfig } from './types/config';
 import { ProjectMetadata } from './resources/ProjectMetadata';
 import { FileMetadata } from './resources/FileMetadata';
+import { GrdmFiles } from './resources/GrdmFiles';
 import { inferV1BaseUrl } from './utils/url';
 
 /**
@@ -25,6 +26,7 @@ export class GrdmClient extends OsfClient {
 
   private _projectMetadata?: ProjectMetadata;
   private _fileMetadata?: FileMetadata;
+  private _grdmFiles?: GrdmFiles;
 
   /**
    * Create a new GrdmClient
@@ -64,5 +66,19 @@ export class GrdmClient extends OsfClient {
       this._fileMetadata = new FileMetadata(this.httpClient, this.v1BaseUrl);
     }
     return this._fileMetadata;
+  }
+
+  /**
+   * Access the GrdmFiles resource (GRDM v2 Files API)
+   *
+   * Provides methods for listing files and navigating subfolders within
+   * a node's storage provider, including lazy-load subfolder expansion
+   * via listByPath() and listByPathPaginated().
+   */
+  get grdmFiles(): GrdmFiles {
+    if (!this._grdmFiles) {
+      this._grdmFiles = new GrdmFiles(this.httpClient);
+    }
+    return this._grdmFiles;
   }
 }
