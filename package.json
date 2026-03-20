@@ -58,7 +58,7 @@
   },
   "homepage": "https://github.com/hirakinii/grdm-api-typescript#readme",
   "dependencies": {
-    "osf-api-v2-typescript": "^0.4.2"
+    "osf-api-v2-typescript": "^0.4.4"
   },
   "devDependencies": {
     "@types/jest": "^30.0.0",
