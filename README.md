@@ -15,6 +15,7 @@ The GakuNin RDM API follows the [Open Science Framework (OSF) API v2](https://de
 - Full access to all 22 OSF API v2 resources (inherited from `OsfClient`)
 - GRDM project metadata retrieval via v2 API (`projectMetadata`)
 - GRDM file metadata retrieval via v1 API (`fileMetadata`)
+- Subfolder navigation via `grdmFiles.listByPath()` and `grdmFiles.listByPathPaginated()`
 - Automatic `v1BaseUrl` inference from `baseUrl`
 - Automatic unwrapping of `registered_meta` `{ value, extra }` wrappers
 - Automatic parsing of `grdm-files` JSON strings into typed objects
@@ -161,6 +162,41 @@ if (schema) {
 
 ---
 
+### `client.grdmFiles`
+
+Subfolder navigation within a node's storage provider (v2 Files API).
+
+#### `listByPath(nodeId, provider, folderPath, params?)`
+
+Lists files and folders inside a specific subfolder. The leading `/` in `folderPath` is stripped automatically.
+
+```typescript
+// List files inside the subfolder at path '/abc123/'
+const result = await client.grdmFiles.listByPath('abc12', 'osfstorage', '/abc123/');
+
+for (const item of result.data) {
+  console.log(item.kind, item.name);  // 'file' | 'folder'
+}
+```
+
+#### `listByPathPaginated(nodeId, provider, folderPath, params?)`
+
+Same as `listByPath` but returns a `PaginatedResult` for automatic multi-page iteration.
+
+```typescript
+const paged = await client.grdmFiles.listByPathPaginated('abc12', 'osfstorage', '/abc123/');
+
+// Iterate over every item across all pages
+for await (const item of paged.items()) {
+  console.log(item.name);
+}
+
+// Or collect everything at once
+const all = await paged.toArray();
+```
+
+---
+
 ### OSF Resources (inherited)
 
 All 22 OSF API v2 resources from `OsfClient` are available directly on `GrdmClient`:
@@ -188,6 +224,7 @@ The [`examples/`](./examples/) directory contains sample scripts demonstrating c
 | [`basic_usage.ts`](./examples/basic_usage.ts) | Basic operations: user info, node list, project metadata, file metadata |
 | [`fetch_project_and_file_metadata.ts`](./examples/fetch_project_and_file_metadata.ts) | Detailed project and file metadata retrieval for a specific node |
 | [`list_all_projects.ts`](./examples/list_all_projects.ts) | Paginated listing of all accessible projects using `PaginatedResult` |
+| [`file_operations.ts`](./examples/file_operations.ts) | File listing, subfolder navigation, download, upload, update, and delete |
 
 Run examples with `ts-node`:
 
@@ -200,6 +237,9 @@ GRDM_TOKEN=<your-token> GRDM_NODE_ID=<node-id> npx ts-node examples/fetch_projec
 
 # List all projects
 GRDM_TOKEN=<your-token> npx ts-node examples/list_all_projects.ts
+
+# File operations (optionally pass a nodeId)
+GRDM_TOKEN=<your-token> npx ts-node examples/file_operations.ts [nodeId]
 ```
 
 See [`examples/README.md`](./examples/README.md) for details on each example and available environment variables.
