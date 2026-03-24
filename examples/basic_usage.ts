@@ -94,7 +94,7 @@ async function main() {
         console.log(`Found ${files.length} file(s) with metadata:`);
         files.forEach((file) => {
           const activeSchema = file.items?.find((item) => item.active);
-          const titleJa = activeSchema?.['grdm-file:title-ja']?.value ?? '(no title)';
+          const titleJa = activeSchema?.data['grdm-file:title-ja']?.value ?? '(no title)';
           console.log(`- ${file.path}  [schema: ${activeSchema?.schema ?? 'none'}]  ${titleJa}`);
         });
       }

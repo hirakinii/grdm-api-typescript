@@ -94,15 +94,17 @@ async function main(): Promise<void> {
       if (activeSchema) {
         console.log(`Schema  : ${activeSchema.schema}`);
 
-        const titleJa = activeSchema['grdm-file:title-ja']?.value;
-        const titleEn = activeSchema['grdm-file:title-en']?.value;
-        const dataType = activeSchema['grdm-file:data-type']?.value;
-        const accessRights = activeSchema['grdm-file:access-rights']?.value;
-        const creators = activeSchema['grdm-file:creators']?.value;
+        const titleJa = activeSchema.data['grdm-file:title-ja']?.value;
+        const titleEn = activeSchema.data['grdm-file:title-en']?.value;
+        const dataType = activeSchema.data['grdm-file:data-type']?.value;
+        const dataResearchField = activeSchema.data['grdm-file:data-research-field']?.value;
+        const accessRights = activeSchema.data['grdm-file:access-rights']?.value;
+        const creators = activeSchema.data['grdm-file:creators']?.value;
 
         if (titleJa) console.log(`Title (JA)     : ${titleJa}`);
         if (titleEn) console.log(`Title (EN)     : ${titleEn}`);
         if (dataType) console.log(`Data Type      : ${dataType}`);
+        if (dataResearchField) console.log(`Data Research Field: ${dataResearchField}`);
         if (accessRights) console.log(`Access Rights  : ${accessRights}`);
         if (Array.isArray(creators) && creators.length > 0) {
           console.log(`Creators:`);
