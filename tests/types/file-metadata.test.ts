@@ -1,4 +1,4 @@
-import { GrdmFileMetadataResponse } from '../../src/types/file-metadata';
+import { GrdmFileMetadataResponse, GrdmFileMetadataSchema } from '../../src/types/file-metadata';
 import { GrdmCreator } from '../../src/types/project-metadata';
 
 describe('FileMetadata Types', () => {
@@ -23,15 +23,17 @@ describe('FileMetadata Types', () => {
                 {
                   schema: 'schema_id',
                   active: true,
-                  'grdm-file:title-ja': {
-                    value: 'タイトル',
-                    extra: []
-                  },
-                  'grdm-file:creators': {
-                    value: [
-                      { number: '123', nameJa: '氏名', nameEn: 'Name' }
-                    ],
-                    extra: []
+                  data: {
+                    'grdm-file:title-ja': {
+                      value: 'タイトル',
+                      extra: []
+                    },
+                    'grdm-file:creators': {
+                      value: [
+                        { number: '123', nameJa: '氏名', nameEn: 'Name' }
+                      ],
+                      extra: []
+                    }
                   }
                 }
               ]
@@ -43,8 +45,19 @@ describe('FileMetadata Types', () => {
     expect(response.data.id).toBe('project_id');
     const file = response.data.attributes.files[0];
     expect(file.path).toBe('osfstorage/README.md');
-    expect(file.items[0]['grdm-file:title-ja']?.value).toBe('タイトル');
-    const creators = file.items[0]['grdm-file:creators']?.value as GrdmCreator[];
+    expect(file.items[0].data['grdm-file:title-ja']?.value).toBe('タイトル');
+    const creators = file.items[0].data['grdm-file:creators']?.value as GrdmCreator[];
     expect(creators[0].nameJa).toBe('氏名');
+  });
+
+  it('reads metadata fields from the data property', () => {
+    const schema: GrdmFileMetadataSchema = {
+      schema: 'some-schema-id',
+      active: true,
+      data: {
+        'grdm-file:title-ja': { value: 'Test Title', extra: [], comments: [] },
+      },
+    };
+    expect(schema.data['grdm-file:title-ja']?.value).toBe('Test Title');
   });
 });

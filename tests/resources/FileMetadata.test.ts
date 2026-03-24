@@ -62,7 +62,7 @@ describe('FileMetadata Resource (v1 API)', () => {
       expect(metadata).toBeDefined();
       expect(metadata?.schema).toBe('grdm-file-metadata-schema');
       expect(metadata?.active).toBe(true);
-      expect(metadata?.['grdm-file:data-number']).toEqual({ value: 'D001', extra: [] });
+      expect(metadata?.data['grdm-file:data-number']).toEqual({ value: 'D001', extra: [] });
     });
 
     it('should return undefined if no active metadata exists', async () => {
