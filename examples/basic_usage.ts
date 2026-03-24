@@ -37,6 +37,21 @@ async function main() {
     console.log(`Profile URL: ${me.links?.html}`);
     console.log('--------------------');
 
+    // 2-1. Get the users
+    const family_name: string = '田中';
+    console.log(`Fetching users with family name '${family_name}'...`);
+    const users = await client.users.listUsers({ 'filter[family_name]': family_name });
+    if (users.data.length > 0) {
+      const user = users.data[0];
+      console.log("--- The first specific user's profile ---");
+      console.log(`ID: ${user.id}`);
+      console.log(`Name: ${user.full_name}`);
+      console.log(`Active: ${user.active}`);
+      console.log(`Locale: ${user.locale || 'Not specified'}`);
+      console.log(`Profile URL: ${user.links?.html}`);
+      console.log('--------------------');
+    }
+
     // 3. List nodes in which the user is a contributor
     console.log('\nFetching nodes in which you are engaged as a contributor...');
     const myNodes = await client.nodes.listNodes({
@@ -79,7 +94,7 @@ async function main() {
         console.log(`Found ${files.length} file(s) with metadata:`);
         files.forEach((file) => {
           const activeSchema = file.items?.find((item) => item.active);
-          const titleJa = activeSchema?.['grdm-file:title-ja']?.value ?? '(no title)';
+          const titleJa = activeSchema?.data['grdm-file:title-ja']?.value ?? '(no title)';
           console.log(`- ${file.path}  [schema: ${activeSchema?.schema ?? 'none'}]  ${titleJa}`);
         });
       }

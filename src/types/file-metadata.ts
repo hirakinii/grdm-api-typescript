@@ -30,12 +30,20 @@ export interface GrdmFileItem {
 
 /**
  * A metadata schema associated with a file item.
- * Contains the actual metadata fields.
+ * The metadata fields are nested under the `data` property,
+ * matching the actual GRDM v1 API response structure.
  * Based on Section 5.2 of the specification.
  */
-export interface GrdmFileMetadataSchema extends Record<string, unknown> {
+export interface GrdmFileMetadataSchema {
   schema: string;
   active: boolean;
+  data: GrdmFileMetadataFields;
+}
+
+/**
+ * The set of metadata fields nested under `data` in a GrdmFileMetadataSchema.
+ */
+export interface GrdmFileMetadataFields {
   'grdm-file:data-number'?: GrdmFileMetadataField;
   'grdm-file:title-ja'?: GrdmFileMetadataField;
   'grdm-file:title-en'?: GrdmFileMetadataField;
