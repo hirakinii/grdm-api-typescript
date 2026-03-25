@@ -91,22 +91,6 @@ export class ProjectMetadata extends BaseResource {
     return files.map((file) => {
       const metadata = { ...(file.metadata as Record<string, GrdmFileMetadataField>) };
 
-      // Convert creators if present
-      const creatorField = metadata['grdm-file:creators'];
-      if (creatorField?.value) {
-        const creators = creatorField.value;
-        if (Array.isArray(creators)) {
-          creatorField.value = creators.map((c: unknown) => {
-            const creator = c as Record<string, unknown>;
-            return {
-              number: (creator.number as string) || null,
-              nameJa: (creator.name_ja as string) || null,
-              nameEn: (creator.name_en as string) || null,
-            };
-          });
-        }
-      }
-
       return {
         path: file.path as string,
         urlpath: file.urlpath as string,

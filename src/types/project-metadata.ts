@@ -47,6 +47,6 @@ export interface GrdmFileMetadataField {
  */
 export interface GrdmCreator {
   number: string | null;
-  nameJa: string | null;
-  nameEn: string | null;
+  name_ja: string | null;
+  name_en: string | null;
 }

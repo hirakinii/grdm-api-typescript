@@ -25,7 +25,7 @@ describe('ProjectMetadata Types', () => {
 
   it('should allow creators in metadata', () => {
     const creators: GrdmCreator[] = [
-      { number: '123', nameJa: '氏名', nameEn: 'Name' }
+      { number: '123', name_ja: '氏名', name_en: 'Name' }
     ];
     const file: GrdmRegisteredFile = {
       path: 'test',
@@ -43,9 +43,9 @@ describe('ProjectMetadata Types', () => {
   it('should allow valid GrdmCreator object', () => {
     const creator: GrdmCreator = {
       number: '12345',
-      nameJa: '山田 太郎',
-      nameEn: 'Taro Yamada'
+      name_ja: '山田 太郎',
+      name_en: 'Taro Yamada'
     };
-    expect(creator.nameJa).toBe('山田 太郎');
+    expect(creator.name_ja).toBe('山田 太郎');
   });
 });

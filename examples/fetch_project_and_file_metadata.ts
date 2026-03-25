@@ -109,8 +109,8 @@ async function main(): Promise<void> {
         if (Array.isArray(creators) && creators.length > 0) {
           console.log(`Creators:`);
           for (const creator of creators) {
-            const c = creator as { nameJa?: string; nameEn?: string; number?: string };
-            console.log(`  - [${c.number ?? '?'}] ${c.nameJa ?? ''} / ${c.nameEn ?? ''}`);
+            const c = creator as { name_ja?: string; name_en?: string; number?: string };
+            console.log(`  - [${c.number ?? '?'}] ${c.name_ja ?? ''} / ${c.name_en ?? ''}`);
           }
         }
       } else {
