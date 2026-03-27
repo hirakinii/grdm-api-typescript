@@ -181,50 +181,70 @@ All metadata fields (except `creators`) follow this wrapper structure:
 
 | API Key | TypeScript Property | Type | Description |
 |---------|-------------------|------|-------------|
-| `grdm-file:data-number` | `dataNumber` | `string` | Data identifier |
-| `grdm-file:title-ja` | `titleJa` | `string` | Title in Japanese |
-| `grdm-file:title-en` | `titleEn` | `string` | Title in English |
-| `grdm-file:date-issued-updated` | `dateIssuedUpdated` | `string` | Date issued or last updated (ISO 8601 date) |
-| `grdm-file:data-description-ja` | `dataDescriptionJa` | `string` | Description in Japanese |
-| `grdm-file:data-description-en` | `dataDescriptionEn` | `string` | Description in English |
+| `grdm-file:file-type` | `file-type` | `string` | File type identifier (e.g., `"dataset"`, `"manuscript"`) |
+| `grdm-file:data-number` | `data-number` | `string` | Data identifier |
+| `grdm-file:doi` | `doi` | `string` | DOI of the file |
+| `grdm-file:title-ja` | `title-ja` | `string` | Title in Japanese |
+| `grdm-file:title-en` | `title-en` | `string` | Title in English |
+| `grdm-file:authors` | `authors` | `string` | Author(s) |
+| `grdm-file:date-issued-updated` | `date-issued-updated` | `string` | Date issued or last updated (ISO 8601 date) |
+| `grdm-file:data-description-ja` | `data-description-ja` | `string` | Description in Japanese |
+| `grdm-file:data-description-en` | `data-description-en` | `string` | Description in English |
 
 #### Classification
 
 | API Key | TypeScript Property | Type | Description |
 |---------|-------------------|------|-------------|
-| `grdm-file:data-research-field` | `dataResearchField` | `string` | Research field code |
-| `grdm-file:data-type` | `dataType` | `string` | Data type (e.g., "dataset", "laboratory notebook") |
+| `grdm-file:data-research-field` | `data-research-field` | `string` | Research field code |
+| `grdm-file:data-type` | `data-type` | `string` | Data type (e.g., "dataset", "laboratory notebook") |
 
 #### Size
 
 | API Key | TypeScript Property | Type | Description |
 |---------|-------------------|------|-------------|
-| `grdm-file:file-size` | `fileSize` | `string` | File size as human-readable string (e.g., "1.8KB") |
+| `grdm-file:file-size` | `file-size` | `string` | File size as human-readable string (e.g., "1.8KB") |
 
 #### Policy
 
 | API Key | TypeScript Property | Type | Description |
 |---------|-------------------|------|-------------|
-| `grdm-file:data-policy-free` | `dataPolicyFree` | `string` | Free/restricted indicator |
-| `grdm-file:data-policy-license` | `dataPolicyLicense` | `string` | License (e.g., "Apache2", "GPL3", "OTHER") |
-| `grdm-file:data-policy-cite-ja` | `dataPolicyCiteJa` | `string` | Usage/provision policy in Japanese |
-| `grdm-file:data-policy-cite-en` | `dataPolicyCiteEn` | `string` | Usage/provision policy in English |
+| `grdm-file:data-policy-free` | `data-policy-free` | `string` | Free/restricted indicator |
+| `grdm-file:data-policy-license` | `data-policy-license` | `string` | License (e.g., "Apache2", "GPL3", "OTHER") |
+| `grdm-file:data-policy-cite-ja` | `data-policy-cite-ja` | `string` | Usage/provision policy in Japanese |
+| `grdm-file:data-policy-cite-en` | `data-policy-cite-en` | `string` | Usage/provision policy in English |
 
 #### Access
 
 | API Key | TypeScript Property | Type | Description |
 |---------|-------------------|------|-------------|
-| `grdm-file:access-rights` | `accessRights` | `string` | Access rights (e.g., "open access", "metadata only access") |
-| `grdm-file:available-date` | `availableDate` | `string` | Date when data becomes available (ISO 8601 date) |
-| `grdm-file:metadata-access-rights` | `metadataAccessRights` | `string` | Metadata access rights (e.g., "open access", "closed access") |
+| `grdm-file:access-rights` | `access-rights` | `string` | Access rights (e.g., "open access", "metadata only access") |
+| `grdm-file:available-date` | `available-date` | `string` | Date when data becomes available (ISO 8601 date) |
+| `grdm-file:metadata-access-rights` | `metadata-access-rights` | `string` | Metadata access rights (e.g., "open access", "closed access") |
 
 #### Repository
 
 | API Key | TypeScript Property | Type | Description |
 |---------|-------------------|------|-------------|
-| `grdm-file:repo-information-ja` | `repoInformationJa` | `string` | Repository information in Japanese |
-| `grdm-file:repo-information-en` | `repoInformationEn` | `string` | Repository information in English |
-| `grdm-file:repo-url-doi-link` | `repoUrlDoiLink` | `string` | Repository URL or DOI link |
+| `grdm-file:repo-information-ja` | `repo-information-ja` | `string` | Repository information in Japanese |
+| `grdm-file:repo-information-en` | `repo-information-en` | `string` | Repository information in English |
+| `grdm-file:repo-url-doi-link` | `repo-url-doi-link` | `string` | Repository URL or DOI link |
+| `grdm-file:publication-link` | `publication-link` | `string` | Publication link URL |
+| `grdm-file:dataset-link` | `dataset-link` | `string` | Dataset link URL |
+
+#### Manuscript (when `grdm-file:file-type` is `"manuscript"`)
+
+| API Key | TypeScript Property | Type | Description |
+|---------|-------------------|------|-------------|
+| `grdm-file:manuscript-type` | `manuscript-type` | `string` | Manuscript type |
+| `grdm-file:journal-name-ja` | `journal-name-ja` | `string` | Journal name in Japanese |
+| `grdm-file:journal-name-en` | `journal-name-en` | `string` | Journal name in English |
+| `grdm-file:date-published` | `date-published` | `string` | Publication date (ISO 8601 date) |
+| `grdm-file:volume` | `volume` | `string` | Journal volume |
+| `grdm-file:issue` | `issue` | `string` | Journal issue |
+| `grdm-file:page-start` | `page-start` | `string` | Start page |
+| `grdm-file:page-end` | `page-end` | `string` | End page |
+| `grdm-file:reviewed` | `reviewed` | `string` | Whether the manuscript was peer-reviewed |
+| `grdm-file:version` | `version` | `string` | Manuscript version |
 
 #### Creators
 
@@ -237,8 +257,8 @@ All metadata fields (except `creators`) follow this wrapper structure:
 | Property | Type | Description |
 |----------|------|-------------|
 | `number` | `string \| null` | Creator identifier (e.g., researcher number) |
-| `nameJa` | `string \| null` | Creator name in Japanese |
-| `nameEn` | `string \| null` | Creator name in English |
+| `name_ja` | `string \| null` | Creator name in Japanese |
+| `name_en` | `string \| null` | Creator name in English |
 
 #### Hosting Institution
 

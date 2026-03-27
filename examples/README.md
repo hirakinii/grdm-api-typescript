@@ -32,6 +32,7 @@ GRDM_TOKEN=<your-token> npx ts-node examples/basic_usage.ts
 
 - GRDM v2 API によるプロジェクトメタデータ（研究課題名・資金提供者・課題番号など）の取得
 - GRDM v1 API によるファイルメタデータ（タイトル・データ種別・アクセス権・作成者など）の取得
+- ファイル種別（`grdm-file:file-type`）が `"manuscript"` の場合、原稿固有フィールド（`reviewed`・`manuscript-type` など）の追加表示
 
 ```bash
 GRDM_TOKEN=<your-token> GRDM_NODE_ID=<node-id> npx ts-node examples/fetch_project_and_file_metadata.ts
