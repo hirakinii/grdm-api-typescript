@@ -23,6 +23,15 @@ describe('GrdmClientConfig', () => {
     expect(config.baseUrl).toBeUndefined();
     expect(config.v1BaseUrl).toBeUndefined();
   });
+
+  it('should accept a custom fetch function', () => {
+    const customFetch: typeof fetch = (url, init) => fetch(url, init);
+    const config: GrdmClientConfig = {
+      token: 'test-token',
+      fetch: customFetch,
+    };
+    expect(config.fetch).toBe(customFetch);
+  });
 });
 
 describe('GrdmClient', () => {
@@ -52,6 +61,16 @@ describe('GrdmClient', () => {
         v1BaseUrl: 'https://custom.example.com/api/v1',
       });
       expect(client.v1BaseUrl).toBe('https://custom.example.com/api/v1');
+    });
+
+    it('should accept a relative v1BaseUrl when custom fetch is provided', () => {
+      const customFetch: typeof fetch = jest.fn();
+      const client = new GrdmClient({
+        token: 'test-token',
+        v1BaseUrl: '/grdm-v1-api',
+        fetch: customFetch,
+      });
+      expect(client.v1BaseUrl).toBe('/grdm-v1-api');
     });
   });
 
@@ -188,6 +207,55 @@ describe('GrdmClient', () => {
       expect(fetchMock).toHaveBeenCalledTimes(1);
       const calledUrl = fetchMock.mock.calls[0][0] as string;
       expect(calledUrl).toContain('rdm.nii.ac.jp/api/v1/project/project123/metadata/project');
+    });
+
+    it('should use custom fetch when provided', async () => {
+      const responseBody = JSON.stringify({
+        data: {
+          id: 'project123',
+          type: 'file-metadata',
+          attributes: { editable: true, features: {}, files: [] },
+        },
+      });
+      const customFetch = jest.fn().mockResolvedValue({
+        ok: true,
+        json: () => Promise.resolve(JSON.parse(responseBody)),
+      });
+
+      const client = new GrdmClient({
+        token: 'test-token',
+        v1BaseUrl: '/grdm-v1-api',
+        fetch: customFetch as unknown as typeof fetch,
+      });
+      await client.fileMetadata.getByProject('project123');
+
+      expect(customFetch).toHaveBeenCalledTimes(1);
+      expect(fetchMock).not.toHaveBeenCalled();
+      const [calledUrl] = customFetch.mock.calls[0] as [string, RequestInit];
+      expect(calledUrl).toBe('/grdm-v1-api/project/project123/metadata/project');
+    });
+
+    it('should pass Authorization header to custom fetch', async () => {
+      const customFetch = jest.fn().mockResolvedValue({
+        ok: true,
+        json: () => Promise.resolve({
+          data: {
+            id: 'proj',
+            type: 'file-metadata',
+            attributes: { editable: true, features: {}, files: [] },
+          },
+        }),
+      });
+
+      const client = new GrdmClient({
+        token: 'my-secret-token',
+        v1BaseUrl: '/grdm-v1-api',
+        fetch: customFetch as unknown as typeof fetch,
+      });
+      await client.fileMetadata.getByProject('proj');
+
+      const [, init] = customFetch.mock.calls[0] as [string, RequestInit];
+      expect((init.headers as Record<string, string>)['Authorization']).toBe('Bearer my-secret-token');
     });
   });
 });

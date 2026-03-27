@@ -32,7 +32,8 @@ GrdmClient extends OsfClient
 │   └── fileMetadata     — via v1 metadata endpoint
 └── Configuration
     ├── baseUrl: 'https://api.rdm.nii.ac.jp/v2/' (default)
-    └── v1BaseUrl: auto-inferred or manually specified
+    ├── v1BaseUrl: auto-inferred or manually specified (relative path allowed when fetch is set)
+    └── fetch: optional custom fetch for v1 API requests (e.g. proxy URL rewriting)
 ```
 
 ### 2.3 Authentication
@@ -52,7 +53,8 @@ Extends `OsfClientConfig` with the following additional options:
 | Property | Type | Default | Description |
 |----------|------|---------|-------------|
 | `baseUrl` | `string` | `https://api.rdm.nii.ac.jp/v2/` | Base URL for v2 API |
-| `v1BaseUrl` | `string` | Auto-inferred from `baseUrl` | Base URL for v1 API (e.g., `https://rdm.nii.ac.jp/api/v1`) |
+| `v1BaseUrl` | `string` | Auto-inferred from `baseUrl` | Base URL for v1 API. May be a relative path (e.g. `/grdm-v1-api`) when `fetch` is also provided. |
+| `fetch` | `typeof fetch` | `undefined` | Custom fetch function for v1 API requests. Used to rewrite URLs for proxy-based CORS workarounds. Auth headers are injected by the library before this function is called. |
 
 ### 3.2 Base URL Inference
 
@@ -347,7 +349,28 @@ const metadata = await client.fileMetadata.getByProject('project_id');
 const registrations = await client.projectMetadata.listByNode('node_id');
 ```
 
-### 8.2 File Metadata (v1 API)
+### 8.2 File Metadata via Proxy (CORS workaround)
+
+```typescript
+// Rewrite v1 API requests to a local reverse proxy to avoid CORS errors in browsers.
+// The library attaches the Authorization header before calling this function.
+const grdmProxyFetch: typeof fetch = (input, init) => {
+  const url = (typeof input === 'string' ? input : input.toString())
+    .replace('https://rdm.nii.ac.jp/api/v1', '/grdm-v1-api');
+  return fetch(url, init);
+};
+
+const client = new GrdmClient({
+  token: 'your_personal_access_token',
+  v1BaseUrl: 'https://rdm.nii.ac.jp/api/v1',
+  fetch: grdmProxyFetch,
+});
+
+// All existing fileMetadata methods work unchanged
+const metadata = await client.fileMetadata.getByProject('project_id');
+```
+
+### 8.3 File Metadata (v1 API)
 
 ```typescript
 // Get all file metadata for a project

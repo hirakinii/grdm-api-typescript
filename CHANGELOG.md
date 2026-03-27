@@ -5,6 +5,14 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.4.0] - 2026-03-27
+
+### Added
+
+- `fetch` option in `GrdmClientConfig`: inject a custom fetch function for GRDM v1 API requests. Enables proxy-based CORS workarounds in browser frontends without bypassing authentication — the library attaches the `Authorization` header before calling the custom function.
+- `v1BaseUrl` now accepts relative paths (e.g. `/grdm-v1-api`) when a custom `fetch` is provided. Previously, only absolute URLs were accepted.
+- **Example** (`examples/file_metadata_via_proxy.ts`): demonstrates fetching file metadata through a local reverse proxy using the new `fetch` option.
+
 ## [0.3.0] - 2026-03-27
 
 ### Added
@@ -76,6 +84,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - `list_all_projects.ts` — paginated listing of all accessible projects using three `PaginatedResult` patterns.
   - `examples/README.md` — usage instructions and environment variable reference for each example.
 
+[0.4.0]: https://github.com/hirakinii/grdm-api-typescript/releases/tag/v0.4.0
 [0.3.0]: https://github.com/hirakinii/grdm-api-typescript/releases/tag/v0.3.0
 [0.2.0]: https://github.com/hirakinii/grdm-api-typescript/releases/tag/v0.2.0
 [0.1.2]: https://github.com/hirakinii/grdm-api-typescript/releases/tag/v0.1.2

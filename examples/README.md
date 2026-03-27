@@ -26,6 +26,52 @@ GRDM_TOKEN=<your-token> npx ts-node examples/basic_usage.ts
 
 ---
 
+### [file_metadata_via_proxy.ts](./file_metadata_via_proxy.ts)
+
+**ブラウザフロントエンドで発生する CORS エラーを、リバースプロキシ経由で回避しながらファイルメタデータを取得するサンプルです。**
+
+GRDM v1 API（`rdm.nii.ac.jp/api/v1`）はブラウザからの直接アクセスに CORS ヘッダを返さないため、フロントエンドからの呼び出しはブロックされます。
+`GrdmClient` の `fetch` オプションにカスタム関数を渡すことで、リクエスト直前に URL を書き換え（プロキシ経路にリダイレクト）できます。
+認証ヘッダはライブラリ側で自動付与されるため、カスタム関数は URL の置換のみを行います。
+
+```ts
+// カスタム fetch: v1 API の URL をローカルプロキシパスに書き換える
+const grdmProxyFetch: typeof fetch = (input, init) => {
+  const url = (typeof input === 'string' ? input : input.toString())
+    .replace('https://rdm.nii.ac.jp/api/v1', '/grdm-v1-api');
+  return fetch(url, init);
+};
+
+const client = new GrdmClient({
+  token,
+  v1BaseUrl: 'https://rdm.nii.ac.jp/api/v1',
+  fetch: grdmProxyFetch,
+});
+```
+
+プロキシ設定例（Next.js `next.config.js`）:
+
+```js
+rewrites: async () => [{
+  source: '/grdm-v1-api/:path*',
+  destination: 'https://rdm.nii.ac.jp/api/v1/:path*',
+}]
+```
+
+```bash
+GRDM_TOKEN=<your-token> GRDM_NODE_ID=<node-id> npx ts-node examples/file_metadata_via_proxy.ts
+```
+
+| 環境変数 | 必須 | 説明 |
+|---|---|---|
+| `GRDM_TOKEN` | ✅ | パーソナルアクセストークン |
+| `GRDM_NODE_ID` | ✅ | メタデータを取得するノード ID |
+| `GRDM_BASE_URL` | - | v2 API のベース URL（デフォルト: `https://api.rdm.nii.ac.jp/v2/`） |
+| `GRDM_V1_BASE_URL` | - | v1 API のベース URL（デフォルト: `https://rdm.nii.ac.jp/api/v1`） |
+| `GRDM_PROXY_PREFIX` | - | 置換先のプロキシパス（デフォルト: `/grdm-v1-api`） |
+
+---
+
 ### [fetch_project_and_file_metadata.ts](./fetch_project_and_file_metadata.ts)
 
 **指定したノードのプロジェクトメタデータとファイルメタデータを詳細に取得するサンプルです。**

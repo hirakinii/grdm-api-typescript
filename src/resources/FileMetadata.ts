@@ -9,11 +9,15 @@ export class FileMetadata {
    * Create a new FileMetadata resource instance
    *
    * @param httpClient - HTTP client from the OsfClient/GrdmClient
-   * @param v1BaseUrl - Base URL for the v1 API
+   * @param v1BaseUrl - Base URL for the v1 API (may be a relative path when customFetch is provided)
+   * @param customFetch - Optional custom fetch function; when provided, bypasses httpClient for v1 requests
+   * @param tokenProvider - Token provider used to add Authorization headers when customFetch is set
    */
   constructor(
     private readonly httpClient: HttpClient,
     private readonly v1BaseUrl: string,
+    private readonly customFetch?: typeof fetch,
+    private readonly tokenProvider?: () => string | Promise<string>,
   ) {}
 
   /**
@@ -24,6 +28,22 @@ export class FileMetadata {
   async getByProject(projectId: string): Promise<GrdmFileMetadataResponse> {
     const baseUrl = this.v1BaseUrl.replace(/\/$/, '');
     const endpoint = `${baseUrl}/project/${projectId}/metadata/project`;
+
+    if (this.customFetch && this.tokenProvider) {
+      const token = await this.tokenProvider();
+      const response = await this.customFetch(endpoint, {
+        method: 'GET',
+        headers: {
+          Authorization: `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        },
+      });
+      if (!response.ok) {
+        throw new Error(`HTTP Error ${response.status} ${response.statusText}`);
+      }
+      return response.json() as Promise<GrdmFileMetadataResponse>;
+    }
+
     return this.httpClient.get<GrdmFileMetadataResponse>(endpoint);
   }
 
