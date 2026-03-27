@@ -65,13 +65,13 @@ async function main() {
     });
 
     // 4. Fetch GRDM project metadata for the first node
-    let targetNodeId: string = "";
-    for (var i = 0; i < myNodes.data.length; i++) {
-      let srcNodeId: string = myNodes.data[i].id;
+    let targetNodeId: string = '';
+    for (let i = 0; i < myNodes.data.length; i++) {
+      const srcNodeId: string = myNodes.data[i].id;
       const projectMetadataList = await client.projectMetadata.listByNode(srcNodeId);
       if (projectMetadataList) {
         targetNodeId = srcNodeId;
-        break
+        break;
       }
     }
     if (!targetNodeId) targetNodeId = myNodes.data[0].id;
@@ -93,21 +93,22 @@ async function main() {
       }
 
       // 5. Fetch GRDM file metadata for the first node
-      targetNodeId = "";
-      for (var i = 0; i < myNodes.data.length; i++) {
-        let srcNodeId: string = myNodes.data[i].id;
+      targetNodeId = '';
+      for (let i = 0; i < myNodes.data.length; i++) {
+        const srcNodeId: string = myNodes.data[i].id;
         try {
           const fileMetadataResponse = await client.fileMetadata.getByProject(srcNodeId);
           const files = fileMetadataResponse.data.attributes.files;
           if (files.length === 0) {
             targetNodeId = srcNodeId;
-            break
+            break;
           }
+        } catch (error) {
+          console.log(`Error nodeId ${srcNodeId}: ${error}`);
         }
-        catch { }
         if (projectMetadataList) {
           targetNodeId = srcNodeId;
-          break
+          break;
         }
       }
       if (!targetNodeId) targetNodeId = myNodes.data[0].id;
