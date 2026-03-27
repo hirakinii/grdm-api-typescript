@@ -16,6 +16,7 @@ The GakuNin RDM API follows the [Open Science Framework (OSF) API v2](https://de
 - GRDM project metadata retrieval via v2 API (`projectMetadata`)
 - GRDM file metadata retrieval via v1 API (`fileMetadata`)
 - Subfolder navigation via `grdmFiles.listByPath()` and `grdmFiles.listByPathPaginated()`
+- Custom `fetch` injection for v1 API requests — enables proxy-based CORS workarounds in browser frontends
 - Automatic `v1BaseUrl` inference from `baseUrl`
 - Automatic unwrapping of `registered_meta` `{ value, extra }` wrappers
 - Automatic parsing of `grdm-files` JSON strings into typed objects
@@ -54,10 +55,11 @@ console.log(activeSchema);
 |---|---|---|---|
 | `token` | `string` | — | Personal access token for authentication |
 | `baseUrl` | `string` | `https://api.rdm.nii.ac.jp/v2/` | Base URL for the v2 API |
-| `v1BaseUrl` | `string` | Auto-inferred from `baseUrl` | Base URL for the v1 API |
+| `v1BaseUrl` | `string` | Auto-inferred from `baseUrl` | Base URL for the v1 API. May be a relative path when `fetch` is also provided. |
 | `allowedHosts` | `string[]` | — | Additional allowed hosts for HTTP requests |
+| `fetch` | `typeof fetch` | — | Custom fetch function for v1 API requests (e.g. for proxy-based CORS workarounds) |
 
-`v1BaseUrl` is automatically inferred from `baseUrl` when omitted. For example, `https://api.rdm.nii.ac.jp/v2/` becomes `https://api.rdm.nii.ac.jp/v1/`.
+`v1BaseUrl` is automatically inferred from `baseUrl` when omitted. For example, `https://api.rdm.nii.ac.jp/v2/` becomes `https://rdm.nii.ac.jp/api/v1`.
 
 ```typescript
 // Default (production)
@@ -67,14 +69,17 @@ const client = new GrdmClient({ token: 'your-token' });
 const client = new GrdmClient({
   token: 'your-token',
   baseUrl: 'https://staging.rdm.example.com/v2/',
-  // v1BaseUrl is auto-inferred as 'https://staging.rdm.example.com/v1/'
+  // v1BaseUrl is auto-inferred from baseUrl
 });
 
-// Explicit v1BaseUrl
+// Proxy-based CORS workaround (browser frontend)
+const grdmProxyFetch: typeof fetch = (input, init) =>
+  fetch((input as string).replace('https://rdm.nii.ac.jp/api/v1', '/grdm-v1-api'), init);
+
 const client = new GrdmClient({
   token: 'your-token',
-  baseUrl: 'https://api.rdm.nii.ac.jp/v2/',
-  v1BaseUrl: 'https://api.rdm.nii.ac.jp/v1/',
+  v1BaseUrl: 'https://rdm.nii.ac.jp/api/v1',
+  fetch: grdmProxyFetch,
 });
 ```
 
@@ -223,6 +228,7 @@ The [`examples/`](./examples/) directory contains sample scripts demonstrating c
 |---|---|
 | [`basic_usage.ts`](./examples/basic_usage.ts) | Basic operations: user info, node list, project metadata, file metadata |
 | [`fetch_project_and_file_metadata.ts`](./examples/fetch_project_and_file_metadata.ts) | Detailed project and file metadata retrieval for a specific node |
+| [`file_metadata_via_proxy.ts`](./examples/file_metadata_via_proxy.ts) | File metadata retrieval via a reverse proxy using custom `fetch` (CORS workaround) |
 | [`list_all_projects.ts`](./examples/list_all_projects.ts) | Paginated listing of all accessible projects using `PaginatedResult` |
 | [`file_operations.ts`](./examples/file_operations.ts) | File listing, subfolder navigation, download, upload, update, and delete |
 
@@ -234,6 +240,9 @@ GRDM_TOKEN=<your-token> npx ts-node examples/basic_usage.ts
 
 # Fetch metadata for a specific node
 GRDM_TOKEN=<your-token> GRDM_NODE_ID=<node-id> npx ts-node examples/fetch_project_and_file_metadata.ts
+
+# File metadata via proxy (CORS workaround)
+GRDM_TOKEN=<your-token> GRDM_NODE_ID=<node-id> npx ts-node examples/file_metadata_via_proxy.ts
 
 # List all projects
 GRDM_TOKEN=<your-token> npx ts-node examples/list_all_projects.ts
