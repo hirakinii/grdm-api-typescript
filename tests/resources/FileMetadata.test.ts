@@ -83,3 +83,98 @@ describe('FileMetadata Resource (v1 API)', () => {
     });
   });
 });
+
+describe('FileMetadata Resource — custom fetch injection', () => {
+  let httpClient: HttpClient;
+
+  beforeEach(() => {
+    httpClient = new HttpClient({
+      baseUrl: 'https://api.rdm.nii.ac.jp/v2/',
+      token: 'dummy-token',
+      allowedHosts: ['rdm.nii.ac.jp'],
+    });
+  });
+
+  it('should call custom fetch instead of httpClient when provided', async () => {
+    const customFetch = jest.fn().mockResolvedValue({
+      ok: true,
+      json: () => Promise.resolve(fileMetadataResponse),
+    });
+    const fm = new FileMetadata(
+      httpClient,
+      '/proxy-v1',
+      customFetch as unknown as typeof fetch,
+      () => 'proxy-token',
+    );
+
+    const result = await fm.getByProject('uzdsn');
+
+    expect(customFetch).toHaveBeenCalledTimes(1);
+    expect(result.data.id).toBe('uzdsn');
+  });
+
+  it('should call custom fetch with the correct URL', async () => {
+    const customFetch = jest.fn().mockResolvedValue({
+      ok: true,
+      json: () => Promise.resolve(fileMetadataResponse),
+    });
+    const fm = new FileMetadata(
+      httpClient,
+      '/proxy-v1',
+      customFetch as unknown as typeof fetch,
+      () => 'proxy-token',
+    );
+
+    await fm.getByProject('uzdsn');
+
+    const [calledUrl] = customFetch.mock.calls[0] as [string, RequestInit];
+    expect(calledUrl).toBe('/proxy-v1/project/uzdsn/metadata/project');
+  });
+
+  it('should include Authorization header in custom fetch call', async () => {
+    const customFetch = jest.fn().mockResolvedValue({
+      ok: true,
+      json: () => Promise.resolve(fileMetadataResponse),
+    });
+    const fm = new FileMetadata(
+      httpClient,
+      '/proxy-v1',
+      customFetch as unknown as typeof fetch,
+      () => 'my-token',
+    );
+
+    await fm.getByProject('uzdsn');
+
+    const [, init] = customFetch.mock.calls[0] as [string, RequestInit];
+    expect((init.headers as Record<string, string>)['Authorization']).toBe('Bearer my-token');
+  });
+
+  it('should support async tokenProvider with custom fetch', async () => {
+    const customFetch = jest.fn().mockResolvedValue({
+      ok: true,
+      json: () => Promise.resolve(fileMetadataResponse),
+    });
+    const fm = new FileMetadata(
+      httpClient,
+      '/proxy-v1',
+      customFetch as unknown as typeof fetch,
+      () => Promise.resolve('async-token'),
+    );
+
+    await fm.getByProject('uzdsn');
+
+    const [, init] = customFetch.mock.calls[0] as [string, RequestInit];
+    expect((init.headers as Record<string, string>)['Authorization']).toBe('Bearer async-token');
+  });
+
+  it('should fall back to httpClient when no custom fetch is provided', async () => {
+    fetchMock.resetMocks();
+    fetchMock.mockResponseOnce(JSON.stringify(fileMetadataResponse));
+
+    const fm = new FileMetadata(httpClient, 'https://rdm.nii.ac.jp/api/v1');
+    const result = await fm.getByProject('uzdsn');
+
+    expect(fetchMock).toHaveBeenCalledTimes(1);
+    expect(result.data.id).toBe('uzdsn');
+  });
+});

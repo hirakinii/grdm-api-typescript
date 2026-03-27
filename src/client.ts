@@ -21,12 +21,15 @@ import { inferV1BaseUrl } from './utils/url';
  * ```
  */
 export class GrdmClient extends OsfClient {
-  /** The v1 API base URL (auto-inferred or explicitly provided) */
+  /** The v1 API base URL (auto-inferred or explicitly provided; may be relative when customFetch is set) */
   readonly v1BaseUrl: string;
 
   private _projectMetadata?: ProjectMetadata;
   private _fileMetadata?: FileMetadata;
   private _grdmFiles?: GrdmFiles;
+
+  private readonly customFetch?: typeof fetch;
+  private readonly v1TokenProvider?: () => string | Promise<string>;
 
   /**
    * Create a new GrdmClient
@@ -36,11 +39,23 @@ export class GrdmClient extends OsfClient {
   constructor(config: GrdmClientConfig = {}) {
     const baseUrl = config.baseUrl ?? 'https://api.rdm.nii.ac.jp/v2/';
     const v1BaseUrl = config.v1BaseUrl ?? inferV1BaseUrl(baseUrl);
-    // Allow the v1 API host in addition to the v2 API host
-    const v1Host = new URL(v1BaseUrl).hostname;
-    const allowedHosts = [...(config.allowedHosts ?? []), v1Host];
+    // Only add v1 host to allowedHosts when v1BaseUrl is an absolute URL.
+    // A relative path (proxy route) does not require host allowlisting.
+    const allowedHosts = [...(config.allowedHosts ?? [])];
+    if (v1BaseUrl.startsWith('http')) {
+      allowedHosts.push(new URL(v1BaseUrl).hostname);
+    }
     super({ ...config, baseUrl, allowedHosts });
     this.v1BaseUrl = v1BaseUrl;
+    this.customFetch = config.fetch;
+    if (config.token) {
+      const token = config.token;
+      this.v1TokenProvider = () => token;
+    } else if (config.tokenProvider) {
+      this.v1TokenProvider = config.tokenProvider;
+    } else if (config.oauth2Client) {
+      this.v1TokenProvider = () => config.oauth2Client!.getAccessToken();
+    }
   }
 
   /**
@@ -63,7 +78,7 @@ export class GrdmClient extends OsfClient {
    */
   get fileMetadata(): FileMetadata {
     if (!this._fileMetadata) {
-      this._fileMetadata = new FileMetadata(this.httpClient, this.v1BaseUrl);
+      this._fileMetadata = new FileMetadata(this.httpClient, this.v1BaseUrl, this.customFetch, this.v1TokenProvider);
     }
     return this._fileMetadata;
   }
