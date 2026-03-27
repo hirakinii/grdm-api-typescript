@@ -65,10 +65,19 @@ async function main() {
     });
 
     // 4. Fetch GRDM project metadata for the first node
-    const firstNode = myNodes.data[0];
-    if (firstNode) {
-      console.log(`\n--- Project Metadata (node: ${firstNode.id}) ---`);
-      const projectMetadataList = await client.projectMetadata.listByNode(firstNode.id);
+    let targetNodeId: string = '';
+    for (let i = 0; i < myNodes.data.length; i++) {
+      const srcNodeId: string = myNodes.data[i].id;
+      const projectMetadataList = await client.projectMetadata.listByNode(srcNodeId);
+      if (projectMetadataList) {
+        targetNodeId = srcNodeId;
+        break;
+      }
+    }
+    if (!targetNodeId) targetNodeId = myNodes.data[0].id;
+    if (targetNodeId) {
+      console.log(`\n--- Project Metadata (node: ${targetNodeId}) ---`);
+      const projectMetadataList = await client.projectMetadata.listByNode(targetNodeId);
 
       if (projectMetadataList.data.length === 0) {
         console.log('No registrations found for this node.');
@@ -84,8 +93,27 @@ async function main() {
       }
 
       // 5. Fetch GRDM file metadata for the first node
-      console.log(`\n--- File Metadata (project: ${firstNode.id}) ---`);
-      const fileMetadataResponse = await client.fileMetadata.getByProject(firstNode.id);
+      targetNodeId = '';
+      for (let i = 0; i < myNodes.data.length; i++) {
+        const srcNodeId: string = myNodes.data[i].id;
+        try {
+          const fileMetadataResponse = await client.fileMetadata.getByProject(srcNodeId);
+          const files = fileMetadataResponse.data.attributes.files;
+          if (files.length === 0) {
+            targetNodeId = srcNodeId;
+            break;
+          }
+        } catch (error) {
+          console.log(`Error nodeId ${srcNodeId}: ${error}`);
+        }
+        if (projectMetadataList) {
+          targetNodeId = srcNodeId;
+          break;
+        }
+      }
+      if (!targetNodeId) targetNodeId = myNodes.data[0].id;
+      console.log(`\n--- File Metadata (project: ${targetNodeId}) ---`);
+      const fileMetadataResponse = await client.fileMetadata.getByProject(targetNodeId);
       const files = fileMetadataResponse.data.attributes.files;
 
       if (files.length === 0) {

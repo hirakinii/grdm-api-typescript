@@ -143,8 +143,8 @@ describe('ProjectMetadata Resource', () => {
       const file = result.data[0].grdmMeta?.grdmFiles?.[0];
       const creators = file?.metadata['grdm-file:creators']?.value as GrdmCreator[];
       expect(creators[0].number).toBeNull();
-      expect(creators[0].nameJa).toBeNull();
-      expect(creators[0].nameEn).toBeNull();
+      expect(creators[0].name_ja).toBeNull();
+      expect(creators[0].name_en).toBeNull();
     });
 
     it('should preserve non-array creator value as-is', async () => {

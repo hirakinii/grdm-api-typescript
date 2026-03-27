@@ -5,6 +5,31 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.3.0] - 2026-03-27
+
+### Added
+
+- New file metadata fields for manuscript support in `GrdmFileMetadataFields`:
+  - `grdm-file:file-type` — file type identifier (e.g., `"dataset"`, `"manuscript"`)
+  - `grdm-file:doi` — DOI of the file
+  - `grdm-file:manuscript-type` — manuscript type
+  - `grdm-file:authors` — author(s)
+  - `grdm-file:journal-name-ja` / `grdm-file:journal-name-en` — journal name
+  - `grdm-file:date-published` — publication date
+  - `grdm-file:volume` / `grdm-file:issue` — journal volume and issue
+  - `grdm-file:page-start` / `grdm-file:page-end` — page range
+  - `grdm-file:reviewed` — peer-review status
+  - `grdm-file:version` — manuscript version
+  - `grdm-file:publication-link` — publication URL
+  - `grdm-file:dataset-link` — dataset URL
+
+### Changed
+
+- **Breaking**: `GrdmCreator` property names changed from camelCase to snake_case to match the raw API response:
+  - `nameJa` → `name_ja`
+  - `nameEn` → `name_en`
+- Removed creator field conversion logic in `ProjectMetadata` — `GrdmCreator` objects are now returned as-is from the API without property renaming.
+
 ## [0.2.0] - 2026-03-20
 
 ### Added
@@ -51,6 +76,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - `list_all_projects.ts` — paginated listing of all accessible projects using three `PaginatedResult` patterns.
   - `examples/README.md` — usage instructions and environment variable reference for each example.
 
+[0.3.0]: https://github.com/hirakinii/grdm-api-typescript/releases/tag/v0.3.0
 [0.2.0]: https://github.com/hirakinii/grdm-api-typescript/releases/tag/v0.2.0
 [0.1.2]: https://github.com/hirakinii/grdm-api-typescript/releases/tag/v0.1.2
 [0.1.1]: https://github.com/hirakinii/grdm-api-typescript/releases/tag/v0.1.1
