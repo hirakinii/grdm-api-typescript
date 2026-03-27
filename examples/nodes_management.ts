@@ -47,9 +47,9 @@ async function main() {
     console.log(`Verified title: ${fetchedNode.title}`);
 
     // 4. Delete the project
-    // console.log(`\nDeleting project ${nodeId}...`);
-    // await client.nodes.deleteNode(nodeId);
-    // console.log('Project deleted successfully.');
+    console.log(`\nDeleting project ${nodeId}...`);
+    await client.nodes.deleteNode(nodeId);
+    console.log('Project deleted successfully.');
   } catch (error) {
     console.error('Operation failed:', error);
   }

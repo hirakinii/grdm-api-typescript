@@ -94,6 +94,7 @@ async function main(): Promise<void> {
       if (activeSchema) {
         console.log(`Schema  : ${activeSchema.schema}`);
 
+        const fileType = activeSchema.data['grdm-file:file-type']?.value;
         const titleJa = activeSchema.data['grdm-file:title-ja']?.value;
         const titleEn = activeSchema.data['grdm-file:title-en']?.value;
         const dataType = activeSchema.data['grdm-file:data-type']?.value;
@@ -101,6 +102,7 @@ async function main(): Promise<void> {
         const accessRights = activeSchema.data['grdm-file:access-rights']?.value;
         const creators = activeSchema.data['grdm-file:creators']?.value;
 
+        if (fileType) console.log(`File type      : ${fileType}`);
         if (titleJa) console.log(`Title (JA)     : ${titleJa}`);
         if (titleEn) console.log(`Title (EN)     : ${titleEn}`);
         if (dataType) console.log(`Data Type      : ${dataType}`);
@@ -112,6 +114,12 @@ async function main(): Promise<void> {
             const c = creator as { name_ja?: string; name_en?: string; number?: string };
             console.log(`  - [${c.number ?? '?'}] ${c.name_ja ?? ''} / ${c.name_en ?? ''}`);
           }
+        }
+        if (fileType && fileType === 'manuscript') {
+          const reviewed = activeSchema.data['grdm-file:reviewed']?.value;
+          const manuscriptType = activeSchema.data['grdm-file:manuscript-type']?.value;
+          console.log(`reviewed        : ${reviewed}`);
+          console.log(`Manuscript Type : ${manuscriptType}`);
         }
       } else {
         console.log('(No active metadata schema)');
