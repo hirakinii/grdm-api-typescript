@@ -72,13 +72,12 @@ GRDM_TOKEN=<your-token> GRDM_NODE_ID=<node-id> npx ts-node examples/file_metadat
 
 ---
 
-### [fetch_project_and_file_metadata.ts](./fetch_project_and_file_metadata.ts)
+### [fetch_grdm_file_metadata.ts](./fetch_grdm_file_metadata.ts)
 
-**指定したノードのプロジェクトメタデータとファイルメタデータを詳細に取得するサンプルです。**
+**指定したノードの GakuNin RDM 独自ファイルメタデータを詳細に取得するサンプルです。**
 
 スキーマ ID によるフィルタリングを行い、スキーマ①（公的資金）とスキーマ②（MS2 未病DB）それぞれのファイルメタデータを表示します。
 
-- GRDM v2 API によるプロジェクトメタデータ（研究課題名・資金提供者・課題番号など）の取得
 - GRDM v1 API によるスキーマ①ファイルメタデータ（タイトル・データ種別・アクセス権・作成者など）の取得
   - ファイル種別（`grdm-file:file-type`）が `"manuscript"` の場合、原稿固有フィールド（`reviewed`・`manuscript-type` など）の追加表示
 - GRDM v1 API によるスキーマ②ファイルメタデータ（計測対象・測定データ種別など）の取得
@@ -95,7 +94,40 @@ if (activeSchema?.schema === SCHEMA_ID_PUBLIC_FUNDING) {
 ```
 
 ```bash
-GRDM_TOKEN=<your-token> GRDM_NODE_ID=<node-id> npx ts-node examples/fetch_project_and_file_metadata.ts
+GRDM_TOKEN=<your-token> GRDM_NODE_ID=<node-id> npx ts-node examples/fetch_grdm_file_metadata.ts
+```
+
+| 環境変数 | 必須 | 説明 |
+|---|---|---|
+| `GRDM_TOKEN` | ✅ | パーソナルアクセストークン |
+| `GRDM_NODE_ID` | ✅ | メタデータを取得するノード ID |
+| `GRDM_BASE_URL` | - | v2 API のベース URL（デフォルト: `https://api.rdm.nii.ac.jp/v2/`） |
+
+---
+
+### [fetch_grdm_project_metadata.ts](./fetch_grdm_project_metadata.ts)
+
+**指定したノードの GakuNin RDM 独自プロジェクトメタデータを詳細に取得するサンプルです。**
+
+- GRDM v2 API によるプロジェクトメタデータ（registrations）の取得 — スキーマ①（公的資金）のみ
+- GRDM v2 API によるドラフト登録メタデータ（draft registrations）の取得 — スキーマ①・②の両方に対応
+  - `schemaType` discriminator によりスキーマに応じた表示を切り替え
+  - スキーマ①: 資金提供者・課題番号・研究分野などを表示
+  - スキーマ②（MS2 未病DB）: プロジェクト名・データセットタイトル・データ作成者・キーワードなどを表示
+
+```typescript
+// schemaType を使ってスキーマごとにフィールドを型安全にアクセスする例
+const meta = draft.grdmMeta;
+if (meta?.schemaType === 'public-funding') {
+  console.log(meta.funder);
+} else if (meta?.schemaType === 'ms2-mibyodb') {
+  console.log(meta.projectName);
+  console.log(meta.dataCreators?.[0].nameEn);
+}
+```
+
+```bash
+GRDM_TOKEN=<your-token> GRDM_NODE_ID=<node-id> npx ts-node examples/fetch_grdm_project_metadata.ts
 ```
 
 | 環境変数 | 必須 | 説明 |

@@ -1,6 +1,7 @@
 import { OsfClient } from 'osf-api-v2-typescript';
 import { GrdmClientConfig } from './types/config';
 import { ProjectMetadata } from './resources/ProjectMetadata';
+import { DraftProjectMetadata } from './resources/DraftProjectMetadata';
 import { FileMetadata } from './resources/FileMetadata';
 import { GrdmFiles } from './resources/GrdmFiles';
 import { inferV1BaseUrl } from './utils/url';
@@ -25,6 +26,7 @@ export class GrdmClient extends OsfClient {
   readonly v1BaseUrl: string;
 
   private _projectMetadata?: ProjectMetadata;
+  private _draftProjectMetadata?: DraftProjectMetadata;
   private _fileMetadata?: FileMetadata;
   private _grdmFiles?: GrdmFiles;
 
@@ -69,6 +71,19 @@ export class GrdmClient extends OsfClient {
       this._projectMetadata = new ProjectMetadata(this.httpClient);
     }
     return this._projectMetadata;
+  }
+
+  /**
+   * Access the DraftProjectMetadata resource (GRDM v2 API)
+   *
+   * Provides methods for fetching and parsing GRDM project metadata
+   * from OSF draft registrations.
+   */
+  get draftProjectMetadata(): DraftProjectMetadata {
+    if (!this._draftProjectMetadata) {
+      this._draftProjectMetadata = new DraftProjectMetadata(this.httpClient);
+    }
+    return this._draftProjectMetadata;
   }
 
   /**

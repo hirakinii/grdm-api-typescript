@@ -5,6 +5,30 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.6.0] - 2026-03-30
+
+### Added
+
+- **`DraftProjectMetadata` resource** (`client.draftProjectMetadata`): fetches and parses GRDM project metadata from OSF draft registrations (v2 API).
+  - `listByNode(nodeId, params?)` — list draft registrations for a node with parsed GRDM metadata
+  - `getById(draftId)` — fetch a single draft registration with parsed GRDM metadata
+  - Automatically detects the registration schema from `relationships.registration_schema.data.id` and dispatches to the appropriate parser
+- **MS2 Mibyodb project-level metadata support** for `DraftProjectMetadata` (schema ②, ID: `67e381081921b4000842c800`):
+  - `Ms2Person` interface: data creator / manager person entry (`name`, `nameEn`, `belonging`, `belongingEn`, `contact`)
+  - `Ms2Keyword` interface: keyword entry (`filename`, `filenameEn`)
+  - `Ms2ProjectRegisteredMeta` interface: parsed project-level metadata for schema ②, with `schemaType: 'ms2-mibyodb'` discriminator. Fields include `projectName`, `titleOfDataset`, `dataCreators`, `dataManagers`, `keywords`, `accessRights`, `analysisType`, `checklists`, `grdmFiles`, and more.
+- **`GrdmParsedMeta` union type**: `GrdmRegisteredMeta | Ms2ProjectRegisteredMeta`. Used as the type of `grdmMeta` on `GrdmDraftProjectMetadataAttributes`. Use `schemaType` to narrow: `'public-funding'` or `'ms2-mibyodb'`.
+- **`GrdmRegistrationSchemaRelationship` interface**: GRDM extension of the base library's `registration_schema` relationship type, adding `data?: { id: string; type: string }`.
+- **`parseMs2ProjectMetaRecord`** utility function: parses `registration_metadata` for schema ② into `Ms2ProjectRegisteredMeta`.
+- **`src/types/schema-ids.ts`**: centralized definition of `SCHEMA_ID_PUBLIC_FUNDING` and `SCHEMA_ID_MS2_MIBYODB` constants. Both values are re-exported from `file-metadata.ts` for backward compatibility.
+- **Example** (`examples/fetch_grdm_project_metadata.ts`): demonstrates fetching and displaying project metadata for both schema ① and schema ②, using `schemaType` to dispatch display logic.
+
+### Changed
+
+- **Breaking**: `GrdmRegisteredMeta` now requires `schemaType: 'public-funding'`. Existing code constructing `GrdmRegisteredMeta` literals must add this field.
+- **Breaking**: `GrdmDraftProjectMetadataAttributes.grdmMeta` type changed from `GrdmRegisteredMeta` to `GrdmParsedMeta` (union). Code accessing schema ①-specific fields (e.g. `grdmMeta.funder`) must narrow the type first: `if (meta.schemaType === 'public-funding') { ... }`.
+- `GrdmProjectMetadataAttributes.grdmMeta` type is unchanged (still `GrdmRegisteredMeta`); schema ② is not supported for registrations.
+
 ## [0.5.0] - 2026-03-30
 
 ### Added
@@ -105,6 +129,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - `list_all_projects.ts` — paginated listing of all accessible projects using three `PaginatedResult` patterns.
   - `examples/README.md` — usage instructions and environment variable reference for each example.
 
+[0.6.0]: https://github.com/hirakinii/grdm-api-typescript/releases/tag/v0.6.0
 [0.5.0]: https://github.com/hirakinii/grdm-api-typescript/releases/tag/v0.5.0
 [0.4.0]: https://github.com/hirakinii/grdm-api-typescript/releases/tag/v0.4.0
 [0.3.0]: https://github.com/hirakinii/grdm-api-typescript/releases/tag/v0.3.0

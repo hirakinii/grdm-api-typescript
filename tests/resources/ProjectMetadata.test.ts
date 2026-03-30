@@ -53,7 +53,7 @@ describe('ProjectMetadata Resource', () => {
       fetchMock.mockResponseOnce(JSON.stringify(emptyResponse));
 
       const result = await projectMetadata.listByNode('abcde');
-      expect(result.data[0].grdmMeta).toEqual({});
+      expect(result.data[0].grdmMeta?.schemaType).toBe('public-funding');
     });
 
     it('should handle missing registered_meta', async () => {
@@ -71,7 +71,7 @@ describe('ProjectMetadata Resource', () => {
       fetchMock.mockResponseOnce(JSON.stringify(missingResponse));
 
       const result = await projectMetadata.listByNode('abcde');
-      expect(result.data[0].grdmMeta).toEqual({});
+      expect(result.data[0].grdmMeta?.schemaType).toBe('public-funding');
     });
 
     it('should parse grdm-files without creators field', async () => {

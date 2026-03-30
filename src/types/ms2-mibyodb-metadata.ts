@@ -1,4 +1,68 @@
-import { GrdmFileMetadataField } from './project-metadata';
+import { GrdmFileMetadataField, GrdmRegisteredFile } from './project-metadata';
+
+/**
+ * A person entry in data-creator or data-manager fields of the MS2 Mibyodb schema.
+ */
+export interface Ms2Person {
+  name: string;
+  nameEn: string;
+  belonging: string;
+  belongingEn: string;
+  contact: string;
+}
+
+/**
+ * A keyword entry in the keywords field of the MS2 Mibyodb schema.
+ */
+export interface Ms2Keyword {
+  filename: string;
+  filenameEn: string;
+}
+
+/**
+ * Parsed project-level metadata for schema "67e381081921b4000842c800":
+ * ムーンショット目標2データベース（未病DB）のメタデータ
+ */
+export interface Ms2ProjectRegisteredMeta {
+  schemaType: 'ms2-mibyodb';
+  dataId?: string;
+  keywords?: Ms2Keyword[];
+  projectName?: string;
+  titleOfDataset?: string;
+  titleOfDatasetEn?: string;
+  dataCreators?: Ms2Person[];
+  dataManagers?: Ms2Person[];
+  datasetResearchField?: string;
+  accessRights?: string;
+  dataPolicyFree?: string;
+  dataPolicyLicense?: string;
+  informedConsent?: string;
+  anonymousProcessing?: string;
+  ethicsReviewCommitteeApproval?: string;
+  purposeOfExperiment?: string;
+  purposeOfExperimentEn?: string;
+  descriptionOfExperimentalCondition?: string;
+  descriptionOfExperimentalConditionEn?: string;
+  analysisType?: string[];
+  analysisTypeOther?: string;
+  targetTypeOfAcquiredData?: string;
+  targetTypeOfAcquiredDataEn?: string;
+  availabilityOfCommercialUse?: string;
+  conflictOfInterest?: string;
+  necessityOfContactAndPermission?: string;
+  necessityOfIncludingInAcknowledgments?: string;
+  namesToBeIncludedInAcknowledgments?: string;
+  namesToBeIncludedInAcknowledgmentsEn?: string;
+  repositoryInformation?: string;
+  repositoryUrlDoiLink?: string;
+  dateRegisteredInMetadata?: string;
+  dateUpdatedInMetadata?: string;
+  disclaimerVersion?: string;
+  disclaimerCheckDate?: string;
+  grdmFiles?: GrdmRegisteredFile[];
+  /** Checklist1–Checklist13 entries keyed by field name */
+  checklists?: Record<string, string[]>;
+}
 
 /**
  * A metadata field specific to the MS2 Mibyodb schema.

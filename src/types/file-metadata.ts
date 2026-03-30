@@ -1,18 +1,8 @@
 import { GrdmFileMetadataField } from './project-metadata';
 import { Ms2MibyoDbMetadataFields } from './ms2-mibyodb-metadata';
 export { Ms2MibyoDbMetadataField, Ms2MibyoDbMetadataFields } from './ms2-mibyodb-metadata';
-
-/**
- * Schema ID for the Public Funding Research Data Metadata schema (schema ①).
- * 公的資金による研究データのメタデータ
- */
-export const SCHEMA_ID_PUBLIC_FUNDING = '66d7d4ec299c4f00071be84f' as const;
-
-/**
- * Schema ID for the MS2 Mibyodb Metadata schema (schema ②).
- * ムーンショット目標2データベース（未病DB）のメタデータ
- */
-export const SCHEMA_ID_MS2_MIBYODB = '67e381081921b4000842c800' as const;
+export { SCHEMA_ID_PUBLIC_FUNDING, SCHEMA_ID_MS2_MIBYODB } from './schema-ids';
+import { SCHEMA_ID_PUBLIC_FUNDING, SCHEMA_ID_MS2_MIBYODB } from './schema-ids';
 
 /**
  * Response structure for the v1 file metadata API.

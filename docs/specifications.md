@@ -28,8 +28,9 @@ GrdmClient extends OsfClient
 │   ├── preprintProviders, registrationProviders, collectionProviders
 │   └── scopes, applications, tokens
 ├── GRDM-specific Resources (new)
-│   ├── projectMetadata  — via v2 registrations endpoint
-│   └── fileMetadata     — via v1 metadata endpoint
+│   ├── projectMetadata       — via v2 registrations endpoint (schema ① only)
+│   ├── draftProjectMetadata  — via v2 draft_registrations endpoint (schema ① and ②)
+│   └── fileMetadata          — via v1 metadata endpoint
 └── Configuration
     ├── baseUrl: 'https://api.rdm.nii.ac.jp/v2/' (default)
     ├── v1BaseUrl: auto-inferred or manually specified (relative path allowed when fetch is set)
@@ -111,7 +112,101 @@ Represents a file entry within the `grdm-files` field of `registered_meta`:
 | `urlpath` | `string` | URL path for the file |
 | `metadata` | `Record<string, GrdmFileMetadataField>` | Metadata key-value pairs |
 
-### 4.2 File Metadata (`FileMetadata`) — v1 API
+### 4.2 Draft Project Metadata (`DraftProjectMetadata`) — v2 API
+
+#### Endpoint
+
+```
+GET /v2/nodes/{node_id}/draft_registrations/
+GET /v2/draft_registrations/{draft_id}/
+```
+
+#### Description
+
+Retrieves draft registration metadata for a GRDM project. Supports both schema ① (public-funding) and schema ② (ms2-mibyodb). The active schema is detected automatically from `relationships.registration_schema.data.id` in the API response.
+
+#### Methods
+
+| Method | Description |
+|--------|-------------|
+| `listByNode(nodeId, params?)` | List draft registrations (with GRDM metadata) for a node |
+| `getById(draftId)` | Get a single draft registration with parsed GRDM metadata |
+
+#### Parsed `grdmMeta` type
+
+`grdmMeta` is typed as `GrdmParsedMeta = GrdmRegisteredMeta | Ms2ProjectRegisteredMeta`.
+Use `schemaType` to narrow:
+
+```typescript
+if (draft.grdmMeta?.schemaType === 'public-funding') {
+  // GrdmRegisteredMeta — same fields as ProjectMetadata
+  console.log(draft.grdmMeta.funder);
+} else if (draft.grdmMeta?.schemaType === 'ms2-mibyodb') {
+  // Ms2ProjectRegisteredMeta
+  console.log(draft.grdmMeta.projectName);
+}
+```
+
+#### `Ms2ProjectRegisteredMeta` Fields (schema ②)
+
+Parsed from `registration_metadata` when `registration_schema.data.id === SCHEMA_ID_MS2_MIBYODB`.
+
+| Field Key | TypeScript Property | Type | Description |
+|-----------|-------------------|------|-------------|
+| `project-name` | `projectName` | `string` | Project name |
+| `title-of-dataset` | `titleOfDataset` | `string` | Dataset title |
+| `title-of-dataset-en` | `titleOfDatasetEn` | `string` | Dataset title (English) |
+| `data-creator` | `dataCreators` | `Ms2Person[]` | Data creators (parsed from JSON string) |
+| `data-manager` | `dataManagers` | `Ms2Person[]` | Data managers (parsed from JSON string) |
+| `keywords` | `keywords` | `Ms2Keyword[]` | Keywords (parsed from JSON string) |
+| `dataset-research-field` | `datasetResearchField` | `string` | Research field |
+| `access-rights` | `accessRights` | `string` | Access rights |
+| `data-policy-free` | `dataPolicyFree` | `string` | Free/paid indicator |
+| `data-policy-license` | `dataPolicyLicense` | `string` | License |
+| `informed-consent` | `informedConsent` | `string` | Informed consent |
+| `anonymous-processing` | `anonymousProcessing` | `string` | Anonymous processing |
+| `ethics-review-committee-approval` | `ethicsReviewCommitteeApproval` | `string` | Ethics review approval |
+| `purpose-of-experiment` | `purposeOfExperiment` | `string` | Experiment purpose |
+| `purpose-of-experiment-en` | `purposeOfExperimentEn` | `string` | Experiment purpose (English) |
+| `description-of-experimental-condition` | `descriptionOfExperimentalCondition` | `string` | Experimental conditions |
+| `description-of-experimental-condition-en` | `descriptionOfExperimentalConditionEn` | `string` | Experimental conditions (English) |
+| `Analysis-type` | `analysisType` | `string[]` | Analysis types |
+| `Analysis-type-other` | `analysisTypeOther` | `string` | Analysis type (other) |
+| `target-type-of-acquired-data` | `targetTypeOfAcquiredData` | `string` | Target data type |
+| `target-type-of-acquired-data-en` | `targetTypeOfAcquiredDataEn` | `string` | Target data type (English) |
+| `availability-of-commercial-use` | `availabilityOfCommercialUse` | `string` | Commercial use availability |
+| `conflict-of-interest-Yes-or-No` | `conflictOfInterest` | `string` | Conflict of interest |
+| `necessity-of-contact-and-permission` | `necessityOfContactAndPermission` | `string` | Contact / permission requirement |
+| `necessity-of-including-in-acknowledgments` | `necessityOfIncludingInAcknowledgments` | `string` | Acknowledgment requirement |
+| `names-to-be-included-in-the-acknowledgments` | `namesToBeIncludedInAcknowledgments` | `string` | Acknowledgment names |
+| `names-to-be-included-in-the-acknowledgments-en` | `namesToBeIncludedInAcknowledgmentsEn` | `string` | Acknowledgment names (English) |
+| `repository-information` | `repositoryInformation` | `string` | Repository information |
+| `repository-url-doi-link` | `repositoryUrlDoiLink` | `string` | Repository URL / DOI |
+| `date-registered-in-metadata` | `dateRegisteredInMetadata` | `string` | Metadata registration date |
+| `date-updated-in-metadata` | `dateUpdatedInMetadata` | `string` | Metadata update date |
+| `disclaimer-version` | `disclaimerVersion` | `string` | Disclaimer version |
+| `disclaimer-check-date` | `disclaimerCheckDate` | `string` | Disclaimer confirmation date |
+| `grdm-files` | `grdmFiles` | `GrdmRegisteredFile[]` | File metadata entries (parsed from JSON string) |
+| `Checklist1`–`Checklist13` | `checklists` | `Record<string, string[]>` | Checklist items |
+
+#### `Ms2Person` Type
+
+| Property | Type | Description |
+|----------|------|-------------|
+| `name` | `string` | Name (Japanese) |
+| `nameEn` | `string` | Name (English) |
+| `belonging` | `string` | Affiliation (Japanese) |
+| `belongingEn` | `string` | Affiliation (English) |
+| `contact` | `string` | Contact email address |
+
+#### `Ms2Keyword` Type
+
+| Property | Type | Description |
+|----------|------|-------------|
+| `filename` | `string` | Keyword |
+| `filenameEn` | `string` | Keyword (English) |
+
+### 4.3 File Metadata (`FileMetadata`) — v1 API
 
 #### Endpoint
 
@@ -161,6 +256,8 @@ GrdmFileMetadataResponse
 |-----------|------|---------------------|
 | `66d7d4ec299c4f00071be84f` | 公的資金による研究データのメタデータ | `SCHEMA_ID_PUBLIC_FUNDING` |
 | `67e381081921b4000842c800` | ムーンショット目標2データベース（未病DB）のメタデータ | `SCHEMA_ID_MS2_MIBYODB` |
+
+Both constants are defined in `src/types/schema-ids.ts` and re-exported through `file-metadata.ts`.
 
 #### `GrdmFileMetadataSchema` Type
 
@@ -467,11 +564,22 @@ The `registered_meta` fields in v2 API responses use a wrapper structure:
 
 The library automatically extracts the `value` from this structure and provides direct access to the unwrapped values.
 
-### 6.2 `grdm-files` Parser
+### 6.2 `GrdmParsedMeta` Discriminated Union
+
+`GrdmParsedMeta = GrdmRegisteredMeta | Ms2ProjectRegisteredMeta` is the type of `grdmMeta` on `GrdmDraftProjectMetadataAttributes`. The `schemaType` literal field acts as a discriminator:
+
+| `schemaType` | Type | Schema |
+|---|---|---|
+| `'public-funding'` | `GrdmRegisteredMeta` | 公的資金に研究データのメタデータ（schema ①） |
+| `'ms2-mibyodb'` | `Ms2ProjectRegisteredMeta` | ムーンショット目標2データベース（未病DB）のメタデータ（schema ②） |
+
+`GrdmProjectMetadataAttributes.grdmMeta` (registrations) retains the `GrdmRegisteredMeta` type; schema ② is not supported for registrations.
+
+### 6.4 `grdm-files` Parser
 
 The `grdm-files` field in `registered_meta` stores file metadata as a JSON string. The library automatically parses this string into typed `GrdmRegisteredFile[]` objects.
 
-### 6.3 Helper Methods
+### 6.5 Helper Methods
 
 | Method | Description |
 |--------|-------------|
@@ -548,7 +656,29 @@ console.log(activeMetadata?.titleJa); // "プロジェクト用README"
 console.log(activeMetadata?.creators); // [{ number: "10880916", nameJa: "平木俊幸", ... }]
 ```
 
-### 8.3 Project Metadata (v2 API via Registrations)
+### 8.3 Draft Project Metadata (v2 API via Draft Registrations)
+
+```typescript
+const drafts = await client.draftProjectMetadata.listByNode('uzdsn');
+
+for (const draft of drafts.data) {
+  const meta = draft.grdmMeta;
+  if (!meta) continue;
+
+  if (meta.schemaType === 'public-funding') {
+    console.log(meta.funder);        // "JSPS"
+    console.log(meta.japanGrantNumber); // "JP25K12345"
+  } else if (meta.schemaType === 'ms2-mibyodb') {
+    console.log(meta.projectName);   // "MS2合原PJ|MS2 Aihara PJ"
+    console.log(meta.dataCreators?.[0].nameEn); // "Toshiyuki Hiraki"
+    for (const file of meta.grdmFiles ?? []) {
+      console.log(file.path);
+    }
+  }
+}
+```
+
+### 8.4 Project Metadata (v2 API via Registrations)
 
 ```typescript
 // Get registrations with GRDM metadata
