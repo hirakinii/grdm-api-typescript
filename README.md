@@ -15,6 +15,10 @@ The GakuNin RDM API follows the [Open Science Framework (OSF) API v2](https://de
 - Full access to all 22 OSF API v2 resources (inherited from `OsfClient`)
 - GRDM project metadata retrieval via v2 API (`projectMetadata`)
 - GRDM file metadata retrieval via v1 API (`fileMetadata`)
+- Multi-schema file metadata support with type-safe access:
+  - Schema ①: 公的資金による研究データのメタデータ (`SCHEMA_ID_PUBLIC_FUNDING`)
+  - Schema ②: ムーンショット目標2データベース（未病DB）のメタデータ (`SCHEMA_ID_MS2_MIBYODB`)
+  - Type guard functions: `isPublicFundingSchema`, `isMs2MibyoDbSchema`
 - Subfolder navigation via `grdmFiles.listByPath()` and `grdmFiles.listByPathPaginated()`
 - Custom `fetch` injection for v1 API requests — enables proxy-based CORS workarounds in browser frontends
 - Automatic `v1BaseUrl` inference from `baseUrl`
@@ -156,12 +160,28 @@ console.log(file?.items);
 
 #### `getActiveMetadata(projectId, path)`
 
-Returns the currently active metadata schema for a file.
+Returns the currently active metadata schema for a file as `GrdmFileMetadataSchema | undefined`.
+
+The `data` property is typed as `GrdmFileMetadataData` (a union of all supported schemas). Use the type guard functions to narrow to the specific schema type before accessing fields, or cast explicitly with `as`.
 
 ```typescript
+import {
+  isPublicFundingSchema,
+  isMs2MibyoDbSchema,
+} from 'grdm-api-typescript';
+
 const schema = await client.fileMetadata.getActiveMetadata('abc12', 'osfstorage/data.csv');
-if (schema) {
-  console.log(schema.metadata);
+
+// Type guard: narrows to PublicFundingFileMetadataSchema
+if (schema && isPublicFundingSchema(schema)) {
+  console.log(schema.data['grdm-file:title-ja']?.value);
+  console.log(schema.data['grdm-file:access-rights']?.value);
+}
+
+// Type guard: narrows to Ms2MibyoDbFileMetadataSchema
+if (schema && isMs2MibyoDbSchema(schema)) {
+  console.log(schema.data['grdm-file:d-msr-object-of-measurement-jp']?.value);
+  console.log(schema.data['grdm-file:d-msr-data-type-en']?.value);
 }
 ```
 

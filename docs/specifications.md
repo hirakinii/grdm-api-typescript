@@ -155,17 +155,45 @@ GrdmFileMetadataResponse
 | `generated` | `boolean` | Whether this item was auto-generated |
 | `items` | `GrdmFileMetadataSchema[]` | Associated metadata schemas |
 
+#### Supported Schemas
+
+| Schema ID | Name | TypeScript constant |
+|-----------|------|---------------------|
+| `66d7d4ec299c4f00071be84f` | 公的資金による研究データのメタデータ | `SCHEMA_ID_PUBLIC_FUNDING` |
+| `67e381081921b4000842c800` | ムーンショット目標2データベース（未病DB）のメタデータ | `SCHEMA_ID_MS2_MIBYODB` |
+
 #### `GrdmFileMetadataSchema` Type
 
 | Property | Type | Description |
 |----------|------|-------------|
 | `schema` | `string` | Schema identifier |
 | `active` | `boolean` | Whether this schema is currently active |
-| (data fields) | `GrdmFileMetadataField` | See Section 5 for the full field list |
+| `data` | `GrdmFileMetadataData` | Schema-specific metadata fields (union type; see Section 5) |
+
+`GrdmFileMetadataData` is a union type `GrdmFileMetadataFields | Ms2MibyoDbMetadataFields`. To access fields in a type-safe manner, narrow the schema with one of the type guard functions, or use an explicit type assertion.
+
+#### Type Guard Functions
+
+| Function | Narrows to | Schema |
+|----------|-----------|--------|
+| `isPublicFundingSchema(s)` | `PublicFundingFileMetadataSchema` | 公的資金による研究データのメタデータ |
+| `isMs2MibyoDbSchema(s)` | `Ms2MibyoDbFileMetadataSchema` | ムーンショット目標2データベース（未病DB）のメタデータ |
+
+Example:
+
+```typescript
+const schema = await client.fileMetadata.getActiveMetadata(projectId, path);
+
+if (schema && isPublicFundingSchema(schema)) {
+  console.log(schema.data['grdm-file:title-ja']?.value);
+}
+
+if (schema && isMs2MibyoDbSchema(schema)) {
+  console.log(schema.data['grdm-file:d-msr-object-of-measurement-jp']?.value);
+}
+```
 
 ## 5. File Metadata Fields
-
-The following fields are common to both v1 and v2 representations of GRDM file metadata.
 
 ### 5.1 `GrdmFileMetadataField` Type
 
@@ -177,7 +205,9 @@ All metadata fields (except `creators`) follow this wrapper structure:
 | `extra` | `unknown[]` | Additional data (typically empty) |
 | `comments` | `unknown[]` | Comments (present in some responses) |
 
-### 5.2 Field Definitions
+### 5.2 Schema ①: Public Funding Metadata Fields (`GrdmFileMetadataFields`)
+
+These fields are used when `schema === SCHEMA_ID_PUBLIC_FUNDING`. Accessible after narrowing with `isPublicFundingSchema`.
 
 #### Basic Information
 
@@ -291,6 +321,139 @@ All metadata fields (except `creators`) follow this wrapper structure:
 |---------|-------------------|------|-------------|
 | `grdm-file:remarks-ja` | `remarksJa` | `string` | Remarks in Japanese |
 | `grdm-file:remarks-en` | `remarksEn` | `string` | Remarks in English |
+
+### 5.3 Schema ②: MS2 Mibyodb Metadata Fields (`Ms2MibyoDbMetadataFields`)
+
+These fields are used when `schema === SCHEMA_ID_MS2_MIBYODB`. Accessible after narrowing with `isMs2MibyoDbSchema`.
+
+All field values are `string | null` (`Ms2MibyoDbMetadataField`).
+
+The fields are grouped into six sections by file/data type. Each field key follows the pattern `grdm-file:<prefix>-<name>`.
+
+#### Label Fields (section separators, `value` is always `null`)
+
+| API Key | Description |
+|---------|-------------|
+| `grdm-file:Label-explanation` | Explanation label |
+| `grdm-file:Label-measurement` | Measurement section label |
+| `grdm-file:Label-folder` | Folder section label |
+| `grdm-file:Label-text` | Text file section label |
+| `grdm-file:Label-excel` | Excel file section label |
+| `grdm-file:Label-image` | Image file section label |
+| `grdm-file:Label-any` | Arbitrary file section label |
+
+#### Measurement Data (`d-msr-*`)
+
+| API Key | Description |
+|---------|-------------|
+| `grdm-file:d-msr-object-of-measurement-jp` | Object of measurement (Japanese) |
+| `grdm-file:d-msr-object-of-measurement-en` | Object of measurement (English) |
+| `grdm-file:d-msr-target-organs-for-measurement` | Target organs for measurement |
+| `grdm-file:d-msr-data-type-jp` | Data type (Japanese) |
+| `grdm-file:d-msr-data-type-en` | Data type (English) |
+| `grdm-file:d-msr-classification-of-measuring-devices-jp` | Classification of measuring devices (Japanese) |
+| `grdm-file:d-msr-classification-of-measuring-devices-en` | Classification of measuring devices (English) |
+| `grdm-file:d-msr-measuring-device-name` | Measuring device name |
+| `grdm-file:d-msr-procedure` | Measurement procedure |
+| `grdm-file:d-msr-user-defined-metadata-items` | User-defined metadata items |
+| `grdm-file:d-msr-remarks-jp` | Remarks (Japanese) |
+| `grdm-file:d-msr-remarks-en` | Remarks (English) |
+
+#### Folder (`d-fol-*`)
+
+| API Key | Description |
+|---------|-------------|
+| `grdm-file:d-fol-Structure-or-descriptions-of-folders-jp` | Folder structure or description (Japanese) |
+| `grdm-file:d-fol-remarks-jp` | Remarks (Japanese) |
+| `grdm-file:d-fol-remarks-en` | Remarks (English) |
+
+#### Text File (`d-txt-*` / `t-txt-*`)
+
+| API Key | Description |
+|---------|-------------|
+| `grdm-file:d-txt-file-name-convention-file-extension` | File name convention / extension |
+| `grdm-file:d-txt-description-jp` | Description (Japanese) |
+| `grdm-file:d-txt-description-en` | Description (English) |
+| `grdm-file:d-txt-description-of-row` | Description of rows |
+| `grdm-file:d-txt-description-of-column` | Description of columns |
+| `grdm-file:d-txt-data-preprocessing-jp` | Data preprocessing (Japanese) |
+| `grdm-file:d-txt-data-preprocessing-en` | Data preprocessing (English) |
+| `grdm-file:d-txt-temporal-measurement-data` | Temporal measurement data |
+| `grdm-file:d-txt-number-of-rows` | Number of rows |
+| `grdm-file:d-txt-number-of-columns` | Number of columns |
+| `grdm-file:d-txt-approximate-number-of-similar-files` | Approximate number of similar files |
+| `grdm-file:t-txt-delimiter` | Delimiter character |
+| `grdm-file:t-txt-character-code` | Character encoding |
+| `grdm-file:t-txt-remarks-jp` | Remarks (Japanese) |
+| `grdm-file:t-txt-remarks-en` | Remarks (English) |
+
+#### Excel File (`d-exl-*` / `t-exl-*`)
+
+| API Key | Description |
+|---------|-------------|
+| `grdm-file:d-exl-file-name-convention-file-extension` | File name convention / extension |
+| `grdm-file:d-exl-description-jp` | Description (Japanese) |
+| `grdm-file:d-exl-description-en` | Description (English) |
+| `grdm-file:d-exl-description-of-row` | Description of rows |
+| `grdm-file:d-exl-description-of-column` | Description of columns |
+| `grdm-file:d-exl-data-preprocessing-jp` | Data preprocessing (Japanese) |
+| `grdm-file:d-exl-data-preprocessing-en` | Data preprocessing (English) |
+| `grdm-file:d-exl-temporal-measurement-data` | Temporal measurement data |
+| `grdm-file:d-exl-number-of-rows` | Number of rows |
+| `grdm-file:d-exl-number-of-columns` | Number of columns |
+| `grdm-file:d-exl-approximate-number-of-similar-files` | Approximate number of similar files |
+| `grdm-file:t-exl-remarks-jp` | Remarks (Japanese) |
+| `grdm-file:t-exl-remarks-en` | Remarks (English) |
+
+#### Image File (`d-img-*` / `t-img-*`)
+
+| API Key | Description |
+|---------|-------------|
+| `grdm-file:d-img-file-name-convention-file-extension` | File name convention / extension |
+| `grdm-file:d-img-description-jp` | Description (Japanese) |
+| `grdm-file:d-img-description-en` | Description (English) |
+| `grdm-file:d-img-data-preprocessing-jp` | Data preprocessing (Japanese) |
+| `grdm-file:d-img-data-preprocessing-en` | Data preprocessing (English) |
+| `grdm-file:d-img-temporal-measurement-data` | Temporal measurement data |
+| `grdm-file:d-img-pixel-width` | Pixel width |
+| `grdm-file:d-img-pixel-height` | Pixel height |
+| `grdm-file:d-img-resolution-horizontal` | Horizontal resolution |
+| `grdm-file:d-img-resolution-vertical` | Vertical resolution |
+| `grdm-file:d-img-approximate-number-of-similar-files` | Approximate number of similar files |
+| `grdm-file:t-img-Color-Monochrome` | Color / monochrome |
+| `grdm-file:t-img-number-of-color-bit` | Number of color bits |
+| `grdm-file:t-img-compression-format` | Compression format |
+| `grdm-file:t-img-image-type` | Image type |
+| `grdm-file:t-img-remarks-jp` | Remarks (Japanese) |
+| `grdm-file:t-img-remarks-en` | Remarks (English) |
+
+#### Arbitrary File (`d-abt-*` / `t-abt-*`)
+
+| API Key | Description |
+|---------|-------------|
+| `grdm-file:d-abt-file-name-convention-file-extension` | File name convention / extension |
+| `grdm-file:d-abt-description-jp` | Description (Japanese) |
+| `grdm-file:d-abt-description-en` | Description (English) |
+| `grdm-file:d-abt-data-preprocessing-jp` | Data preprocessing (Japanese) |
+| `grdm-file:d-abt-data-preprocessing-en` | Data preprocessing (English) |
+| `grdm-file:d-abt-temporal-measurement-data` | Temporal measurement data |
+| `grdm-file:d-abt-number-of-rows` | Number of rows |
+| `grdm-file:d-abt-number-of-columns` | Number of columns |
+| `grdm-file:d-abt-approximate-number-of-similar-files` | Approximate number of similar files |
+| `grdm-file:d-abt-pixel-width` | Pixel width |
+| `grdm-file:d-abt-pixel-height` | Pixel height |
+| `grdm-file:d-abt-resolution-horizontal` | Horizontal resolution |
+| `grdm-file:d-abt-resolution-vertical` | Vertical resolution |
+| `grdm-file:t-abt-text/binary` | Text or binary |
+| `grdm-file:t-abt-image-type` | Image type |
+| `grdm-file:t-abt-Color-Monochrome` | Color / monochrome |
+| `grdm-file:t-abt-number-of-color-bit` | Number of color bits |
+| `grdm-file:t-abt-compression-format` | Compression format |
+| `grdm-file:t-abt-delimiter` | Delimiter character |
+| `grdm-file:t-abt-character-code` | Character encoding |
+| `grdm-file:t-abt-user-defined-metadata-items` | User-defined metadata items |
+| `grdm-file:t-abt-remarks-jp` | Remarks (Japanese) |
+| `grdm-file:t-abt-remarks-en` | Remarks (English) |
 
 ## 6. Utility Functions
 

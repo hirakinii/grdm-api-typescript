@@ -76,9 +76,23 @@ GRDM_TOKEN=<your-token> GRDM_NODE_ID=<node-id> npx ts-node examples/file_metadat
 
 **指定したノードのプロジェクトメタデータとファイルメタデータを詳細に取得するサンプルです。**
 
+スキーマ ID によるフィルタリングを行い、スキーマ①（公的資金）とスキーマ②（MS2 未病DB）それぞれのファイルメタデータを表示します。
+
 - GRDM v2 API によるプロジェクトメタデータ（研究課題名・資金提供者・課題番号など）の取得
-- GRDM v1 API によるファイルメタデータ（タイトル・データ種別・アクセス権・作成者など）の取得
-- ファイル種別（`grdm-file:file-type`）が `"manuscript"` の場合、原稿固有フィールド（`reviewed`・`manuscript-type` など）の追加表示
+- GRDM v1 API によるスキーマ①ファイルメタデータ（タイトル・データ種別・アクセス権・作成者など）の取得
+  - ファイル種別（`grdm-file:file-type`）が `"manuscript"` の場合、原稿固有フィールド（`reviewed`・`manuscript-type` など）の追加表示
+- GRDM v1 API によるスキーマ②ファイルメタデータ（計測対象・測定データ種別など）の取得
+
+```typescript
+// スキーマ ID でフィルタリングし、型アサーションでフィールドにアクセスする例
+import { GrdmFileMetadataFields, SCHEMA_ID_PUBLIC_FUNDING } from 'grdm-api-typescript';
+
+const activeSchema = file.items?.find((item) => item.active);
+if (activeSchema?.schema === SCHEMA_ID_PUBLIC_FUNDING) {
+  const data = activeSchema.data as GrdmFileMetadataFields;
+  console.log(data['grdm-file:title-ja']?.value);
+}
+```
 
 ```bash
 GRDM_TOKEN=<your-token> GRDM_NODE_ID=<node-id> npx ts-node examples/fetch_project_and_file_metadata.ts
