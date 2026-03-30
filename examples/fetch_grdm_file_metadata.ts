@@ -40,47 +40,7 @@ async function main(): Promise<void> {
   });
 
   // ----------------------------------------------------------------
-  // 1. Fetch project metadata (registrations) for the given node
-  // ----------------------------------------------------------------
-  console.log(`\n=== Project Metadata (node: ${nodeId}) ===\n`);
-
-  const projectMetadataList = await client.projectMetadata.listByNode(nodeId);
-
-  if (projectMetadataList.data.length === 0) {
-    console.log('No registrations found for this node.');
-  } else {
-    for (const registration of projectMetadataList.data) {
-      console.log(`Registration ID : ${registration.id}`);
-      console.log(`Title           : ${registration.title}`);
-      console.log(`Date Created    : ${registration.date_created}`);
-
-      const meta = registration.grdmMeta;
-      if (meta) {
-        if (meta.funder) console.log(`Funder          : ${meta.funder}`);
-        if (meta.projectNameJa) console.log(`Project Name (JA): ${meta.projectNameJa}`);
-        if (meta.projectNameEn) console.log(`Project Name (EN): ${meta.projectNameEn}`);
-        if (meta.programNameJa) console.log(`Program Name (JA): ${meta.programNameJa}`);
-        if (meta.programNameEn) console.log(`Program Name (EN): ${meta.programNameEn}`);
-        if (meta.japanGrantNumber) console.log(`Grant Number    : ${meta.japanGrantNumber}`);
-        if (meta.projectResearchField) console.log(`Research Field  : ${meta.projectResearchField}`);
-        if (meta.grdmFiles && meta.grdmFiles.length > 0) {
-          console.log(`Registered Files: ${meta.grdmFiles.length} file(s)`);
-          for (const file of meta.grdmFiles) {
-            console.log(`  - ${file.path}`);
-          }
-        }
-      }
-
-      console.log('');
-    }
-
-    if (projectMetadataList.links?.next) {
-      console.log('(More registrations available — pagination not shown in this example.)');
-    }
-  }
-
-  // ----------------------------------------------------------------
-  // 2. Fetch public funding file metadata for the given project (v1 API)
+  // 1. Fetch public funding file metadata for the given project (v1 API)
   // ----------------------------------------------------------------
   console.log(`\n=== Public Funding File Metadata (project: ${nodeId}) ===\n`);
 
@@ -143,7 +103,7 @@ async function main(): Promise<void> {
   }
 
   // ----------------------------------------------------------------
-  // 3. Fetch MS2 funding file metadata for the given project (v1 API)
+  // 2. Fetch MS2 funding file metadata for the given project (v1 API)
   // ----------------------------------------------------------------
   console.log(`\n=== MS2 Funding File Metadata (project: ${nodeId}) ===\n`);
 
