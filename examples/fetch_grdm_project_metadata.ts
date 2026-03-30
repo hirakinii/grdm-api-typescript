@@ -11,6 +11,8 @@
  */
 
 import { GrdmClient } from '../src/client';
+import { GrdmRegisteredMeta } from '../src/types/project-metadata';
+import { Ms2ProjectRegisteredMeta } from '../src/types/ms2-mibyodb-metadata';
 
 async function main(): Promise<void> {
   const token = process.env.GRDM_TOKEN;
@@ -34,6 +36,7 @@ async function main(): Promise<void> {
 
   // ----------------------------------------------------------------
   // 1. Fetch project metadata (registrations) for the given node
+  //    Only schema ① (public-funding) is supported for registrations.
   // ----------------------------------------------------------------
   console.log(`\n=== Project Metadata (node: ${nodeId}) ===\n`);
 
@@ -49,19 +52,7 @@ async function main(): Promise<void> {
 
       const meta = registration.grdmMeta;
       if (meta) {
-        if (meta.funder) console.log(`Funder          : ${meta.funder}`);
-        if (meta.projectNameJa) console.log(`Project Name (JA): ${meta.projectNameJa}`);
-        if (meta.projectNameEn) console.log(`Project Name (EN): ${meta.projectNameEn}`);
-        if (meta.programNameJa) console.log(`Program Name (JA): ${meta.programNameJa}`);
-        if (meta.programNameEn) console.log(`Program Name (EN): ${meta.programNameEn}`);
-        if (meta.japanGrantNumber) console.log(`Grant Number    : ${meta.japanGrantNumber}`);
-        if (meta.projectResearchField) console.log(`Research Field  : ${meta.projectResearchField}`);
-        if (meta.grdmFiles && meta.grdmFiles.length > 0) {
-          console.log(`Registered Files: ${meta.grdmFiles.length} file(s)`);
-          for (const file of meta.grdmFiles) {
-            console.log(`  - ${file.path}`);
-          }
-        }
+        printPublicFundingMeta(meta);
       }
 
       console.log('');
@@ -74,6 +65,7 @@ async function main(): Promise<void> {
 
   // ----------------------------------------------------------------
   // 2. Fetch project metadata (draft registrations) for the given node
+  //    Supports schema ① (public-funding) and schema ② (ms2-mibyodb).
   // ----------------------------------------------------------------
   console.log(`\n=== Draft Project Metadata (node: ${nodeId}) ===\n`);
 
@@ -89,18 +81,10 @@ async function main(): Promise<void> {
 
       const meta = draft.grdmMeta;
       if (meta) {
-        if (meta.funder) console.log(`Funder          : ${meta.funder}`);
-        if (meta.projectNameJa) console.log(`Project Name (JA): ${meta.projectNameJa}`);
-        if (meta.projectNameEn) console.log(`Project Name (EN): ${meta.projectNameEn}`);
-        if (meta.programNameJa) console.log(`Program Name (JA): ${meta.programNameJa}`);
-        if (meta.programNameEn) console.log(`Program Name (EN): ${meta.programNameEn}`);
-        if (meta.japanGrantNumber) console.log(`Grant Number    : ${meta.japanGrantNumber}`);
-        if (meta.projectResearchField) console.log(`Research Field  : ${meta.projectResearchField}`);
-        if (meta.grdmFiles && meta.grdmFiles.length > 0) {
-          console.log(`Registered Files: ${meta.grdmFiles.length} file(s)`);
-          for (const file of meta.grdmFiles) {
-            console.log(`  - ${file.path}`);
-          }
+        if (meta.schemaType === 'public-funding') {
+          printPublicFundingMeta(meta);
+        } else if (meta.schemaType === 'ms2-mibyodb') {
+          printMs2MibyoDbMeta(meta);
         }
       }
 
@@ -109,6 +93,53 @@ async function main(): Promise<void> {
 
     if (draftMetadataList.links?.next) {
       console.log('(More draft registrations available — pagination not shown in this example.)');
+    }
+  }
+}
+
+/** Print parsed metadata for schema ①: 公的資金に研究データのメタデータ */
+function printPublicFundingMeta(meta: GrdmRegisteredMeta): void {
+  if (meta.funder) console.log(`Funder          : ${meta.funder}`);
+  if (meta.projectNameJa) console.log(`Project Name (JA): ${meta.projectNameJa}`);
+  if (meta.projectNameEn) console.log(`Project Name (EN): ${meta.projectNameEn}`);
+  if (meta.programNameJa) console.log(`Program Name (JA): ${meta.programNameJa}`);
+  if (meta.programNameEn) console.log(`Program Name (EN): ${meta.programNameEn}`);
+  if (meta.japanGrantNumber) console.log(`Grant Number    : ${meta.japanGrantNumber}`);
+  if (meta.projectResearchField) console.log(`Research Field  : ${meta.projectResearchField}`);
+  printGrdmFiles(meta);
+}
+
+/** Print parsed metadata for schema ②: ムーンショット目標2データベース（未病DB）のメタデータ */
+function printMs2MibyoDbMeta(meta: Ms2ProjectRegisteredMeta): void {
+  if (meta.projectName) console.log(`Project Name    : ${meta.projectName}`);
+  if (meta.titleOfDataset) console.log(`Dataset Title   : ${meta.titleOfDataset}`);
+  if (meta.datasetResearchField) console.log(`Research Field  : ${meta.datasetResearchField}`);
+  if (meta.accessRights) console.log(`Access Rights   : ${meta.accessRights}`);
+  if (meta.dataPolicyLicense) console.log(`License         : ${meta.dataPolicyLicense}`);
+  if (meta.purposeOfExperiment) console.log(`Purpose         : ${meta.purposeOfExperiment}`);
+  if (meta.dateRegisteredInMetadata) console.log(`Registered Date : ${meta.dateRegisteredInMetadata}`);
+
+  if (meta.dataCreators && meta.dataCreators.length > 0) {
+    console.log(`Data Creators   :`);
+    for (const person of meta.dataCreators) {
+      console.log(`  - ${person.name} (${person.nameEn}) <${person.contact}>`);
+    }
+  }
+
+  if (meta.keywords && meta.keywords.length > 0) {
+    const kws = meta.keywords.map((k) => k.filename).join(', ');
+    console.log(`Keywords        : ${kws}`);
+  }
+
+  printGrdmFiles(meta);
+}
+
+/** Print grdm-files summary (shared between schemas) */
+function printGrdmFiles(meta: Pick<GrdmRegisteredMeta | Ms2ProjectRegisteredMeta, 'grdmFiles'>): void {
+  if (meta.grdmFiles && meta.grdmFiles.length > 0) {
+    console.log(`Registered Files: ${meta.grdmFiles.length} file(s)`);
+    for (const file of meta.grdmFiles) {
+      console.log(`  - ${file.path}`);
     }
   }
 }
