@@ -71,6 +71,46 @@ async function main(): Promise<void> {
       console.log('(More registrations available — pagination not shown in this example.)');
     }
   }
+
+  // ----------------------------------------------------------------
+  // 2. Fetch project metadata (draft registrations) for the given node
+  // ----------------------------------------------------------------
+  console.log(`\n=== Draft Project Metadata (node: ${nodeId}) ===\n`);
+
+  const draftMetadataList = await client.draftProjectMetadata.listByNode(nodeId);
+
+  if (draftMetadataList.data.length === 0) {
+    console.log('No draft registrations found for this node.');
+  } else {
+    for (const draft of draftMetadataList.data) {
+      console.log(`Draft ID        : ${draft.id}`);
+      console.log(`Title           : ${draft.title}`);
+      console.log(`Last Updated    : ${draft.datetime_updated}`);
+
+      const meta = draft.grdmMeta;
+      if (meta) {
+        if (meta.funder) console.log(`Funder          : ${meta.funder}`);
+        if (meta.projectNameJa) console.log(`Project Name (JA): ${meta.projectNameJa}`);
+        if (meta.projectNameEn) console.log(`Project Name (EN): ${meta.projectNameEn}`);
+        if (meta.programNameJa) console.log(`Program Name (JA): ${meta.programNameJa}`);
+        if (meta.programNameEn) console.log(`Program Name (EN): ${meta.programNameEn}`);
+        if (meta.japanGrantNumber) console.log(`Grant Number    : ${meta.japanGrantNumber}`);
+        if (meta.projectResearchField) console.log(`Research Field  : ${meta.projectResearchField}`);
+        if (meta.grdmFiles && meta.grdmFiles.length > 0) {
+          console.log(`Registered Files: ${meta.grdmFiles.length} file(s)`);
+          for (const file of meta.grdmFiles) {
+            console.log(`  - ${file.path}`);
+          }
+        }
+      }
+
+      console.log('');
+    }
+
+    if (draftMetadataList.links?.next) {
+      console.log('(More draft registrations available — pagination not shown in this example.)');
+    }
+  }
 }
 
 main().catch((err: unknown) => {
