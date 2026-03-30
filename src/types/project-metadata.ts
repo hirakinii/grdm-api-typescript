@@ -1,12 +1,6 @@
 import { OsfRegistrationAttributes, OsfDraftRegistrationAttributes } from 'osf-api-v2-typescript';
 import { Ms2ProjectRegisteredMeta } from './ms2-mibyodb-metadata';
 
-/** Schema ID for "公的資金に研究データのメタデータ" */
-export const SCHEMA_ID_PUBLIC_FUNDING = '66d7d4ec299c4f00071be84f';
-
-/** Schema ID for "ムーンショット目標2データベース（未病DB）のメタデータ" */
-export const SCHEMA_ID_MS2_MIBYODB = '67e381081921b4000842c800';
-
 /**
  * GRDM-specific extension of the registration_schema relationship.
  * The base library type only has `links`; GRDM also provides `data.id`.

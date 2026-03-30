@@ -3,8 +3,8 @@ import {
   GrdmDraftProjectMetadataAttributes,
   GrdmParsedMeta,
   GrdmRegistrationSchemaRelationship,
-  SCHEMA_ID_MS2_MIBYODB,
 } from '../types/project-metadata';
+import { SCHEMA_ID_MS2_MIBYODB } from '../types/schema-ids';
 import { parseGrdmMetaRecord, parseMs2ProjectMetaRecord } from '../utils/parseGrdmMeta';
 
 /**
