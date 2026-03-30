@@ -31,6 +31,7 @@
  */
 
 import { GrdmClient } from '../src/client';
+import { GrdmFileMetadataFields, SCHEMA_ID_PUBLIC_FUNDING } from '../src/types/file-metadata';
 
 // ---------------------------------------------------------------------------
 // Configuration
@@ -107,9 +108,11 @@ async function main(): Promise<void> {
     const active = file.items?.find((item) => item.active);
     if (active) {
       console.log(`Schema : ${active.schema}`);
-      const titleJa = active.data['grdm-file:title-ja']?.value;
-      const titleEn = active.data['grdm-file:title-en']?.value;
-      const fileType = active.data['grdm-file:file-type']?.value;
+      if (active?.schema !== SCHEMA_ID_PUBLIC_FUNDING) continue;
+      const metadataData = active.data as GrdmFileMetadataFields;
+      const titleJa = metadataData['grdm-file:title-ja']?.value;
+      const titleEn = metadataData['grdm-file:title-en']?.value;
+      const fileType = metadataData['grdm-file:file-type']?.value;
       if (titleJa) console.log(`Title (JA): ${titleJa}`);
       if (titleEn) console.log(`Title (EN): ${titleEn}`);
       if (fileType) console.log(`File Type : ${fileType}`);
