@@ -1,4 +1,5 @@
 import { GrdmClient } from '../src/client';
+import { GrdmFileMetadataFields, SCHEMA_ID_PUBLIC_FUNDING } from '../src/types/file-metadata';
 
 /**
  * Basic usage example of the GakuNin RDM API client.
@@ -122,8 +123,11 @@ async function main() {
         console.log(`Found ${files.length} file(s) with metadata:`);
         files.forEach((file) => {
           const activeSchema = file.items?.find((item) => item.active);
-          const titleJa = activeSchema?.data['grdm-file:title-ja']?.value ?? '(no title)';
-          console.log(`- ${file.path}  [schema: ${activeSchema?.schema ?? 'none'}]  ${titleJa}`);
+          if (activeSchema?.schema === SCHEMA_ID_PUBLIC_FUNDING) {
+            const fileMetadataData = activeSchema?.data as GrdmFileMetadataFields;
+            const titleJa = fileMetadataData['grdm-file:title-ja']?.value ?? '(no title)';
+            console.log(`- ${file.path}  [schema: ${activeSchema?.schema ?? 'none'}]  ${titleJa}`);
+          }
         });
       }
     }

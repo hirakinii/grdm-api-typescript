@@ -5,6 +5,27 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.5.0] - 2026-03-30
+
+### Added
+
+- **MS2 Mibyodb metadata schema support** (schema ②, ID: `67e381081921b4000842c800`):
+  - `Ms2MibyoDbMetadataField` interface: field type with `value: string | null`, a narrower variant of `GrdmFileMetadataField`
+  - `Ms2MibyoDbMetadataFields` interface: 84 optional fields covering measurement, folder, text file, Excel file, image file, and arbitrary file metadata sections
+  - `Ms2MibyoDbFileMetadataSchema` interface: narrowed schema interface; use after `isMs2MibyoDbSchema` guard
+- Schema ID constants:
+  - `SCHEMA_ID_PUBLIC_FUNDING` = `'66d7d4ec299c4f00071be84f'`
+  - `SCHEMA_ID_MS2_MIBYODB` = `'67e381081921b4000842c800'`
+- Type guard functions for schema-safe field access:
+  - `isPublicFundingSchema(s)` — narrows `GrdmFileMetadataSchema` to `PublicFundingFileMetadataSchema`
+  - `isMs2MibyoDbSchema(s)` — narrows `GrdmFileMetadataSchema` to `Ms2MibyoDbFileMetadataSchema`
+- `PublicFundingFileMetadataSchema` interface: narrowed schema interface for schema ①; use after `isPublicFundingSchema` guard
+- `GrdmFileMetadataData` union type: `GrdmFileMetadataFields | Ms2MibyoDbMetadataFields`; extend this union when a new schema is added
+
+### Changed
+
+- **Breaking**: `GrdmFileMetadataSchema.data` type changed from `GrdmFileMetadataFields` to `GrdmFileMetadataData` (union type). Direct property access on `data` now requires narrowing via type guard functions or explicit type assertion.
+
 ## [0.4.0] - 2026-03-27
 
 ### Added
@@ -84,6 +105,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - `list_all_projects.ts` — paginated listing of all accessible projects using three `PaginatedResult` patterns.
   - `examples/README.md` — usage instructions and environment variable reference for each example.
 
+[0.5.0]: https://github.com/hirakinii/grdm-api-typescript/releases/tag/v0.5.0
 [0.4.0]: https://github.com/hirakinii/grdm-api-typescript/releases/tag/v0.4.0
 [0.3.0]: https://github.com/hirakinii/grdm-api-typescript/releases/tag/v0.3.0
 [0.2.0]: https://github.com/hirakinii/grdm-api-typescript/releases/tag/v0.2.0

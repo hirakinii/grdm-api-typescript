@@ -11,6 +11,13 @@
  */
 
 import { GrdmClient } from '../src/client';
+import {
+  GrdmFileItem,
+  GrdmFileMetadataFields,
+  Ms2MibyoDbMetadataFields,
+  SCHEMA_ID_MS2_MIBYODB,
+  SCHEMA_ID_PUBLIC_FUNDING,
+} from '../src/types/file-metadata';
 
 async function main(): Promise<void> {
   const token = process.env.GRDM_TOKEN;
@@ -73,34 +80,40 @@ async function main(): Promise<void> {
   }
 
   // ----------------------------------------------------------------
-  // 2. Fetch file metadata for the given project (v1 API)
+  // 2. Fetch public funding file metadata for the given project (v1 API)
   // ----------------------------------------------------------------
-  console.log(`\n=== File Metadata (project: ${nodeId}) ===\n`);
+  console.log(`\n=== Public Funding File Metadata (project: ${nodeId}) ===\n`);
 
-  const fileMetadataResponse = await client.fileMetadata.getByProject(nodeId);
-  const files = fileMetadataResponse.data.attributes.files;
+  const publicFileMetadataResponse = await client.fileMetadata.getByProject(nodeId);
+  let files: GrdmFileItem[] = [];
 
+  for (const file of publicFileMetadataResponse.data.attributes.files) {
+    const activeSchema = file.items?.find((item) => item.active);
+    if (!activeSchema) continue;
+    if (activeSchema?.schema === SCHEMA_ID_PUBLIC_FUNDING) {
+      files.push(file);
+    }
+  }
   if (files.length === 0) {
-    console.log('No file metadata found for this project.');
+    console.log('No public funding file metadata found for this project.');
   } else {
-    console.log(`Found ${files.length} file(s) with metadata:\n`);
+    console.log(`Found ${files.length} file(s) with public funding metadata:\n`);
 
     for (const file of files) {
       console.log(`Path    : ${file.path}`);
       console.log(`Folder  : ${file.folder}`);
       console.log(`URLPath : ${file.urlpath}`);
-
       const activeSchema = file.items?.find((item) => item.active);
       if (activeSchema) {
         console.log(`Schema  : ${activeSchema.schema}`);
-
-        const fileType = activeSchema.data['grdm-file:file-type']?.value;
-        const titleJa = activeSchema.data['grdm-file:title-ja']?.value;
-        const titleEn = activeSchema.data['grdm-file:title-en']?.value;
-        const dataType = activeSchema.data['grdm-file:data-type']?.value;
-        const dataResearchField = activeSchema.data['grdm-file:data-research-field']?.value;
-        const accessRights = activeSchema.data['grdm-file:access-rights']?.value;
-        const creators = activeSchema.data['grdm-file:creators']?.value;
+        const fileMetadataData = activeSchema?.data as GrdmFileMetadataFields;
+        const fileType = fileMetadataData['grdm-file:file-type']?.value;
+        const titleJa = fileMetadataData['grdm-file:title-ja']?.value;
+        const titleEn = fileMetadataData['grdm-file:title-en']?.value;
+        const dataType = fileMetadataData['grdm-file:data-type']?.value;
+        const dataResearchField = fileMetadataData['grdm-file:data-research-field']?.value;
+        const accessRights = fileMetadataData['grdm-file:access-rights']?.value;
+        const creators = fileMetadataData['grdm-file:creators']?.value;
 
         if (fileType) console.log(`File type      : ${fileType}`);
         if (titleJa) console.log(`Title (JA)     : ${titleJa}`);
@@ -116,8 +129,8 @@ async function main(): Promise<void> {
           }
         }
         if (fileType && fileType === 'manuscript') {
-          const reviewed = activeSchema.data['grdm-file:reviewed']?.value;
-          const manuscriptType = activeSchema.data['grdm-file:manuscript-type']?.value;
+          const reviewed = fileMetadataData['grdm-file:reviewed']?.value;
+          const manuscriptType = fileMetadataData['grdm-file:manuscript-type']?.value;
           console.log(`reviewed        : ${reviewed}`);
           console.log(`Manuscript Type : ${manuscriptType}`);
         }
@@ -126,6 +139,49 @@ async function main(): Promise<void> {
       }
 
       console.log('');
+    }
+  }
+
+  // ----------------------------------------------------------------
+  // 3. Fetch MS2 funding file metadata for the given project (v1 API)
+  // ----------------------------------------------------------------
+  console.log(`\n=== MS2 Funding File Metadata (project: ${nodeId}) ===\n`);
+
+  const ms2FileMetadataResponse = await client.fileMetadata.getByProject(nodeId);
+  files = [];
+
+  for (const file of ms2FileMetadataResponse.data.attributes.files) {
+    const activeSchema = file.items?.find((item) => item.active);
+    if (!activeSchema) continue;
+    if (activeSchema?.schema === SCHEMA_ID_MS2_MIBYODB) {
+      files.push(file);
+    }
+  }
+
+  if (files.length === 0) {
+    console.log('No MS2 funding file metadata found for this project.');
+  } else {
+    console.log(`Found ${files.length} file(s) with MS2 funding metadata:\n`);
+
+    for (const file of files) {
+      console.log(`Path    : ${file.path}`);
+      console.log(`Folder  : ${file.folder}`);
+      console.log(`URLPath : ${file.urlpath}`);
+
+      const activeSchema = file.items?.find((item) => item.active);
+      if (activeSchema) {
+        console.log(`Schema  : ${activeSchema.schema}`);
+        const fileMetadataData = activeSchema?.data as Ms2MibyoDbMetadataFields;
+        const labelExplanation = fileMetadataData['grdm-file:Label-explanation']?.value;
+        const objectOfMeasurementJp = fileMetadataData['grdm-file:d-msr-object-of-measurement-jp']?.value;
+        const objectOfMeasurementEn = fileMetadataData['grdm-file:d-msr-object-of-measurement-en']?.value;
+        const msrDataTypeJp = fileMetadataData['grdm-file:d-msr-data-type-jp']?.value;
+
+        if (labelExplanation) console.log(`labelExplanation      : ${labelExplanation}`);
+        if (objectOfMeasurementJp) console.log(`Object of Measurement (JA)     : ${objectOfMeasurementJp}`);
+        if (objectOfMeasurementEn) console.log(`Object of Measurement (EN)     : ${objectOfMeasurementEn}`);
+        if (msrDataTypeJp) console.log(`Measurement Data Type (JA)     : ${msrDataTypeJp}`);
+      }
     }
   }
 }

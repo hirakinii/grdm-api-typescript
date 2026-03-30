@@ -1,4 +1,18 @@
 import { GrdmFileMetadataField } from './project-metadata';
+import { Ms2MibyoDbMetadataFields } from './ms2-mibyodb-metadata';
+export { Ms2MibyoDbMetadataField, Ms2MibyoDbMetadataFields } from './ms2-mibyodb-metadata';
+
+/**
+ * Schema ID for the Public Funding Research Data Metadata schema (schema ①).
+ * 公的資金による研究データのメタデータ
+ */
+export const SCHEMA_ID_PUBLIC_FUNDING = '66d7d4ec299c4f00071be84f' as const;
+
+/**
+ * Schema ID for the MS2 Mibyodb Metadata schema (schema ②).
+ * ムーンショット目標2データベース（未病DB）のメタデータ
+ */
+export const SCHEMA_ID_MS2_MIBYODB = '67e381081921b4000842c800' as const;
 
 /**
  * Response structure for the v1 file metadata API.
@@ -29,19 +43,63 @@ export interface GrdmFileItem {
 }
 
 /**
+ * Union of all supported schema data types.
+ * When a new schema is added, extend this union with the new fields type.
+ */
+export type GrdmFileMetadataData = GrdmFileMetadataFields | Ms2MibyoDbMetadataFields;
+
+/**
  * A metadata schema associated with a file item.
  * The metadata fields are nested under the `data` property,
  * matching the actual GRDM v1 API response structure.
  * Based on Section 5.2 of the specification.
+ *
+ * To access schema-specific fields in a type-safe manner, use the type guard
+ * functions `isPublicFundingSchema` or `isMs2MibyoDbSchema` to narrow the type.
  */
 export interface GrdmFileMetadataSchema {
   schema: string;
   active: boolean;
+  data: GrdmFileMetadataData;
+}
+
+/**
+ * Narrowed schema interface for the Public Funding schema (schema ①).
+ * Use `isPublicFundingSchema` to narrow a `GrdmFileMetadataSchema` to this type.
+ */
+export interface PublicFundingFileMetadataSchema extends GrdmFileMetadataSchema {
+  schema: typeof SCHEMA_ID_PUBLIC_FUNDING;
   data: GrdmFileMetadataFields;
 }
 
 /**
- * The set of metadata fields nested under `data` in a GrdmFileMetadataSchema.
+ * Narrowed schema interface for the MS2 Mibyodb schema (schema ②).
+ * Use `isMs2MibyoDbSchema` to narrow a `GrdmFileMetadataSchema` to this type.
+ */
+export interface Ms2MibyoDbFileMetadataSchema extends GrdmFileMetadataSchema {
+  schema: typeof SCHEMA_ID_MS2_MIBYODB;
+  data: Ms2MibyoDbMetadataFields;
+}
+
+/**
+ * Type guard: narrows a GrdmFileMetadataSchema to PublicFundingFileMetadataSchema.
+ * Returns true when the schema ID matches the Public Funding schema (schema ①).
+ */
+export function isPublicFundingSchema(s: GrdmFileMetadataSchema): s is PublicFundingFileMetadataSchema {
+  return s.schema === SCHEMA_ID_PUBLIC_FUNDING;
+}
+
+/**
+ * Type guard: narrows a GrdmFileMetadataSchema to Ms2MibyoDbFileMetadataSchema.
+ * Returns true when the schema ID matches the MS2 Mibyodb schema (schema ②).
+ */
+export function isMs2MibyoDbSchema(s: GrdmFileMetadataSchema): s is Ms2MibyoDbFileMetadataSchema {
+  return s.schema === SCHEMA_ID_MS2_MIBYODB;
+}
+
+/**
+ * The set of metadata fields nested under `data` in a GrdmFileMetadataSchema
+ * for the Public Funding schema (schema ①).
  */
 export interface GrdmFileMetadataFields {
   'grdm-file:file-type'?: GrdmFileMetadataField;
