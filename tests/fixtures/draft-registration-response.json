@@ -1,0 +1,114 @@
+{
+  "data": [
+    {
+      "id": "69c2a92718fee90010966925",
+      "type": "draft_registrations",
+      "attributes": {
+        "title": "Investigation of size dependence of Bragg intensity from single particle",
+        "description": "This project investigates the size dependence of Bragg intensity from single a particle.",
+        "category": "project",
+        "tags": [],
+        "has_project": true,
+        "datetime_initiated": "2026-03-24T15:09:27.966046",
+        "datetime_updated": "2026-03-30T08:35:05.548513",
+        "registration_metadata": {
+          "funder": {
+            "extra": [],
+            "value": "JSPS",
+            "comments": []
+          },
+          "grdm-files": {
+            "extra": [],
+            "value": "[{\"path\":\"osfstorage/README.md\",\"urlpath\":\"/wvrae/\",\"metadata\":{\"grdm-file:file-type\":{\"extra\":[],\"comments\":[],\"value\":\"dataset\"},\"grdm-file:title-ja\":{\"extra\":[],\"comments\":[],\"value\":\"プロジェクト用README\"},\"grdm-file:title-en\":{\"extra\":[],\"comments\":[],\"value\":\"README file for this project\"},\"grdm-file:creators\":{\"extra\":[],\"comments\":[],\"value\":[{\"number\":\"10880916\",\"name_ja\":\"平木俊幸\",\"name_en\":\"Toshiyuki Hiraki\"}]}}}]",
+            "comments": []
+          },
+          "program-name-en": {
+            "extra": [],
+            "value": "Youth Research",
+            "comments": []
+          },
+          "program-name-ja": {
+            "extra": [],
+            "value": "若手研究",
+            "comments": []
+          },
+          "project-name-en": {
+            "extra": [],
+            "value": "Investigation of size dependence of Bragg intensity from single particle",
+            "comments": []
+          },
+          "project-name-ja": {
+            "extra": [],
+            "value": "Investigation of size dependence of Bragg intensity from single particle",
+            "comments": []
+          },
+          "japan-grant-number": {
+            "extra": [],
+            "value": "JP25K12345",
+            "comments": []
+          },
+          "funding-stream-code": {
+            "extra": [],
+            "value": "JP",
+            "comments": []
+          },
+          "project-research-field": {
+            "extra": [],
+            "value": "1000",
+            "comments": []
+          }
+        },
+        "registration_responses": {
+          "funder": "JSPS",
+          "program-name-en": "Youth Research",
+          "program-name-ja": "若手研究",
+          "project-name-en": "Investigation of size dependence of Bragg intensity from single particle",
+          "project-name-ja": "Investigation of size dependence of Bragg intensity from single particle",
+          "japan-grant-number": "JP25K12345",
+          "funding-stream-code": "JP",
+          "project-research-field": "1000"
+        }
+      },
+      "relationships": {
+        "branched_from": {
+          "links": {
+            "related": {
+              "href": "https://api.rdm.nii.ac.jp/v2/nodes/uzdsn/",
+              "meta": {}
+            }
+          },
+          "data": {
+            "id": "uzdsn",
+            "type": "nodes"
+          }
+        },
+        "registration_schema": {
+          "links": {
+            "related": {
+              "href": "https://api.rdm.nii.ac.jp/v2/schemas/registrations/66d7d4ec299c4f00071be84f/",
+              "meta": {}
+            }
+          },
+          "data": {
+            "id": "66d7d4ec299c4f00071be84f",
+            "type": "registration-schemas"
+          }
+        }
+      },
+      "links": {
+        "self": "https://api.rdm.nii.ac.jp/v2/nodes/uzdsn/draft_registrations/69c2a92718fee90010966925/"
+      }
+    }
+  ],
+  "links": {
+    "self": "https://api.rdm.nii.ac.jp/v2/nodes/uzdsn/draft_registrations/",
+    "next": null,
+    "prev": null,
+    "first": "https://api.rdm.nii.ac.jp/v2/nodes/uzdsn/draft_registrations/",
+    "last": "https://api.rdm.nii.ac.jp/v2/nodes/uzdsn/draft_registrations/"
+  },
+  "meta": {
+    "total": 1,
+    "per_page": 10
+  }
+}

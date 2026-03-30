@@ -1,9 +1,16 @@
-import { OsfRegistrationAttributes } from 'osf-api-v2-typescript';
+import { OsfRegistrationAttributes, OsfDraftRegistrationAttributes } from 'osf-api-v2-typescript';
 
 /**
  * Extended registration attributes including parsed GRDM metadata.
  */
 export interface GrdmProjectMetadataAttributes extends OsfRegistrationAttributes {
+  grdmMeta?: GrdmRegisteredMeta;
+}
+
+/**
+ * Extended draft registration attributes including parsed GRDM metadata.
+ */
+export interface GrdmDraftProjectMetadataAttributes extends OsfDraftRegistrationAttributes {
   grdmMeta?: GrdmRegisteredMeta;
 }
 

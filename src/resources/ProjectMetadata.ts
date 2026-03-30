@@ -1,10 +1,6 @@
 import { BaseResource, TransformedResource, TransformedList } from 'osf-api-v2-typescript';
-import {
-  GrdmProjectMetadataAttributes,
-  GrdmRegisteredMeta,
-  GrdmRegisteredFile,
-  GrdmFileMetadataField,
-} from '../types/project-metadata';
+import { GrdmProjectMetadataAttributes } from '../types/project-metadata';
+import { parseGrdmMetaRecord } from '../utils/parseGrdmMeta';
 
 /**
  * Resource class for GakuNin RDM Project Metadata (v2 API)
@@ -46,56 +42,19 @@ export class ProjectMetadata extends BaseResource {
   }
 
   /**
-   * Parse GRDM metadata from registration attributes
+   * Parse GRDM metadata from registration attributes.
+   * Uses registered_meta (present in registrations) and registration_supplement
+   * (a direct attribute field available only in registrations).
    */
-  private parseGrdmMeta(attributes: GrdmProjectMetadataAttributes): GrdmRegisteredMeta {
-    const meta: GrdmRegisteredMeta = {};
+  private parseGrdmMeta(attributes: GrdmProjectMetadataAttributes): ReturnType<typeof parseGrdmMetaRecord> {
     const registeredMeta = attributes.registered_meta as Record<string, unknown> | undefined;
 
     if (!registeredMeta) {
-      return meta;
+      return {};
     }
 
-    const unwrap = (key: string) => {
-      const field = registeredMeta[key];
-      return field && typeof field === 'object' && 'value' in field ? field.value : undefined;
-    };
-
-    meta.funder = unwrap('funder') as string | undefined;
-    meta.programNameJa = unwrap('program-name-ja') as string | undefined;
-    meta.programNameEn = unwrap('program-name-en') as string | undefined;
-    meta.projectNameJa = unwrap('project-name-ja') as string | undefined;
-    meta.projectNameEn = unwrap('project-name-en') as string | undefined;
-    meta.japanGrantNumber = unwrap('japan-grant-number') as string | undefined;
-    meta.fundingStreamCode = unwrap('funding-stream-code') as string | undefined;
-    meta.projectResearchField = unwrap('project-research-field') as string | undefined;
+    const meta = parseGrdmMetaRecord(registeredMeta);
     meta.registrationSupplement = attributes.registration_supplement as string | undefined;
-
-    const grdmFilesJson = unwrap('grdm-files');
-    if (typeof grdmFilesJson === 'string' && grdmFilesJson) {
-      try {
-        const files = JSON.parse(grdmFilesJson) as Record<string, unknown>[];
-        meta.grdmFiles = this.parseGrdmFiles(files);
-      } catch {
-        // Ignore parse errors
-      }
-    }
-
     return meta;
-  }
-
-  /**
-   * Parse grdm-files metadata and handle snake_case to camelCase conversion for creators
-   */
-  private parseGrdmFiles(files: Record<string, unknown>[]): GrdmRegisteredFile[] {
-    return files.map((file) => {
-      const metadata = { ...(file.metadata as Record<string, GrdmFileMetadataField>) };
-
-      return {
-        path: file.path as string,
-        urlpath: file.urlpath as string,
-        metadata,
-      };
-    });
   }
 }
