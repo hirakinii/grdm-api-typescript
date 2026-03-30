@@ -13,12 +13,13 @@ The GakuNin RDM API follows the [Open Science Framework (OSF) API v2](https://de
 ## Features
 
 - Full access to all 22 OSF API v2 resources (inherited from `OsfClient`)
-- GRDM project metadata retrieval via v2 API (`projectMetadata`)
+- GRDM project metadata retrieval via v2 API (`projectMetadata`, `draftProjectMetadata`)
 - GRDM file metadata retrieval via v1 API (`fileMetadata`)
-- Multi-schema file metadata support with type-safe access:
+- Multi-schema support with type-safe access for both file metadata and project metadata:
   - Schema ①: 公的資金による研究データのメタデータ (`SCHEMA_ID_PUBLIC_FUNDING`)
   - Schema ②: ムーンショット目標2データベース（未病DB）のメタデータ (`SCHEMA_ID_MS2_MIBYODB`)
-  - Type guard functions: `isPublicFundingSchema`, `isMs2MibyoDbSchema`
+  - File metadata type guard functions: `isPublicFundingSchema`, `isMs2MibyoDbSchema`
+  - Project metadata discriminated union: `GrdmParsedMeta` (narrow via `schemaType`)
 - Subfolder navigation via `grdmFiles.listByPath()` and `grdmFiles.listByPathPaginated()`
 - Custom `fetch` injection for v1 API requests — enables proxy-based CORS workarounds in browser frontends
 - Automatic `v1BaseUrl` inference from `baseUrl`
@@ -133,6 +134,77 @@ console.log(item.grdmMeta?.projectNameEn);
 | `grdmFiles` | `GrdmRegisteredFile[]` | `grdm-files` (JSON string, auto-parsed) |
 
 The `{ value, extra }` wrapper in `registered_meta` is automatically unwrapped.
+
+---
+
+### `client.draftProjectMetadata`
+
+Accesses GRDM project metadata via the v2 draft registrations API. Supports both schema ① and schema ②.
+
+#### `listByNode(nodeId, params?)`
+
+```typescript
+const result = await client.draftProjectMetadata.listByNode('abc12');
+
+for (const draft of result.data) {
+  const meta = draft.grdmMeta;
+  if (!meta) continue;
+
+  if (meta.schemaType === 'public-funding') {
+    console.log(meta.funder);
+    console.log(meta.japanGrantNumber);
+  } else if (meta.schemaType === 'ms2-mibyodb') {
+    console.log(meta.projectName);
+    console.log(meta.dataCreators?.[0].nameEn);
+  }
+}
+```
+
+#### `getById(draftId)`
+
+```typescript
+const draft = await client.draftProjectMetadata.getById('draft123');
+if (draft.grdmMeta?.schemaType === 'ms2-mibyodb') {
+  console.log(draft.grdmMeta.titleOfDataset);
+}
+```
+
+#### Parsed `grdmMeta` fields — schema ① (`'public-funding'`)
+
+Same fields as `client.projectMetadata` (see above).
+
+#### Parsed `grdmMeta` fields — schema ② (`'ms2-mibyodb'`, `Ms2ProjectRegisteredMeta`)
+
+| Field | Type | Source key in `registration_metadata` |
+|---|---|---|
+| `projectName` | `string` | `project-name` |
+| `titleOfDataset` | `string` | `title-of-dataset` |
+| `titleOfDatasetEn` | `string` | `title-of-dataset-en` |
+| `dataCreators` | `Ms2Person[]` | `data-creator` (JSON string, auto-parsed) |
+| `dataManagers` | `Ms2Person[]` | `data-manager` (JSON string, auto-parsed) |
+| `keywords` | `Ms2Keyword[]` | `keywords` (JSON string, auto-parsed) |
+| `datasetResearchField` | `string` | `dataset-research-field` |
+| `accessRights` | `string` | `access-rights` |
+| `dataPolicyFree` | `string` | `data-policy-free` |
+| `dataPolicyLicense` | `string` | `data-policy-license` |
+| `informedConsent` | `string` | `informed-consent` |
+| `ethicsReviewCommitteeApproval` | `string` | `ethics-review-committee-approval` |
+| `purposeOfExperiment` | `string` | `purpose-of-experiment` |
+| `descriptionOfExperimentalCondition` | `string` | `description-of-experimental-condition` |
+| `analysisType` | `string[]` | `Analysis-type` |
+| `targetTypeOfAcquiredData` | `string` | `target-type-of-acquired-data` |
+| `availabilityOfCommercialUse` | `string` | `availability-of-commercial-use` |
+| `conflictOfInterest` | `string` | `conflict-of-interest-Yes-or-No` |
+| `necessityOfContactAndPermission` | `string` | `necessity-of-contact-and-permission` |
+| `namesToBeIncludedInAcknowledgments` | `string` | `names-to-be-included-in-the-acknowledgments` |
+| `repositoryInformation` | `string` | `repository-information` |
+| `dateRegisteredInMetadata` | `string` | `date-registered-in-metadata` |
+| `disclaimerVersion` | `string` | `disclaimer-version` |
+| `grdmFiles` | `GrdmRegisteredFile[]` | `grdm-files` (JSON string, auto-parsed) |
+| `checklists` | `Record<string, string[]>` | `Checklist1`–`Checklist13` |
+
+`Ms2Person`: `{ name, nameEn, belonging, belongingEn, contact }`
+`Ms2Keyword`: `{ filename, filenameEn }`
 
 ---
 
