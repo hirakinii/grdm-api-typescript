@@ -1,7 +1,9 @@
 import { FileMetadata } from '../../src/resources/FileMetadata';
 import { HttpClient } from 'osf-api-v2-typescript';
 import fileMetadataResponse from '../fixtures/file-metadata-response.json';
+import ms2MibyoDbResponse from '../fixtures/ms2-mibyodb-metadata-response.json';
 import fetchMock from 'jest-fetch-mock';
+import { isPublicFundingSchema, isMs2MibyoDbSchema } from '../../src/types/file-metadata';
 
 describe('FileMetadata Resource (v1 API)', () => {
   let fileMetadata: FileMetadata;
@@ -60,9 +62,32 @@ describe('FileMetadata Resource (v1 API)', () => {
       const metadata = await fileMetadata.getActiveMetadata('uzdsn', 'osfstorage/README.md');
 
       expect(metadata).toBeDefined();
-      expect(metadata?.schema).toBe('grdm-file-metadata-schema');
+      expect(metadata?.schema).toBe('66d7d4ec299c4f00071be84f');
       expect(metadata?.active).toBe(true);
-      expect(metadata?.data['grdm-file:data-number']).toEqual({ value: 'D001', extra: [], comments: [] });
+
+      if (metadata && isPublicFundingSchema(metadata)) {
+        expect(metadata.data['grdm-file:data-number']).toEqual({ value: 'D001', extra: [], comments: [] });
+      } else {
+        throw new Error('Expected isPublicFundingSchema to return true for fixture');
+      }
+    });
+
+    it('should return schema ② active metadata for a MS2 Mibyodb project file', async () => {
+      fetchMock.mockResponseOnce(JSON.stringify(ms2MibyoDbResponse));
+
+      const fm = new FileMetadata(httpClient, v1BaseUrl);
+      const metadata = await fm.getActiveMetadata('ms2db', 'osfstorage/sample.csv');
+
+      expect(metadata).toBeDefined();
+      expect(metadata?.active).toBe(true);
+
+      if (metadata && isMs2MibyoDbSchema(metadata)) {
+        expect(metadata.data['grdm-file:d-msr-object-of-measurement-jp']?.value).toBe('血圧');
+        expect(metadata.data['grdm-file:d-msr-object-of-measurement-en']?.value).toBe('blood pressure');
+        expect(metadata.data['grdm-file:Label-explanation']?.value).toBeNull();
+      } else {
+        throw new Error('Expected isMs2MibyoDbSchema to return true for MS2 Mibyodb fixture');
+      }
     });
 
     it('should return undefined if no active metadata exists', async () => {
