@@ -1,6 +1,11 @@
 import { BaseResource, TransformedResource, TransformedList } from 'osf-api-v2-typescript';
-import { GrdmDraftProjectMetadataAttributes } from '../types/project-metadata';
-import { parseGrdmMetaRecord } from '../utils/parseGrdmMeta';
+import {
+  GrdmDraftProjectMetadataAttributes,
+  GrdmParsedMeta,
+  GrdmRegistrationSchemaRelationship,
+  SCHEMA_ID_MS2_MIBYODB,
+} from '../types/project-metadata';
+import { parseGrdmMetaRecord, parseMs2ProjectMetaRecord } from '../utils/parseGrdmMeta';
 
 /**
  * Resource class for GakuNin RDM Project Metadata via Draft Registrations (v2 API)
@@ -42,15 +47,27 @@ export class DraftProjectMetadata extends BaseResource {
   }
 
   /**
-   * Parse GRDM metadata from draft registration attributes.
-   * Uses registration_metadata (present in draft registrations).
-   * Note: registration_supplement is not available in draft registrations.
+   * Parse GRDM metadata from a draft registration transformed resource.
+   * Dispatches to the appropriate parser based on registration_schema.data.id
+   * from the GRDM-extended relationships field.
+   *
+   * - Schema ① (public-funding): parseGrdmMetaRecord
+   * - Schema ② (ms2-mibyodb): parseMs2ProjectMetaRecord
    */
-  private parseGrdmMeta(attributes: GrdmDraftProjectMetadataAttributes): ReturnType<typeof parseGrdmMetaRecord> {
-    const registrationMetadata = attributes.registration_metadata as Record<string, unknown> | undefined;
+  private parseGrdmMeta(item: TransformedResource<GrdmDraftProjectMetadataAttributes>): GrdmParsedMeta {
+    const registrationMetadata = item.registration_metadata as Record<string, unknown> | undefined;
 
     if (!registrationMetadata) {
-      return {};
+      return { schemaType: 'public-funding' };
+    }
+
+    const schemaRelationship = item.relationships?.['registration_schema'] as
+      | GrdmRegistrationSchemaRelationship
+      | undefined;
+    const schemaId = schemaRelationship?.data?.id;
+
+    if (schemaId === SCHEMA_ID_MS2_MIBYODB) {
+      return parseMs2ProjectMetaRecord(registrationMetadata);
     }
 
     return parseGrdmMetaRecord(registrationMetadata);

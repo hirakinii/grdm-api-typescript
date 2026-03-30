@@ -3,6 +3,7 @@ import { GrdmRegisteredMeta, GrdmRegisteredFile, GrdmFileMetadataField, GrdmCrea
 describe('ProjectMetadata Types', () => {
   it('should allow valid GrdmRegisteredMeta object', () => {
     const meta: GrdmRegisteredMeta = {
+      schemaType: 'public-funding',
       funder: 'JSPS',
       programNameJa: '科学研究費助成事業',
       grdmFiles: [

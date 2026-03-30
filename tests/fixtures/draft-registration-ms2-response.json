@@ -1,0 +1,212 @@
+{
+  "data": [
+    {
+      "id": "69ca249618fee90010970661",
+      "type": "draft_registrations",
+      "attributes": {
+        "title": "Investigation of size dependence of Bragg intensity from single particle",
+        "description": "",
+        "category": "project",
+        "tags": [],
+        "has_project": true,
+        "datetime_initiated": "2026-03-30T00:00:00.000000",
+        "datetime_updated": "2026-03-30T00:00:00.000000",
+        "registration_metadata": {
+          "data-id": { "extra": [], "value": "", "comments": [] },
+          "keywords": {
+            "extra": [],
+            "value": "[{\"filename\":\"XFEL\",\"filename-en\":\"XFEL\"}]",
+            "comments": []
+          },
+          "project-name": {
+            "extra": [],
+            "value": "MS2合原PJ|MS2 Aihara PJ",
+            "comments": []
+          },
+          "title-of-dataset": {
+            "extra": [],
+            "value": "Investigation of size dependence of Bragg intensity from single particle",
+            "comments": []
+          },
+          "title-of-dataset-en": {
+            "extra": [],
+            "value": "Investigation of size dependence of Bragg intensity from single particle",
+            "comments": []
+          },
+          "data-creator": {
+            "extra": [],
+            "value": "[{\"name\":\"平木俊幸\",\"name-en\":\"Toshiyuki Hiraki\",\"belonging\":\"国立情報学研究所\",\"belonging-en\":\"National Institute of Informatics\",\"contact\":\"hiraki@nii.ac.jp\"}]",
+            "comments": []
+          },
+          "data-manager": {
+            "extra": [],
+            "value": "[{\"name\":\"平木俊幸\",\"name-en\":\"Toshiyuki Hiraki\",\"belonging\":\"国立情報学研究所\",\"belonging-en\":\"National Institute of Informatics\",\"contact\":\"hiraki@nii.ac.jp\"}]",
+            "comments": []
+          },
+          "dataset-research-field": {
+            "extra": [],
+            "value": "自然科学一般|Natural Science",
+            "comments": []
+          },
+          "access-rights": {
+            "extra": [],
+            "value": "共有|restricted access",
+            "comments": []
+          },
+          "data-policy-free": {
+            "extra": [],
+            "value": "無償|Free",
+            "comments": []
+          },
+          "data-policy-license": {
+            "extra": [],
+            "value": "CC BY-NC 4.0 表示—非営利|CC BY-NC 4.0 Attribution—NonCommercial",
+            "comments": []
+          },
+          "informed-consent": {
+            "extra": [],
+            "value": "不要|Unnecessary",
+            "comments": []
+          },
+          "anonymous-processing": { "extra": [], "value": "", "comments": [] },
+          "ethics-review-committee-approval": {
+            "extra": [],
+            "value": "不要",
+            "comments": []
+          },
+          "purpose-of-experiment": {
+            "extra": [],
+            "value": "ナノ粒子の励起状態による構造変化を Bragg 散乱スポットの変化で追跡する。",
+            "comments": []
+          },
+          "purpose-of-experiment-en": { "extra": [], "value": "", "comments": [] },
+          "description-of-experimental-condition": {
+            "extra": [],
+            "value": "SACLA にてナノ粒子にX線を照射する。",
+            "comments": []
+          },
+          "description-of-experimental-condition-en": {
+            "extra": [],
+            "value": "",
+            "comments": []
+          },
+          "Analysis-type": {
+            "extra": [],
+            "value": ["イメージデータ|Imaging data"],
+            "comments": []
+          },
+          "Analysis-type-other": { "extra": [], "value": "", "comments": [] },
+          "target-type-of-acquired-data": {
+            "extra": [],
+            "value": "無機物",
+            "comments": []
+          },
+          "target-type-of-acquired-data-en": {
+            "extra": [],
+            "value": "Non-organic materials",
+            "comments": []
+          },
+          "availability-of-commercial-use": {
+            "extra": [],
+            "value": "否|No",
+            "comments": []
+          },
+          "conflict-of-interest-Yes-or-No": {
+            "extra": [],
+            "value": "無|No",
+            "comments": []
+          },
+          "necessity-of-contact-and-permission": {
+            "extra": [],
+            "value": "許諾が必要|Permission required",
+            "comments": []
+          },
+          "necessity-of-including-in-acknowledgments": {
+            "extra": [],
+            "value": "要|Necessary",
+            "comments": []
+          },
+          "names-to-be-included-in-the-acknowledgments": {
+            "extra": [],
+            "value": "平木俊幸, 国立情報学研究所",
+            "comments": []
+          },
+          "names-to-be-included-in-the-acknowledgments-en": {
+            "extra": [],
+            "value": "Toshiyuki Hiraki, National Institute of Informatics",
+            "comments": []
+          },
+          "repository-information": {
+            "extra": [],
+            "value": "GakuNin RDM",
+            "comments": []
+          },
+          "repository-url-doi-link": { "extra": [], "value": "", "comments": [] },
+          "date-registered-in-metadata": {
+            "extra": [],
+            "value": "2026-03-30",
+            "comments": []
+          },
+          "date-updated-in-metadata": {
+            "extra": [],
+            "value": "2026-03-30",
+            "comments": []
+          },
+          "disclaimer-version": {
+            "extra": [],
+            "value": "2025/03/19",
+            "comments": []
+          },
+          "disclaimer-check-date": {
+            "extra": [],
+            "value": "2026/03/30",
+            "comments": []
+          },
+          "grdm-files": {
+            "extra": [],
+            "value": "[{\"path\":\"osfstorage/data.hdf5\",\"urlpath\":\"/uzdsn/files/osfstorage/abc123\",\"metadata\":{\"grdm-file:Label-measurement\":{\"extra\":[],\"comments\":[],\"value\":null},\"grdm-file:d-msr-data-type-jp\":{\"extra\":[],\"comments\":[],\"value\":\"\"}}}]",
+            "comments": []
+          },
+          "Checklist1": {
+            "extra": [],
+            "value": ["「ムーンショット目標2研究データデポジットの基本方針に係る協定書」を読み、内容を理解しましたか？|Have you read the Agreement?"],
+            "comments": []
+          },
+          "Checklist2": {
+            "extra": [],
+            "value": ["倫理審査時に記載した指針に従った適切な処理を行いましたか？|Have you processed the data appropriately?"],
+            "comments": []
+          }
+        }
+      },
+      "relationships": {
+        "registration_schema": {
+          "links": {
+            "related": {
+              "href": "https://api.rdm.nii.ac.jp/v2/schemas/registrations/67e381081921b4000842c800/",
+              "meta": {}
+            }
+          },
+          "data": {
+            "id": "67e381081921b4000842c800",
+            "type": "registration-schemas"
+          }
+        }
+      },
+      "links": {
+        "self": "https://api.rdm.nii.ac.jp/v2/draft_registrations/69ca249618fee90010970661/"
+      }
+    }
+  ],
+  "links": {
+    "self": "https://api.rdm.nii.ac.jp/v2/nodes/uzdsn/draft_registrations/",
+    "next": null,
+    "prev": null,
+    "first": "https://api.rdm.nii.ac.jp/v2/nodes/uzdsn/draft_registrations/",
+    "last": "https://api.rdm.nii.ac.jp/v2/nodes/uzdsn/draft_registrations/"
+  },
+  "meta": {
+    "total": 1,
+    "per_page": 10
+  }
+}

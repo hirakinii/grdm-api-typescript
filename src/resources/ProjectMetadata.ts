@@ -50,7 +50,7 @@ export class ProjectMetadata extends BaseResource {
     const registeredMeta = attributes.registered_meta as Record<string, unknown> | undefined;
 
     if (!registeredMeta) {
-      return {};
+      return { schemaType: 'public-funding' };
     }
 
     const meta = parseGrdmMetaRecord(registeredMeta);
