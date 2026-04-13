@@ -5,6 +5,17 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.7.0] - 2026-04-13
+
+### Added
+
+- **`FileMetadata.updateFileMetadata(projectId, fileItem)`**: updates file-level metadata for a specific file via a PATCH request to the GRDM v1 API.
+  - Endpoint: `PATCH /api/v1/project/{project_id}/metadata/files/{storage_provider}/{file_name}`
+  - The target file URL is derived automatically from `fileItem.path` (e.g., `"osfstorage/README.md"`).
+  - Supports both the `httpClient` path and the `customFetch` injection path (CORS proxy workaround). `Authorization` and `Content-Type: application/json` headers are set automatically in both cases.
+  - Returns `Promise<void>`; throws an `Error` with the HTTP status code on non-2xx responses.
+- **Example** (`examples/update_grdm_file_metadata.ts`): demonstrates a full update round-trip — resolves the file path from `GRDM_FILE_ID` via the v2 Files API, overwrites `grdm-file:data-description-ja` with a test value, then restores the original value.
+
 ## [0.6.0] - 2026-03-30
 
 ### Added
@@ -129,6 +140,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - `list_all_projects.ts` — paginated listing of all accessible projects using three `PaginatedResult` patterns.
   - `examples/README.md` — usage instructions and environment variable reference for each example.
 
+[0.7.0]: https://github.com/hirakinii/grdm-api-typescript/releases/tag/v0.7.0
 [0.6.0]: https://github.com/hirakinii/grdm-api-typescript/releases/tag/v0.6.0
 [0.5.0]: https://github.com/hirakinii/grdm-api-typescript/releases/tag/v0.5.0
 [0.4.0]: https://github.com/hirakinii/grdm-api-typescript/releases/tag/v0.4.0

@@ -109,6 +109,151 @@ describe('FileMetadata Resource (v1 API)', () => {
   });
 });
 
+describe('FileMetadata Resource — updateFileMetadata', () => {
+  const v1BaseUrl = 'https://rdm.nii.ac.jp/api/v1';
+  let httpClient: HttpClient;
+
+  const sampleFileItem = {
+    path: 'osfstorage/README.md',
+    hash: 'abcdef1234567890',
+    folder: false,
+    urlpath: '/uzdsn/files/osfstorage/README.md/',
+    generated: false,
+    items: [
+      {
+        schema: '66d7d4ec299c4f00071be84f',
+        active: true,
+        data: {
+          'grdm-file:title-ja': { value: '更新済みREADME', extra: [], comments: [] },
+        },
+      },
+    ],
+  };
+
+  beforeEach(() => {
+    httpClient = new HttpClient({
+      baseUrl: 'https://api.rdm.nii.ac.jp/v2/',
+      token: 'dummy-token',
+      allowedHosts: ['rdm.nii.ac.jp'],
+    });
+    fetchMock.resetMocks();
+  });
+
+  it('should send a PATCH request to the correct URL', async () => {
+    fetchMock.mockResponseOnce('{}', { status: 200 });
+
+    const fm = new FileMetadata(httpClient, v1BaseUrl);
+    await fm.updateFileMetadata('uzdsn', sampleFileItem);
+
+    const [calledUrl, init] = fetchMock.mock.calls[0] as [string, RequestInit];
+    expect(calledUrl).toBe('https://rdm.nii.ac.jp/api/v1/project/uzdsn/metadata/files/osfstorage/README.md');
+    expect(init.method).toBe('PATCH');
+  });
+
+  it('should send the fileItem as a JSON request body', async () => {
+    fetchMock.mockResponseOnce('{}', { status: 200 });
+
+    const fm = new FileMetadata(httpClient, v1BaseUrl);
+    await fm.updateFileMetadata('uzdsn', sampleFileItem);
+
+    const [, init] = fetchMock.mock.calls[0] as [string, RequestInit];
+    expect(JSON.parse(init.body as string)).toEqual(sampleFileItem);
+  });
+
+  it('should include Content-Type application/json header', async () => {
+    fetchMock.mockResponseOnce('{}', { status: 200 });
+
+    const fm = new FileMetadata(httpClient, v1BaseUrl);
+    await fm.updateFileMetadata('uzdsn', sampleFileItem);
+
+    const [, init] = fetchMock.mock.calls[0] as [string, RequestInit];
+    // HttpClient wraps headers in a Headers instance; use .get() for type-safe access
+    const headers = init.headers as unknown as Headers;
+    expect(headers.get('Content-Type')).toBe('application/json');
+  });
+
+  it('should handle paths with sub-directories correctly', async () => {
+    fetchMock.mockResponseOnce('{}', { status: 200 });
+
+    const fm = new FileMetadata(httpClient, v1BaseUrl);
+    const deepFileItem = { ...sampleFileItem, path: 'osfstorage/subdir/data.csv' };
+    await fm.updateFileMetadata('uzdsn', deepFileItem);
+
+    const [calledUrl] = fetchMock.mock.calls[0] as [string, RequestInit];
+    expect(calledUrl).toBe(
+      'https://rdm.nii.ac.jp/api/v1/project/uzdsn/metadata/files/osfstorage/subdir/data.csv',
+    );
+  });
+
+  it('should throw an Error on non-2xx HTTP response', async () => {
+    fetchMock.mockResponseOnce('Forbidden', { status: 403 });
+
+    const fm = new FileMetadata(httpClient, v1BaseUrl);
+    await expect(fm.updateFileMetadata('uzdsn', sampleFileItem)).rejects.toThrow('403');
+  });
+
+  describe('with custom fetch', () => {
+    it('should call custom fetch instead of httpClient', async () => {
+      const customFetch = jest.fn().mockResolvedValue({ ok: true, json: () => Promise.resolve({}) });
+
+      const fm = new FileMetadata(
+        httpClient,
+        '/proxy-v1',
+        customFetch as unknown as typeof fetch,
+        () => 'proxy-token',
+      );
+      await fm.updateFileMetadata('uzdsn', sampleFileItem);
+
+      expect(customFetch).toHaveBeenCalledTimes(1);
+      const [calledUrl, init] = customFetch.mock.calls[0] as [string, RequestInit];
+      expect(calledUrl).toBe('/proxy-v1/project/uzdsn/metadata/files/osfstorage/README.md');
+      expect(init.method).toBe('PATCH');
+    });
+
+    it('should include Authorization header in custom fetch PATCH call', async () => {
+      const customFetch = jest.fn().mockResolvedValue({ ok: true, json: () => Promise.resolve({}) });
+
+      const fm = new FileMetadata(
+        httpClient,
+        '/proxy-v1',
+        customFetch as unknown as typeof fetch,
+        () => 'my-token',
+      );
+      await fm.updateFileMetadata('uzdsn', sampleFileItem);
+
+      const [, init] = customFetch.mock.calls[0] as [string, RequestInit];
+      expect((init.headers as Record<string, string>)['Authorization']).toBe('Bearer my-token');
+    });
+
+    it('should support async tokenProvider with custom fetch', async () => {
+      const customFetch = jest.fn().mockResolvedValue({ ok: true, json: () => Promise.resolve({}) });
+
+      const fm = new FileMetadata(
+        httpClient,
+        '/proxy-v1',
+        customFetch as unknown as typeof fetch,
+        () => Promise.resolve('async-token'),
+      );
+      await fm.updateFileMetadata('uzdsn', sampleFileItem);
+
+      const [, init] = customFetch.mock.calls[0] as [string, RequestInit];
+      expect((init.headers as Record<string, string>)['Authorization']).toBe('Bearer async-token');
+    });
+
+    it('should throw an Error when custom fetch returns non-2xx', async () => {
+      const customFetch = jest.fn().mockResolvedValue({ ok: false, status: 422, statusText: 'Unprocessable Entity' });
+
+      const fm = new FileMetadata(
+        httpClient,
+        '/proxy-v1',
+        customFetch as unknown as typeof fetch,
+        () => 'token',
+      );
+      await expect(fm.updateFileMetadata('uzdsn', sampleFileItem)).rejects.toThrow('422');
+    });
+  });
+});
+
 describe('FileMetadata Resource — custom fetch injection', () => {
   let httpClient: HttpClient;
 
