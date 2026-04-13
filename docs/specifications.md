@@ -218,6 +218,13 @@ GET /api/v1/project/{project_id}/metadata/project
 
 Retrieves the complete file metadata for a GRDM project, including all files and folders with their associated metadata schemas. This is a GRDM-specific v1 API endpoint.
 
+#### Endpoints
+
+```
+GET  /api/v1/project/{project_id}/metadata/project
+PATCH /api/v1/project/{project_id}/metadata/files/{storage_provider}/{file_name}
+```
+
 #### Methods
 
 | Method | Description |
@@ -225,6 +232,40 @@ Retrieves the complete file metadata for a GRDM project, including all files and
 | `getByProject(projectId)` | Get all file metadata for a project |
 | `findFileByPath(projectId, path)` | Find a specific file's metadata by path |
 | `getActiveMetadata(projectId, path)` | Get the active metadata schema for a specific file |
+| `updateFileMetadata(projectId, fileItem)` | Update the metadata for a specific file via PATCH |
+
+#### `updateFileMetadata(projectId, fileItem)`
+
+Sends a PATCH request to update the metadata of a single file. The target file is determined by `fileItem.path` (e.g., `"osfstorage/README.md"`), which is split into `{storage_provider}` and `{file_name}` internally.
+
+```typescript
+const fileItem = await client.fileMetadata.findFileByPath('abc12', 'osfstorage/data.csv');
+
+if (fileItem) {
+  const updatedItem = {
+    ...fileItem,
+    items: fileItem.items?.map((schema) =>
+      schema.active
+        ? {
+            ...schema,
+            data: {
+              ...schema.data,
+              'grdm-file:data-description-ja': {
+                value: 'Updated description',
+                extra: [],
+                comments: [],
+              },
+            },
+          }
+        : schema,
+    ) ?? [],
+  };
+
+  await client.fileMetadata.updateFileMetadata('abc12', updatedItem);
+}
+```
+
+The method returns `Promise<void>`. It throws an `Error` with the HTTP status code if the server responds with a non-2xx status.
 
 #### Response Type: `GrdmFileMetadataResponse`
 

@@ -14,7 +14,7 @@ The GakuNin RDM API follows the [Open Science Framework (OSF) API v2](https://de
 
 - Full access to all 22 OSF API v2 resources (inherited from `OsfClient`)
 - GRDM project metadata retrieval via v2 API (`projectMetadata`, `draftProjectMetadata`)
-- GRDM file metadata retrieval via v1 API (`fileMetadata`)
+- GRDM file metadata retrieval and update via v1 API (`fileMetadata`)
 - Multi-schema support with type-safe access for both file metadata and project metadata:
   - Schema ①: 公的資金による研究データのメタデータ (`SCHEMA_ID_PUBLIC_FUNDING`)
   - Schema ②: ムーンショット目標2データベース（未病DB）のメタデータ (`SCHEMA_ID_MS2_MIBYODB`)
@@ -257,6 +257,37 @@ if (schema && isMs2MibyoDbSchema(schema)) {
 }
 ```
 
+#### `updateFileMetadata(projectId, fileItem)`
+
+Updates the metadata of a specific file via a PATCH request to the GRDM v1 API. The target file URL is derived from `fileItem.path` (e.g., `"osfstorage/README.md"`). Returns `Promise<void>` and throws on non-2xx responses.
+
+```typescript
+const fileItem = await client.fileMetadata.findFileByPath('abc12', 'osfstorage/data.csv');
+
+if (fileItem) {
+  const updated = {
+    ...fileItem,
+    items: fileItem.items?.map((schema) =>
+      schema.active
+        ? {
+            ...schema,
+            data: {
+              ...schema.data,
+              'grdm-file:data-description-ja': {
+                value: 'Updated description',
+                extra: [],
+                comments: [],
+              },
+            },
+          }
+        : schema,
+    ) ?? [],
+  };
+
+  await client.fileMetadata.updateFileMetadata('abc12', updated);
+}
+```
+
 ---
 
 ### `client.grdmFiles`
@@ -323,6 +354,7 @@ The [`examples/`](./examples/) directory contains sample scripts demonstrating c
 | [`file_metadata_via_proxy.ts`](./examples/file_metadata_via_proxy.ts) | File metadata retrieval via a reverse proxy using custom `fetch` (CORS workaround) |
 | [`list_all_projects.ts`](./examples/list_all_projects.ts) | Paginated listing of all accessible projects using `PaginatedResult` |
 | [`file_operations.ts`](./examples/file_operations.ts) | File listing, subfolder navigation, download, upload, update, and delete |
+| [`update_grdm_file_metadata.ts`](./examples/update_grdm_file_metadata.ts) | Update a file's metadata via `updateFileMetadata`, then restore the original value |
 
 Run examples with `ts-node`:
 
@@ -341,6 +373,9 @@ GRDM_TOKEN=<your-token> npx ts-node examples/list_all_projects.ts
 
 # File operations (optionally pass a nodeId)
 GRDM_TOKEN=<your-token> npx ts-node examples/file_operations.ts [nodeId]
+
+# Update file metadata (write and restore a test value)
+GRDM_TOKEN=<your-token> GRDM_NODE_ID=<node-id> GRDM_FILE_ID=<file-id> npx ts-node examples/update_grdm_file_metadata.ts
 ```
 
 See [`examples/README.md`](./examples/README.md) for details on each example and available environment variables.

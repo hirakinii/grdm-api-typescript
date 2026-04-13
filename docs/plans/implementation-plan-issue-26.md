@@ -138,5 +138,5 @@ Use the example script pattern (similar to `examples/fetch_grdm_file_metadata.ts
 - [x] Verify error handling for non-2xx responses
 - [x] Resolve open question on HTTP response format and update return type if needed
 - [x] Resolve open question on `HttpClient.patch` availability
-- [ ] Update `docs/specifications.md` if the PATCH endpoint details are documented there
-- [ ] Update `README.md` if the public API surface is described there
+- [x] Update `docs/specifications.md` if the PATCH endpoint details are documented there
+- [x] Update `README.md` if the public API surface is described there
