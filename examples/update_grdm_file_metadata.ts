@@ -101,7 +101,9 @@ async function main(): Promise<void> {
   // Step 4: Preserve the original value of 'grdm-file:data-description-ja'.
   // ----------------------------------------------------------------
   const activeSchema = fileItem.items?.find((item) => item.active);
-  const activeData = activeSchema?.data as Record<string, { value?: unknown; extra: unknown[]; comments?: unknown[] }> | undefined;
+  const activeData = activeSchema?.data as
+    | Record<string, { value?: unknown; extra: unknown[]; comments?: unknown[] }>
+    | undefined;
   const originalDescription = activeData?.['grdm-file:data-description-ja']?.value ?? null;
   console.log(`\n[Step 4] Original 'grdm-file:data-description-ja': ${originalDescription ?? '(not set)'}`);
 
@@ -142,7 +144,9 @@ async function main(): Promise<void> {
   // ----------------------------------------------------------------
   // Step 7: Restore the original value.
   // ----------------------------------------------------------------
-  console.log(`\n[Step 7] Restoring 'grdm-file:data-description-ja' to original value: ${originalDescription ?? '(not set)'}`);
+  console.log(
+    `\n[Step 7] Restoring 'grdm-file:data-description-ja' to original value: ${originalDescription ?? '(not set)'}`,
+  );
 
   const restoredItems = updatedFileItem.items?.map((schema) => {
     if (!schema.active) return schema;
