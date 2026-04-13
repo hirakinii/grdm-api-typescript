@@ -71,4 +71,37 @@ export class FileMetadata {
     }
     return file.items.find((item) => item.active);
   }
+
+  /**
+   * Update file metadata for a specific file via the v1 PATCH API.
+   * The target file is determined by `fileItem.path` (e.g. "osfstorage/README.md").
+   *
+   * @param projectId - ID of the project (node)
+   * @param fileItem - GrdmFileItem containing the updated metadata to send
+   */
+  async updateFileMetadata(projectId: string, fileItem: GrdmFileItem): Promise<void> {
+    const baseUrl = this.v1BaseUrl.replace(/\/$/, '');
+    const slashIndex = fileItem.path.indexOf('/');
+    const storageProvider = fileItem.path.slice(0, slashIndex);
+    const fileName = fileItem.path.slice(slashIndex + 1);
+    const endpoint = `${baseUrl}/project/${projectId}/metadata/files/${storageProvider}/${fileName}`;
+
+    if (this.customFetch && this.tokenProvider) {
+      const token = await this.tokenProvider();
+      const response = await this.customFetch(endpoint, {
+        method: 'PATCH',
+        headers: {
+          Authorization: `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(fileItem),
+      });
+      if (!response.ok) {
+        throw new Error(`HTTP Error ${response.status} ${response.statusText}`);
+      }
+      return;
+    }
+
+    await this.httpClient.patch<void>(endpoint, fileItem);
+  }
 }
