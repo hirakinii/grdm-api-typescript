@@ -31,7 +31,7 @@ describe('FileMetadata Resource (v1 API)', () => {
         expect.anything()
       );
       expect(result.data.id).toBe('uzdsn');
-      expect(result.data.attributes.files).toHaveLength(2);
+      expect(result.data.attributes.files).toHaveLength(4);
     });
   });
 
@@ -70,6 +70,61 @@ describe('FileMetadata Resource (v1 API)', () => {
       } else {
         throw new Error('Expected isPublicFundingSchema to return true for fixture');
       }
+    });
+
+    it('should return person names of a dataset file as structured objects', async () => {
+      fetchMock.mockResponseOnce(JSON.stringify(fileMetadataResponse));
+
+      const metadata = await fileMetadata.getActiveMetadata('uzdsn', 'osfstorage/README.md');
+
+      if (!metadata || !isPublicFundingSchema(metadata)) {
+        throw new Error('Expected isPublicFundingSchema to return true for fixture');
+      }
+      expect(metadata.data['grdm-file:data-man-name-ja']?.value).toEqual({ last: '山田太郎', middle: '', first: '' });
+      expect(metadata.data['grdm-file:data-man-name-en']?.value).toEqual({ last: 'Taro Yamada', middle: '', first: '' });
+      const creators = metadata.data['grdm-file:creators']?.value;
+      expect(creators).toHaveLength(1);
+      expect(creators?.[0]).toEqual({
+        number: '12345',
+        'name-ja': { last: '山田太郎', middle: '', first: '' },
+        'name-en': { last: 'Taro Yamada', middle: '', first: '' },
+      });
+      expect(creators?.[0]['affiliation-name-ja']).toBeUndefined();
+      expect(metadata.data['grdm-file:authors']?.value).toBeNull();
+    });
+
+    it('should return authors of a manuscript file, including a null name', async () => {
+      fetchMock.mockResponseOnce(JSON.stringify(fileMetadataResponse));
+
+      const metadata = await fileMetadata.getActiveMetadata('uzdsn', 'osfstorage/papers/paper.pdf');
+
+      if (!metadata || !isPublicFundingSchema(metadata)) {
+        throw new Error('Expected isPublicFundingSchema to return true for fixture');
+      }
+      const authors = metadata.data['grdm-file:authors']?.value;
+      expect(authors).toHaveLength(2);
+      expect(authors?.[0]['name-ja']).toEqual({ last: '山田', middle: '', first: '太郎' });
+      expect(authors?.[0]['affiliation-name-ja']).toBe('');
+      expect(authors?.[1]['name-ja']).toBeNull();
+      expect(authors?.[1]['name-en']).toEqual({ last: 'Doe', middle: 'Q.', first: 'John' });
+      expect(authors?.[1]['affiliation-name-en']).toBe('Example University');
+      expect(metadata.data['grdm-file:creators']?.value).toBeNull();
+      expect(metadata.data['grdm-file:data-man-name-ja']?.value).toBeNull();
+      expect(metadata.data['grdm-file:data-man-name-en']?.value).toBeNull();
+    });
+
+    it('should return folder metadata without manuscript-related keys', async () => {
+      fetchMock.mockResponseOnce(JSON.stringify(fileMetadataResponse));
+
+      const metadata = await fileMetadata.getActiveMetadata('uzdsn', 'osfstorage/analysis/');
+
+      if (!metadata || !isPublicFundingSchema(metadata)) {
+        throw new Error('Expected isPublicFundingSchema to return true for fixture');
+      }
+      expect(Object.keys(metadata.data)).toHaveLength(34);
+      expect(metadata.data['grdm-file:authors']).toBeUndefined();
+      expect(metadata.data['grdm-file:file-type']).toBeUndefined();
+      expect(metadata.data['grdm-file:title-ja']?.value).toBe('解析フォルダ');
     });
 
     it('should return schema ② active metadata for a MS2 Mibyodb project file', async () => {

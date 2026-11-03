@@ -335,13 +335,15 @@ if (schema && isMs2MibyoDbSchema(schema)) {
 
 ### 5.1 `GrdmFileMetadataField` Type
 
-All metadata fields (except `creators`) follow this wrapper structure:
+All metadata fields follow this wrapper structure. `GrdmFileMetadataField<T = unknown>` is generic over the type of `value`:
 
 | Property | Type | Description |
 |----------|------|-------------|
-| `value` | `string \| null` | The field value |
+| `value` | `T` | The field value. In `GrdmFileMetadataFields` (schema ①), `T` is `string \| null` for most fields, `GrdmPersonName \| null` for person names, and `GrdmPerson[] \| null` for `creators` / `authors` (see Person-name types). |
 | `extra` | `unknown[]` | Additional data (typically empty) |
 | `comments` | `unknown[]` | Comments (present in some responses) |
+
+Untyped contexts (`GrdmRegisteredFile.metadata`) use `GrdmFileMetadataField` without a type argument, so `value` is `unknown`.
 
 ### 5.2 Schema ①: Public Funding Metadata Fields (`GrdmFileMetadataFields`)
 
@@ -356,7 +358,7 @@ These fields are used when `schema === SCHEMA_ID_PUBLIC_FUNDING`. Accessible aft
 | `grdm-file:doi` | `doi` | `string` | DOI of the file |
 | `grdm-file:title-ja` | `title-ja` | `string` | Title in Japanese |
 | `grdm-file:title-en` | `title-en` | `string` | Title in English |
-| `grdm-file:authors` | `authors` | `string` | Author(s) |
+| `grdm-file:authors` | `authors` | `GrdmPerson[] \| null` | Author(s) of a manuscript (see Person-name types) |
 | `grdm-file:date-issued-updated` | `date-issued-updated` | `string` | Date issued or last updated (ISO 8601 date) |
 | `grdm-file:data-description-ja` | `data-description-ja` | `string` | Description in Japanese |
 | `grdm-file:data-description-en` | `data-description-en` | `string` | Description in English |
@@ -420,15 +422,7 @@ These fields are used when `schema === SCHEMA_ID_PUBLIC_FUNDING`. Accessible aft
 
 | API Key | TypeScript Property | Type | Description |
 |---------|-------------------|------|-------------|
-| `grdm-file:creators` | `creators` | `GrdmCreator[]` | List of creators |
-
-`GrdmCreator` type:
-
-| Property | Type | Description |
-|----------|------|-------------|
-| `number` | `string \| null` | Creator identifier (e.g., researcher number) |
-| `name_ja` | `string \| null` | Creator name in Japanese |
-| `name_en` | `string \| null` | Creator name in English |
+| `grdm-file:creators` | `creators` | `GrdmPerson[] \| null` | List of creators (see Person-name types) |
 
 #### Hosting Institution
 
@@ -444,8 +438,8 @@ These fields are used when `schema === SCHEMA_ID_PUBLIC_FUNDING`. Accessible aft
 |---------|-------------------|------|-------------|
 | `grdm-file:data-man-type` | `dataManType` | `string` | Manager type (e.g., "individual") |
 | `grdm-file:data-man-number` | `dataManNumber` | `string` | Manager identifier |
-| `grdm-file:data-man-name-ja` | `dataManNameJa` | `string` | Manager name in Japanese |
-| `grdm-file:data-man-name-en` | `dataManNameEn` | `string` | Manager name in English |
+| `grdm-file:data-man-name-ja` | `dataManNameJa` | `GrdmPersonName \| null` | Manager name in Japanese (see Person-name types) |
+| `grdm-file:data-man-name-en` | `dataManNameEn` | `GrdmPersonName \| null` | Manager name in English (see Person-name types) |
 | `grdm-file:data-man-org-ja` | `dataManOrgJa` | `string` | Manager organization in Japanese |
 | `grdm-file:data-man-org-en` | `dataManOrgEn` | `string` | Manager organization in English |
 | `grdm-file:data-man-address-ja` | `dataManAddressJa` | `string` | Manager address in Japanese |
@@ -459,6 +453,32 @@ These fields are used when `schema === SCHEMA_ID_PUBLIC_FUNDING`. Accessible aft
 |---------|-------------------|------|-------------|
 | `grdm-file:remarks-ja` | `remarksJa` | `string` | Remarks in Japanese |
 | `grdm-file:remarks-en` | `remarksEn` | `string` | Remarks in English |
+
+#### Person-name types
+
+Person names are stored as structured objects. The shapes below were confirmed against the GRDM v1 API on 2026-11-02.
+
+`GrdmPersonName` type (value of `grdm-file:data-man-name-*`, and of `name-ja` / `name-en` in `GrdmPerson`):
+
+| Property | Type | Description |
+|----------|------|-------------|
+| `last` | `string` | Family name. GRDM often stores the whole name here and leaves `first` / `middle` empty. |
+| `first` | `string` | Given name (`""` when empty) |
+| `middle` | `string` | Middle name. Not required by the GRDM schema, but always stored (`""` when empty). |
+
+`GrdmPerson` type (one entry of `grdm-file:creators` / `grdm-file:authors`):
+
+| Property | Type | Description |
+|----------|------|-------------|
+| `number` | `string \| null` | Person identifier (e.g., researcher number) |
+| `name-ja` | `GrdmPersonName \| null` | Name in Japanese (`null` occurs in `authors`) |
+| `name-en` | `GrdmPersonName \| null` | Name in English |
+| `affiliation-name-ja` | `string \| null` (optional) | Affiliation in Japanese. Present in `authors` entries (`""` when empty), absent in `creators` entries. |
+| `affiliation-name-en` | `string \| null` (optional) | Affiliation in English. Same presence rule as above. |
+
+Unset person fields are `null` (not `""`). Folder items omit manuscript-related keys such as `grdm-file:authors`.
+
+`GrdmCreator` (`{ number, name_ja, name_en }` with string values) is **deprecated** for file metadata. It describes the legacy shape that can still appear in `grdm-files` snapshots of draft registrations (see §6.4).
 
 ### 5.3 Schema ②: MS2 Mibyodb Metadata Fields (`Ms2MibyoDbMetadataFields`)
 
@@ -618,7 +638,9 @@ The library automatically extracts the `value` from this structure and provides 
 
 ### 6.4 `grdm-files` Parser
 
-The `grdm-files` field in `registered_meta` stores file metadata as a JSON string. The library automatically parses this string into typed `GrdmRegisteredFile[]` objects.
+The `grdm-files` field in `registered_meta` stores file metadata as a JSON string. The library automatically parses this string into `GrdmRegisteredFile[]` objects.
+
+`GrdmRegisteredFile.metadata` is a snapshot taken when the files were added to the draft, and it is not refreshed when the file metadata changes. It may contain the legacy person-name shape (`GrdmCreator`, plain-string `data-man-name-*`), so its values remain `unknown`. Typing this snapshot is tracked in issue #36.
 
 ### 6.5 Helper Methods
 
@@ -627,6 +649,24 @@ The `grdm-files` field in `registered_meta` stores file metadata as a JSON strin
 | `findFileByPath(path)` | Search for a `GrdmFileItem` by its path |
 | `getActiveMetadata(fileItem)` | Get the active metadata schema from a file item's `items` array |
 | `getMetadataValue(fileItem, fieldKey)` | Get a specific metadata field value from the active schema |
+
+### 6.6 Person-name Helpers
+
+| Function | Description |
+|----------|-------------|
+| `formatPersonName(name, lang)` | Formats a `GrdmPersonName` for display: `"last middle first"` for `ja`, `"first middle last"` for `en`. Empty parts are skipped. Returns `""` for `null` / `undefined`; a legacy string value is returned trimmed. |
+| `parsePersonName(fullName, lang)` | Splits a full name into a `GrdmPersonName` for writing back to GRDM. All three keys are always set. |
+
+`parsePersonName` splits on runs of half-width or full-width whitespace:
+
+| Tokens | `ja` | `en` |
+|--------|------|------|
+| 0 | all parts `""` | all parts `""` |
+| 1 | `last` = token | `last` = token |
+| 2 | `last` = t0, `first` = t1 | `first` = t0, `last` = t1 |
+| ≥3 | `last` = t0, `first` = remaining tokens | `first` = t0, `middle` = inner tokens, `last` = last token |
+
+Call `parsePersonName` only for names the user has entered or edited. GRDM often stores a whole name in `last` (e.g. `{ last: "Taro Yamada", first: "" }`); formatting and re-parsing such a value splits it into `{ first: "Taro", last: "Yamada" }`. When the user did not change a name, send the original `GrdmPersonName` object back unchanged.
 
 ## 7. Re-exports
 
@@ -693,8 +733,12 @@ const readme = response.findFileByPath('osfstorage/README.md');
 
 // Get active metadata
 const activeMetadata = readme?.items.find(item => item.active);
-console.log(activeMetadata?.titleJa); // "プロジェクト用README"
-console.log(activeMetadata?.creators); // [{ number: "10880916", nameJa: "平木俊幸", ... }]
+if (activeMetadata && isPublicFundingSchema(activeMetadata)) {
+  console.log(activeMetadata.data['grdm-file:title-ja']?.value); // "プロジェクト用README"
+  console.log(activeMetadata.data['grdm-file:creators']?.value);
+  // [{ number: "12345", "name-ja": { last: "山田太郎", middle: "", first: "" }, "name-en": { ... } }]
+  console.log(formatPersonName(activeMetadata.data['grdm-file:data-man-name-ja']?.value, 'ja')); // "山田太郎"
+}
 ```
 
 ### 8.3 Draft Project Metadata (v2 API via Draft Registrations)

@@ -1,11 +1,89 @@
 import {
+  GrdmFileMetadataFields,
   GrdmFileMetadataResponse,
   GrdmFileMetadataSchema,
   isPublicFundingSchema,
   SCHEMA_ID_PUBLIC_FUNDING,
   SCHEMA_ID_MS2_MIBYODB,
 } from '../../src/types/file-metadata';
-import { GrdmCreator } from '../../src/types/project-metadata';
+import { GrdmPerson, GrdmPersonName } from '../../src/types/project-metadata';
+
+describe('GrdmFileMetadataFields person-name typing', () => {
+  const datasetFields: GrdmFileMetadataFields = {
+    'grdm-file:data-man-name-ja': { value: { last: '山田太郎', middle: '', first: '' }, extra: [], comments: [] },
+    'grdm-file:data-man-name-en': { value: { last: 'Taro Yamada', middle: '', first: '' }, extra: [], comments: [] },
+    'grdm-file:data-man-email': { value: 'yamada@example.com', extra: [], comments: [] },
+    'grdm-file:creators': {
+      value: [
+        {
+          number: '12345',
+          'name-ja': { last: '山田太郎', middle: '', first: '' },
+          'name-en': { last: 'Taro Yamada', middle: '', first: '' },
+        },
+      ],
+      extra: [],
+      comments: [],
+    },
+    'grdm-file:authors': { value: null, extra: [], comments: [] },
+  };
+
+  it('should type data-man-name-* as GrdmPersonName | null', () => {
+    const name: GrdmPersonName | null | undefined = datasetFields['grdm-file:data-man-name-ja']?.value;
+    expect(name?.last).toBe('山田太郎');
+  });
+
+  it('should type creators and authors as GrdmPerson[] | null', () => {
+    const creators: GrdmPerson[] | null | undefined = datasetFields['grdm-file:creators']?.value;
+    const authors: GrdmPerson[] | null | undefined = datasetFields['grdm-file:authors']?.value;
+    expect(creators?.[0]['name-en']?.last).toBe('Taro Yamada');
+    expect(authors).toBeNull();
+  });
+
+  it('should type other fields as string | null', () => {
+    const email: string | null | undefined = datasetFields['grdm-file:data-man-email']?.value;
+    expect(email).toBe('yamada@example.com');
+  });
+
+  it('should allow authors entries with a null name and affiliation keys', () => {
+    const fields: GrdmFileMetadataFields = {
+      'grdm-file:authors': {
+        value: [
+          {
+            number: '',
+            'name-ja': null,
+            'name-en': { last: 'Doe', middle: '', first: 'John' },
+            'affiliation-name-ja': '',
+            'affiliation-name-en': 'Example University',
+          },
+        ],
+        extra: [],
+        comments: [],
+      },
+    };
+    expect(fields['grdm-file:authors']?.value?.[0]['name-ja']).toBeNull();
+  });
+
+  it('should reject shapes that do not match the GRDM data', () => {
+    const fields: GrdmFileMetadataFields = {
+      // @ts-expect-error a plain string is not a GrdmPersonName
+      'grdm-file:data-man-name-ja': { value: '山田太郎', extra: [] },
+      'grdm-file:creators': {
+        // @ts-expect-error the legacy underscore keys are not GrdmPerson
+        value: [{ number: '1', name_ja: '山田太郎', name_en: 'Taro Yamada' }],
+        extra: [],
+      },
+      // @ts-expect-error a number is not a string field value
+      'grdm-file:title-ja': { value: 1, extra: [] },
+    };
+    expect(fields).toBeDefined();
+  });
+
+  it('should not allow assigning a person name to a string', () => {
+    // @ts-expect-error GrdmPersonName | null is not assignable to string
+    const text: string = datasetFields['grdm-file:data-man-name-ja']!.value;
+    expect(text).toBeDefined();
+  });
+});
 
 describe('FileMetadata Types', () => {
   it('should allow valid GrdmFileMetadataResponse object', () => {
@@ -36,7 +114,11 @@ describe('FileMetadata Types', () => {
                     },
                     'grdm-file:creators': {
                       value: [
-                        { number: '123', name_ja: '氏名', name_en: 'Name' }
+                        {
+                          number: '123',
+                          'name-ja': { last: '氏名', middle: '', first: '' },
+                          'name-en': { last: 'Name', middle: '', first: '' },
+                        }
                       ],
                       extra: []
                     }
@@ -55,8 +137,8 @@ describe('FileMetadata Types', () => {
     const schema = file.items[0];
     if (isPublicFundingSchema(schema)) {
       expect(schema.data['grdm-file:title-ja']?.value).toBe('タイトル');
-      const creators = schema.data['grdm-file:creators']?.value as GrdmCreator[];
-      expect(creators[0].name_ja).toBe('氏名');
+      const creators = schema.data['grdm-file:creators']?.value;
+      expect(creators?.[0]['name-ja']?.last).toBe('氏名');
     } else {
       throw new Error('Expected isPublicFundingSchema to return true');
     }

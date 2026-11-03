@@ -21,7 +21,7 @@
  */
 
 import { GrdmClient } from '../src/client';
-import { GrdmFileItem } from '../src/types/file-metadata';
+import { GrdmFileItem, isPublicFundingSchema } from '../src/types/file-metadata';
 
 const TEST_DESCRIPTION = 'This is a test description by updateFileMetadata';
 
@@ -101,9 +101,7 @@ async function main(): Promise<void> {
   // Step 4: Preserve the original value of 'grdm-file:data-description-ja'.
   // ----------------------------------------------------------------
   const activeSchema = fileItem.items?.find((item) => item.active);
-  const activeData = activeSchema?.data as
-    | Record<string, { value?: unknown; extra: unknown[]; comments?: unknown[] }>
-    | undefined;
+  const activeData = activeSchema && isPublicFundingSchema(activeSchema) ? activeSchema.data : undefined;
   const originalDescription = activeData?.['grdm-file:data-description-ja']?.value ?? null;
   console.log(`\n[Step 4] Original 'grdm-file:data-description-ja': ${originalDescription ?? '(not set)'}`);
 
@@ -113,8 +111,8 @@ async function main(): Promise<void> {
   console.log(`\n[Step 5] Updating 'grdm-file:data-description-ja' to: "${TEST_DESCRIPTION}"`);
 
   const updatedItems = fileItem.items?.map((schema) => {
-    if (!schema.active) return schema;
-    const data = schema.data as Record<string, { value?: unknown; extra: unknown[]; comments?: unknown[] }>;
+    if (!schema.active || !isPublicFundingSchema(schema)) return schema;
+    const data = schema.data;
     return {
       ...schema,
       data: {
@@ -149,8 +147,8 @@ async function main(): Promise<void> {
   );
 
   const restoredItems = updatedFileItem.items?.map((schema) => {
-    if (!schema.active) return schema;
-    const data = schema.data as Record<string, { value?: unknown; extra: unknown[]; comments?: unknown[] }>;
+    if (!schema.active || !isPublicFundingSchema(schema)) return schema;
+    const data = schema.data;
     return {
       ...schema,
       data: {

@@ -61,15 +61,46 @@ export interface GrdmRegisteredFile {
 
 /**
  * Common wrapper structure for GRDM file metadata fields.
+ * `T` is the type of `value`; it defaults to `unknown` for untyped fields.
  */
-export interface GrdmFileMetadataField {
-  value: unknown;
+export interface GrdmFileMetadataField<T = unknown> {
+  value: T;
   extra: unknown[];
   comments?: unknown[];
 }
 
 /**
- * Represents a creator in file metadata.
+ * A person's name as stored in GRDM file metadata
+ * (`grdm-file:data-man-name-*`, and `name-ja` / `name-en` of `GrdmPerson`).
+ * GRDM often stores the full name in `last` and leaves `first` and `middle` empty.
+ */
+export interface GrdmPersonName {
+  last: string;
+  first: string;
+  /** Not required by the GRDM schema, but GRDM always stores it ("" when empty). */
+  middle: string;
+}
+
+/**
+ * One entry of `grdm-file:creators` or `grdm-file:authors` in file metadata.
+ */
+export interface GrdmPerson {
+  number: string | null;
+  'name-ja': GrdmPersonName | null;
+  'name-en': GrdmPersonName | null;
+  /** Present in `authors` entries ("" when empty); absent in `creators` entries. */
+  'affiliation-name-ja'?: string | null;
+  /** Present in `authors` entries ("" when empty); absent in `creators` entries. */
+  'affiliation-name-en'?: string | null;
+}
+
+/**
+ * Legacy shape of a `grdm-file:creators` entry.
+ * It is not used by the current file metadata (v1 API), but it can still appear in
+ * `grdm-files` snapshots of draft registrations / registrations.
+ *
+ * @deprecated Do not use for current file metadata or for writing back to GRDM; use `GrdmPerson`.
+ * Kept to describe legacy snapshot data, so it will not be removed.
  */
 export interface GrdmCreator {
   number: string | null;

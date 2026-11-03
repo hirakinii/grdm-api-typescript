@@ -79,6 +79,7 @@ GRDM_TOKEN=<your-token> GRDM_NODE_ID=<node-id> npx ts-node examples/file_metadat
 スキーマ ID によるフィルタリングを行い、スキーマ①（公的資金）とスキーマ②（MS2 未病DB）それぞれのファイルメタデータを表示します。
 
 - GRDM v1 API によるスキーマ①ファイルメタデータ（タイトル・データ種別・アクセス権・作成者など）の取得
+  - データ管理者・作成者（`creators`）・著者（`authors`）の氏名を `formatPersonName` で整形して表示
   - ファイル種別（`grdm-file:file-type`）が `"manuscript"` の場合、原稿固有フィールド（`reviewed`・`manuscript-type` など）の追加表示
 - GRDM v1 API によるスキーマ②ファイルメタデータ（計測対象・測定データ種別など）の取得
 

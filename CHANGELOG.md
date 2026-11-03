@@ -5,6 +5,55 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.8.0] - 2026-11-04
+
+### Added
+
+- **`GrdmPersonName`** interface: a person's name as stored by GRDM (`{ last, first, middle }`). Used for `grdm-file:data-man-name-ja/en` and for `name-ja` / `name-en` of `GrdmPerson`.
+- **`GrdmPerson`** interface: one entry of `grdm-file:creators` / `grdm-file:authors` (`number`, `name-ja`, `name-en`, optional `affiliation-name-ja` / `affiliation-name-en`).
+- **`formatPersonName(name, lang)`**: formats a `GrdmPersonName` for display (`"last middle first"` for `ja`, `"first middle last"` for `en`), skipping empty parts.
+- **`parsePersonName(fullName, lang)`**: splits a full name into a `GrdmPersonName` for writing back to GRDM. All three keys are always set. Use it only for names the user has entered or edited: GRDM often stores a whole name in `last`, and re-parsing such a value splits it. Send unchanged names back as the original object.
+
+### Changed
+
+- **Breaking**: every field of `GrdmFileMetadataFields` (schema ①) is now typed, instead of `value: unknown`. The types match the data returned by the GRDM v1 API:
+  - `grdm-file:data-man-name-ja` / `-en`: `GrdmFileMetadataField<GrdmPersonName | null>`
+  - `grdm-file:creators` / `grdm-file:authors`: `GrdmFileMetadataField<GrdmPerson[] | null>`
+  - all other fields: `GrdmFileMetadataField<string | null>`
+- `GrdmFileMetadataField` is now generic: `GrdmFileMetadataField<T = unknown>`. Using it without a type argument is unchanged.
+- `Ms2MibyoDbMetadataField` now extends `GrdmFileMetadataField<string | null>` (same shape as before).
+
+### Deprecated
+
+- `GrdmCreator` (`{ number, name_ja, name_en }`) for file metadata. It does not match the current data. It is kept, because it describes the legacy shape that can still appear in `grdm-files` snapshots of draft registrations (`GrdmRegisteredFile.metadata`, which remains untyped).
+
+### Fixed
+
+- Person names in file metadata were typed as `unknown`, and `GrdmCreator` described the wrong keys (`name_ja` instead of `name-ja`) and value type (`string` instead of an object). Consumers could therefore stringify a name object to `[object Object]` without a type error.
+
+### Migration
+
+```typescript
+// Before (0.7.x): value was unknown, often cast to GrdmCreator[]
+const creators = data['grdm-file:creators']?.value as GrdmCreator[];
+console.log(creators[0].name_ja); // always undefined with real data
+
+// After (0.8.0): no cast needed
+const creators = data['grdm-file:creators']?.value ?? [];
+console.log(formatPersonName(creators[0]?.['name-ja'], 'ja'));
+
+// Writing back a data manager name the user has edited
+// (send the original object back when the name was not changed)
+data['grdm-file:data-man-name-ja'] = {
+  value: parsePersonName('山田 太郎', 'ja'),
+  extra: [],
+  comments: [],
+};
+```
+
+- Code that assigned values of another type (for example a plain string to `grdm-file:data-man-name-ja`), or that cast `schema.data` to a loose record, now fails to compile. Narrow with `isPublicFundingSchema` and use the typed fields.
+- `String()` and template literals accept any type, so `String(field.value)` still compiles. Enable `@typescript-eslint/no-base-to-string` / `restrict-template-expressions` in your project to catch these.
+
 ## [0.7.0] - 2026-04-13
 
 ### Added
@@ -140,6 +189,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - `list_all_projects.ts` — paginated listing of all accessible projects using three `PaginatedResult` patterns.
   - `examples/README.md` — usage instructions and environment variable reference for each example.
 
+[0.8.0]: https://github.com/hirakinii/grdm-api-typescript/releases/tag/v0.8.0
 [0.7.0]: https://github.com/hirakinii/grdm-api-typescript/releases/tag/v0.7.0
 [0.6.0]: https://github.com/hirakinii/grdm-api-typescript/releases/tag/v0.6.0
 [0.5.0]: https://github.com/hirakinii/grdm-api-typescript/releases/tag/v0.5.0

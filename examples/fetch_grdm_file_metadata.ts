@@ -18,6 +18,18 @@ import {
   SCHEMA_ID_MS2_MIBYODB,
   SCHEMA_ID_PUBLIC_FUNDING,
 } from '../src/types/file-metadata';
+import { GrdmPerson } from '../src/types/project-metadata';
+import { formatPersonName } from '../src/utils/personName';
+
+/**
+ * Format a creators / authors entry for display.
+ * Prefers the Japanese name and falls back to the English name when it is null.
+ */
+function formatPerson(person: GrdmPerson): string {
+  const nameJa = formatPersonName(person['name-ja'], 'ja');
+  const nameEn = formatPersonName(person['name-en'], 'en');
+  return `[${person.number || '?'}] ${nameJa || '-'} / ${nameEn || '-'}`;
+}
 
 async function main(): Promise<void> {
   const token = process.env.GRDM_TOKEN;
@@ -74,6 +86,9 @@ async function main(): Promise<void> {
         const dataResearchField = fileMetadataData['grdm-file:data-research-field']?.value;
         const accessRights = fileMetadataData['grdm-file:access-rights']?.value;
         const creators = fileMetadataData['grdm-file:creators']?.value;
+        const authors = fileMetadataData['grdm-file:authors']?.value;
+        const dataManagerJa = formatPersonName(fileMetadataData['grdm-file:data-man-name-ja']?.value, 'ja');
+        const dataManagerEn = formatPersonName(fileMetadataData['grdm-file:data-man-name-en']?.value, 'en');
 
         if (fileType) console.log(`File type      : ${fileType}`);
         if (titleJa) console.log(`Title (JA)     : ${titleJa}`);
@@ -81,11 +96,19 @@ async function main(): Promise<void> {
         if (dataType) console.log(`Data Type      : ${dataType}`);
         if (dataResearchField) console.log(`Data Research Field: ${dataResearchField}`);
         if (accessRights) console.log(`Access Rights  : ${accessRights}`);
-        if (Array.isArray(creators) && creators.length > 0) {
+        if (dataManagerJa || dataManagerEn) {
+          console.log(`Data Manager   : ${dataManagerJa || '-'} / ${dataManagerEn || '-'}`);
+        }
+        if (creators && creators.length > 0) {
           console.log(`Creators:`);
           for (const creator of creators) {
-            const c = creator as { name_ja?: string; name_en?: string; number?: string };
-            console.log(`  - [${c.number ?? '?'}] ${c.name_ja ?? ''} / ${c.name_en ?? ''}`);
+            console.log(`  - ${formatPerson(creator)}`);
+          }
+        }
+        if (authors && authors.length > 0) {
+          console.log(`Authors:`);
+          for (const author of authors) {
+            console.log(`  - ${formatPerson(author)}`);
           }
         }
         if (fileType && fileType === 'manuscript') {

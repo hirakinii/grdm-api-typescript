@@ -68,8 +68,7 @@ export interface Ms2ProjectRegisteredMeta {
  * A metadata field specific to the MS2 Mibyodb schema.
  * All values are constrained to string | null, unlike the general GrdmFileMetadataField.
  */
-export interface Ms2MibyoDbMetadataField extends GrdmFileMetadataField {
-  value: string | null;
+export interface Ms2MibyoDbMetadataField extends GrdmFileMetadataField<string | null> {
   comments: unknown[];
 }
 
