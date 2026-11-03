@@ -97,4 +97,15 @@ describe('formatPersonName / parsePersonName round trip', () => {
   it.each(cases)('should restore %j (%s)', (name, lang) => {
     expect(parsePersonName(formatPersonName(name, lang), lang)).toEqual(name);
   });
+
+  // GRDM often stores a whole English name in `last`. Re-parsing such a value splits it,
+  // so consumers must send the original object back when the user did not edit the name.
+  it('should split a multi-word name stored only in last (not an identity)', () => {
+    const storedByGrdm: GrdmPersonName = { last: 'Taro Yamada', middle: '', first: '' };
+    expect(parsePersonName(formatPersonName(storedByGrdm, 'en'), 'en')).toEqual({
+      last: 'Yamada',
+      middle: '',
+      first: 'Taro',
+    });
+  });
 });

@@ -12,7 +12,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **`GrdmPersonName`** interface: a person's name as stored by GRDM (`{ last, first, middle }`). Used for `grdm-file:data-man-name-ja/en` and for `name-ja` / `name-en` of `GrdmPerson`.
 - **`GrdmPerson`** interface: one entry of `grdm-file:creators` / `grdm-file:authors` (`number`, `name-ja`, `name-en`, optional `affiliation-name-ja` / `affiliation-name-en`).
 - **`formatPersonName(name, lang)`**: formats a `GrdmPersonName` for display (`"last middle first"` for `ja`, `"first middle last"` for `en`), skipping empty parts.
-- **`parsePersonName(fullName, lang)`**: splits a full name into a `GrdmPersonName` for writing back to GRDM. All three keys are always set.
+- **`parsePersonName(fullName, lang)`**: splits a full name into a `GrdmPersonName` for writing back to GRDM. All three keys are always set. Use it only for names the user has entered or edited: GRDM often stores a whole name in `last`, and re-parsing such a value splits it. Send unchanged names back as the original object.
 
 ### Changed
 
@@ -42,7 +42,8 @@ console.log(creators[0].name_ja); // always undefined with real data
 const creators = data['grdm-file:creators']?.value ?? [];
 console.log(formatPersonName(creators[0]?.['name-ja'], 'ja'));
 
-// Writing back a data manager name
+// Writing back a data manager name the user has edited
+// (send the original object back when the name was not changed)
 data['grdm-file:data-man-name-ja'] = {
   value: parsePersonName('山田 太郎', 'ja'),
   extra: [],

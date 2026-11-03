@@ -158,6 +158,7 @@ Splitting rules for `parsePersonName`. Input is trimmed and split on runs of hal
 - The 1-token rule matches how GRDM itself stores most names (whole name in `last`).
 - For ≥3 Japanese tokens, `middle` stays `""` because Japanese names rarely have one.
 - Round trip: `parsePersonName(formatPersonName(n, lang), lang)` returns `n` for any name whose parts contain no whitespace.
+- **Finding from manual smoke test 2 (2026-11-04):** real data often violates this precondition. GRDM stores whole English names in `last` (e.g. `{ last: "Taro Yamada", first: "" }`), which a round trip splits into `{ first: "Taro", last: "Yamada" }`. This is regarded as a GRDM-side storage behaviour, so the helper is unchanged (option 1). Instead, JSDoc, README, specifications and CHANGELOG state that `parsePersonName` must be used only for names the user has entered or edited, and that unchanged names must be sent back as the original object. A characterization test documents the split.
 
 Two helpers are explicitly not added:
 
@@ -253,7 +254,8 @@ TDD: write each test first (RED), confirm it fails, implement (GREEN), then refa
 - [x] Rewrite the fixtures with dummy values in the observed shapes
 - [x] Update `examples/fetch_grdm_file_metadata.ts`
 - [x] Manual smoke test 1: `examples/fetch_grdm_file_metadata.ts` against `uzdsn` prints readable names (no `[object Object]`)
-- [ ] Manual smoke test 2: PATCH round trip of `data-man-name-ja` on a dataset file (writes to production GRDM; run by the maintainer)
+- [x] Manual smoke test 2 (2026-11-04, file `wvrae` = `uzdsn/osfstorage/README.md`): PATCHed round-tripped `data-man-name-ja/en` and `creators` names; GRDM stored exactly what was sent; the original item was restored and verified identical. Showed that a round trip splits English names stored entirely in `last` (see Phase 2 notes)
+- [x] Document that `parsePersonName` is for user-edited names only (option 1)
 - [x] All tests, lint, type-check and build pass; coverage ≥ 80%
 - [x] Security check (`~/.claude/rules/security.md`): no real names, emails or tokens in fixtures or docs
 - [x] Update a part of documents below if they are relevant to the changes in this plan:

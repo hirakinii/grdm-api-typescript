@@ -666,6 +666,8 @@ The `grdm-files` field in `registered_meta` stores file metadata as a JSON strin
 | 2 | `last` = t0, `first` = t1 | `first` = t0, `last` = t1 |
 | ≥3 | `last` = t0, `first` = remaining tokens | `first` = t0, `middle` = inner tokens, `last` = last token |
 
+Call `parsePersonName` only for names the user has entered or edited. GRDM often stores a whole name in `last` (e.g. `{ last: "Taro Yamada", first: "" }`); formatting and re-parsing such a value splits it into `{ first: "Taro", last: "Yamada" }`. When the user did not change a name, send the original `GrdmPersonName` object back unchanged.
+
 ## 7. Re-exports
 
 The following are re-exported from `osf-api-v2-typescript`:

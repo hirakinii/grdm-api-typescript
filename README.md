@@ -303,6 +303,8 @@ parsePersonName('山田 太郎', 'ja'); // { last: '山田', middle: '', first: 
 parsePersonName('John Q. Public', 'en'); // { last: 'Public', middle: 'Q.', first: 'John' }
 ```
 
+> **Note:** Call `parsePersonName` only for names the user has entered or edited. GRDM often stores a whole name in `last` (e.g. `{ last: 'Taro Yamada', first: '' }`), and `parsePersonName(formatPersonName(name, 'en'), 'en')` would split it into `{ first: 'Taro', last: 'Yamada' }`. If the user did not change a name, send the original object back unchanged.
+
 > **Note:** `String()` and template literals accept values of any type, so `String(field.value)` still compiles and prints `[object Object]` for a person name. Consider enabling the ESLint rules `@typescript-eslint/no-base-to-string` and `@typescript-eslint/restrict-template-expressions` in your project.
 
 `GrdmCreator` (`{ number, name_ja, name_en }`) is deprecated for file metadata. It describes the legacy shape that can still appear in `grdm-files` snapshots of draft registrations (`grdmMeta.grdmFiles`), whose metadata stays untyped.

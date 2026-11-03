@@ -46,6 +46,11 @@ export function formatPersonName(name: GrdmPersonName | string | null | undefine
  * Multiple tokens are joined with a single space. All three keys are always set,
  * because GRDM stores `middle` even when it is empty.
  *
+ * Call this only for a name the user has entered or edited. GRDM often stores a whole
+ * name in `last` (e.g. `{ last: "Taro Yamada", first: "" }`), and re-parsing the formatted
+ * value would split it (`{ first: "Taro", last: "Yamada" }`). When the user did not change
+ * the name, send the original `GrdmPersonName` object back unchanged.
+ *
  * @param fullName - Full name as entered by a user
  * @param lang - Language that determines the order of the parts
  * @returns A structured name with `last`, `first` and `middle` set
