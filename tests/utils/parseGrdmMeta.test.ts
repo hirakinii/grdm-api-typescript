@@ -1,6 +1,7 @@
 import { parseGrdmFiles, parseGrdmMetaRecord, parseMs2ProjectMetaRecord } from '../../src/utils/parseGrdmMeta';
 import { GrdmRegisteredFileMetadataFields } from '../../src/types/file-metadata';
 import { GrdmRegisteredFile } from '../../src/types/project-metadata';
+import { Ms2Procedure } from '../../src/types/ms2-mibyodb-metadata';
 
 describe('parseGrdmMetaRecord (schema ①: public-funding)', () => {
   it('should return schemaType public-funding', () => {
@@ -211,6 +212,32 @@ describe('parseMs2ProjectMetaRecord (schema ②: ms2-mibyodb)', () => {
       'grdm-files': buildField('not valid json{{{'),
     });
     expect(result.grdmFiles).toBeUndefined();
+  });
+});
+
+describe('parseMs2ProjectMetaRecord grdm-files with table fields', () => {
+  it('should return MS2 table fields of a snapshot unchanged and typed as arrays', () => {
+    const procedures = [{ Procedure: '手順', 'Procedure-en': 'Procedure' }];
+    const result = parseMs2ProjectMetaRecord({
+      'grdm-files': {
+        value: JSON.stringify([
+          {
+            path: 'osfstorage/data.csv',
+            urlpath: '/data/',
+            metadata: {
+              'grdm-file:d-msr-procedure': { value: procedures, extra: [], comments: [] },
+              'grdm-file:d-msr-measuring-device-name': { value: null, extra: [], comments: [] },
+            },
+          },
+        ]),
+        extra: [],
+        comments: [],
+      },
+    });
+    const metadata = result.grdmFiles?.[0].metadata;
+    const value: Ms2Procedure[] | null | undefined = metadata?.['grdm-file:d-msr-procedure']?.value;
+    expect(value).toEqual(procedures);
+    expect(metadata?.['grdm-file:d-msr-measuring-device-name']?.value).toBeNull();
   });
 });
 

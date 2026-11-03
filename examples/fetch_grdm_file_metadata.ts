@@ -159,11 +159,19 @@ async function main(): Promise<void> {
         const objectOfMeasurementJp = fileMetadataData['grdm-file:d-msr-object-of-measurement-jp']?.value;
         const objectOfMeasurementEn = fileMetadataData['grdm-file:d-msr-object-of-measurement-en']?.value;
         const msrDataTypeJp = fileMetadataData['grdm-file:d-msr-data-type-jp']?.value;
+        // Table fields are arrays of objects (null when not set)
+        const procedures = fileMetadataData['grdm-file:d-msr-procedure']?.value ?? [];
 
         if (labelExplanation) console.log(`labelExplanation      : ${labelExplanation}`);
         if (objectOfMeasurementJp) console.log(`Object of Measurement (JA)     : ${objectOfMeasurementJp}`);
         if (objectOfMeasurementEn) console.log(`Object of Measurement (EN)     : ${objectOfMeasurementEn}`);
         if (msrDataTypeJp) console.log(`Measurement Data Type (JA)     : ${msrDataTypeJp}`);
+        if (procedures.length > 0) {
+          console.log(`Procedures:`);
+          for (const step of procedures) {
+            console.log(`  - ${step.Procedure || '-'} / ${step['Procedure-en'] || '-'}`);
+          }
+        }
       }
     }
   }
