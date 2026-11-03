@@ -1,4 +1,4 @@
-import { GrdmFileMetadataField } from './project-metadata';
+import { GrdmFileMetadataField, GrdmPerson, GrdmPersonName } from './project-metadata';
 import { Ms2MibyoDbMetadataFields } from './ms2-mibyodb-metadata';
 export { Ms2MibyoDbMetadataField, Ms2MibyoDbMetadataFields } from './ms2-mibyodb-metadata';
 export { SCHEMA_ID_PUBLIC_FUNDING, SCHEMA_ID_MS2_MIBYODB } from './schema-ids';
@@ -87,59 +87,67 @@ export function isMs2MibyoDbSchema(s: GrdmFileMetadataSchema): s is Ms2MibyoDbFi
   return s.schema === SCHEMA_ID_MS2_MIBYODB;
 }
 
+/** A metadata field whose value is a plain string ("" when not set). */
+type StringField = GrdmFileMetadataField<string | null>;
+/** A metadata field whose value is a structured person name (null when not set). */
+type PersonNameField = GrdmFileMetadataField<GrdmPersonName | null>;
+/** A metadata field whose value is a list of persons (null when not set). */
+type PersonListField = GrdmFileMetadataField<GrdmPerson[] | null>;
+
 /**
  * The set of metadata fields nested under `data` in a GrdmFileMetadataSchema
  * for the Public Funding schema (schema ①).
+ * All keys are optional: folder items, for example, omit manuscript-related keys such as `authors`.
  */
 export interface GrdmFileMetadataFields {
-  'grdm-file:file-type'?: GrdmFileMetadataField;
-  'grdm-file:data-number'?: GrdmFileMetadataField;
-  'grdm-file:doi'?: GrdmFileMetadataField;
-  'grdm-file:manuscript-type'?: GrdmFileMetadataField;
-  'grdm-file:title-ja'?: GrdmFileMetadataField;
-  'grdm-file:title-en'?: GrdmFileMetadataField;
-  'grdm-file:authors'?: GrdmFileMetadataField;
-  'grdm-file:date-issued-updated'?: GrdmFileMetadataField;
-  'grdm-file:data-description-ja'?: GrdmFileMetadataField;
-  'grdm-file:data-description-en'?: GrdmFileMetadataField;
-  'grdm-file:data-research-field'?: GrdmFileMetadataField;
-  'grdm-file:data-type'?: GrdmFileMetadataField;
-  'grdm-file:file-size'?: GrdmFileMetadataField;
-  'grdm-file:data-policy-free'?: GrdmFileMetadataField;
-  'grdm-file:data-policy-license'?: GrdmFileMetadataField;
-  'grdm-file:data-policy-cite-ja'?: GrdmFileMetadataField;
-  'grdm-file:data-policy-cite-en'?: GrdmFileMetadataField;
-  'grdm-file:access-rights'?: GrdmFileMetadataField;
-  'grdm-file:available-date'?: GrdmFileMetadataField;
-  'grdm-file:repo-information-ja'?: GrdmFileMetadataField;
-  'grdm-file:repo-information-en'?: GrdmFileMetadataField;
-  'grdm-file:journal-name-ja'?: GrdmFileMetadataField;
-  'grdm-file:journal-name-en'?: GrdmFileMetadataField;
-  'grdm-file:date-published'?: GrdmFileMetadataField;
-  'grdm-file:volume'?: GrdmFileMetadataField;
-  'grdm-file:issue'?: GrdmFileMetadataField;
-  'grdm-file:page-start'?: GrdmFileMetadataField;
-  'grdm-file:page-end'?: GrdmFileMetadataField;
-  'grdm-file:reviewed'?: GrdmFileMetadataField;
-  'grdm-file:version'?: GrdmFileMetadataField;
-  'grdm-file:repo-url-doi-link'?: GrdmFileMetadataField;
-  'grdm-file:publication-link'?: GrdmFileMetadataField;
-  'grdm-file:dataset-link'?: GrdmFileMetadataField;
-  'grdm-file:hosting-inst-ja'?: GrdmFileMetadataField;
-  'grdm-file:hosting-inst-en'?: GrdmFileMetadataField;
-  'grdm-file:hosting-inst-id'?: GrdmFileMetadataField;
-  'grdm-file:data-man-type'?: GrdmFileMetadataField;
-  'grdm-file:data-man-number'?: GrdmFileMetadataField;
-  'grdm-file:data-man-name-ja'?: GrdmFileMetadataField;
-  'grdm-file:data-man-name-en'?: GrdmFileMetadataField;
-  'grdm-file:data-man-org-ja'?: GrdmFileMetadataField;
-  'grdm-file:data-man-org-en'?: GrdmFileMetadataField;
-  'grdm-file:data-man-address-ja'?: GrdmFileMetadataField;
-  'grdm-file:data-man-address-en'?: GrdmFileMetadataField;
-  'grdm-file:data-man-tel'?: GrdmFileMetadataField;
-  'grdm-file:data-man-email'?: GrdmFileMetadataField;
-  'grdm-file:remarks-ja'?: GrdmFileMetadataField;
-  'grdm-file:remarks-en'?: GrdmFileMetadataField;
-  'grdm-file:metadata-access-rights'?: GrdmFileMetadataField;
-  'grdm-file:creators'?: GrdmFileMetadataField;
+  'grdm-file:file-type'?: StringField;
+  'grdm-file:data-number'?: StringField;
+  'grdm-file:doi'?: StringField;
+  'grdm-file:manuscript-type'?: StringField;
+  'grdm-file:title-ja'?: StringField;
+  'grdm-file:title-en'?: StringField;
+  'grdm-file:authors'?: PersonListField;
+  'grdm-file:date-issued-updated'?: StringField;
+  'grdm-file:data-description-ja'?: StringField;
+  'grdm-file:data-description-en'?: StringField;
+  'grdm-file:data-research-field'?: StringField;
+  'grdm-file:data-type'?: StringField;
+  'grdm-file:file-size'?: StringField;
+  'grdm-file:data-policy-free'?: StringField;
+  'grdm-file:data-policy-license'?: StringField;
+  'grdm-file:data-policy-cite-ja'?: StringField;
+  'grdm-file:data-policy-cite-en'?: StringField;
+  'grdm-file:access-rights'?: StringField;
+  'grdm-file:available-date'?: StringField;
+  'grdm-file:repo-information-ja'?: StringField;
+  'grdm-file:repo-information-en'?: StringField;
+  'grdm-file:journal-name-ja'?: StringField;
+  'grdm-file:journal-name-en'?: StringField;
+  'grdm-file:date-published'?: StringField;
+  'grdm-file:volume'?: StringField;
+  'grdm-file:issue'?: StringField;
+  'grdm-file:page-start'?: StringField;
+  'grdm-file:page-end'?: StringField;
+  'grdm-file:reviewed'?: StringField;
+  'grdm-file:version'?: StringField;
+  'grdm-file:repo-url-doi-link'?: StringField;
+  'grdm-file:publication-link'?: StringField;
+  'grdm-file:dataset-link'?: StringField;
+  'grdm-file:hosting-inst-ja'?: StringField;
+  'grdm-file:hosting-inst-en'?: StringField;
+  'grdm-file:hosting-inst-id'?: StringField;
+  'grdm-file:data-man-type'?: StringField;
+  'grdm-file:data-man-number'?: StringField;
+  'grdm-file:data-man-name-ja'?: PersonNameField;
+  'grdm-file:data-man-name-en'?: PersonNameField;
+  'grdm-file:data-man-org-ja'?: StringField;
+  'grdm-file:data-man-org-en'?: StringField;
+  'grdm-file:data-man-address-ja'?: StringField;
+  'grdm-file:data-man-address-en'?: StringField;
+  'grdm-file:data-man-tel'?: StringField;
+  'grdm-file:data-man-email'?: StringField;
+  'grdm-file:remarks-ja'?: StringField;
+  'grdm-file:remarks-en'?: StringField;
+  'grdm-file:metadata-access-rights'?: StringField;
+  'grdm-file:creators'?: PersonListField;
 }
