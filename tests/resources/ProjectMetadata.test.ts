@@ -1,6 +1,6 @@
 import { ProjectMetadata } from '../../src/resources/ProjectMetadata';
 import { HttpClient } from 'osf-api-v2-typescript';
-import { GrdmCreator } from '../../src/types/project-metadata';
+import { isLegacyCreator } from '../../src/utils/normalizeRegisteredFile';
 import projectMetadataResponse from '../fixtures/project-metadata-response.json';
 import fetchMock from 'jest-fetch-mock';
 
@@ -141,7 +141,10 @@ describe('ProjectMetadata Resource', () => {
 
       const result = await projectMetadata.listByNode('abcde');
       const file = result.data[0].grdmMeta?.grdmFiles?.[0];
-      const creators = file?.metadata['grdm-file:creators']?.value as GrdmCreator[];
+      const creators = file?.metadata['grdm-file:creators']?.value ?? [];
+      if (!isLegacyCreator(creators[0])) {
+        throw new Error('Expected a legacy creators entry');
+      }
       expect(creators[0].number).toBeNull();
       expect(creators[0].name_ja).toBeNull();
       expect(creators[0].name_en).toBeNull();

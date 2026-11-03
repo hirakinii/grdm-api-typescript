@@ -478,7 +478,7 @@ Person names are stored as structured objects. The shapes below were confirmed a
 
 Unset person fields are `null` (not `""`). Folder items omit manuscript-related keys such as `grdm-file:authors`.
 
-`GrdmCreator` (`{ number, name_ja, name_en }` with string values) is **deprecated** for file metadata. It describes the legacy shape that can still appear in `grdm-files` snapshots of draft registrations (see §6.4).
+`GrdmCreator` (`{ number, name_ja, name_en }` with string values) is **deprecated** for file metadata. It describes the legacy shape that can still appear in `grdm-files` snapshots of draft registrations / registrations (see §6.4 for typing and normalization).
 
 ### 5.3 Schema ②: MS2 Mibyodb Metadata Fields (`Ms2MibyoDbMetadataFields`)
 
@@ -638,9 +638,32 @@ The library automatically extracts the `value` from this structure and provides 
 
 ### 6.4 `grdm-files` Parser
 
-The `grdm-files` field in `registered_meta` stores file metadata as a JSON string. The library automatically parses this string into `GrdmRegisteredFile[]` objects.
+The `grdm-files` field in `registered_meta` / `registration_metadata` stores file metadata as a JSON string. The library parses this string into `GrdmRegisteredFile<TFields>[]` objects. The metadata is returned unchanged, without validation or conversion.
 
-`GrdmRegisteredFile.metadata` is a snapshot taken when the files were added to the draft, and it is not refreshed when the file metadata changes. It may contain the legacy person-name shape (`GrdmCreator`, plain-string `data-man-name-*`), so its values remain `unknown`. Typing this snapshot is tracked in issue #36.
+| Schema | `grdmFiles` type |
+|--------|------------------|
+| ① Public Funding (`GrdmRegisteredMeta`) | `GrdmRegisteredFile<GrdmRegisteredFileMetadataFields>[]` |
+| ② MS2 Mibyodb (`Ms2ProjectRegisteredMeta`) | `GrdmRegisteredFile<Ms2MibyoDbMetadataFields>[]` |
+
+`GrdmRegisteredFile` has `path`, `urlpath`, an optional `folder` (present in some snapshots) and `metadata`. Without a type argument, `metadata` is `Record<string, GrdmFileMetadataField>`.
+
+**Snapshot lifecycle (verified 2026-11-04).** A v1 PATCH of a file's metadata immediately rebuilds the snapshot in every draft registration that contains the file. Otherwise, a draft snapshot keeps the shape of the file's last update. Snapshots in registrations are frozen.
+
+**Mixed person-name shapes.** Snapshots can hold the legacy shape (`GrdmCreator` entries in `creators` / `authors`, plain-string `data-man-name-*` with `""` for unset) or the current shape (`GrdmPerson`, `GrdmPersonName`). `GrdmRegisteredFileMetadataFields` is `GrdmFileMetadataFields` with these four fields widened to unions:
+
+| Field | Snapshot value type |
+|-------|---------------------|
+| `grdm-file:data-man-name-ja` / `-en` | `GrdmPersonName \| string \| null` |
+| `grdm-file:creators` / `grdm-file:authors` | `Array<GrdmPerson \| GrdmCreator> \| null` |
+
+#### Snapshot normalization helpers
+
+| Function | Description |
+|----------|-------------|
+| `isLegacyCreator(person)` | Type guard: `true` for a legacy `GrdmCreator` entry |
+| `normalizePersonName(name)` | `GrdmPersonName` → copy; non-empty string → `{ last: string, first: '', middle: '' }` (not split); `""` / blank / `null` / `undefined` → `null` |
+| `normalizePerson(person)` | Legacy entry → `GrdmPerson` via `normalizePersonName`; current entry → copy |
+| `normalizeRegisteredFile(file)` | Returns a copy of a Public Funding snapshot entry with the four person-name fields in the current shape, typed as `GrdmRegisteredFile<GrdmFileMetadataFields>`. Other fields, `extra` / `comments` and file keys are preserved, absent keys stay absent, and the input is not mutated. |
 
 ### 6.5 Helper Methods
 

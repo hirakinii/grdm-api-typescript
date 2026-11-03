@@ -1,4 +1,6 @@
-import { parseGrdmMetaRecord, parseMs2ProjectMetaRecord } from '../../src/utils/parseGrdmMeta';
+import { parseGrdmFiles, parseGrdmMetaRecord, parseMs2ProjectMetaRecord } from '../../src/utils/parseGrdmMeta';
+import { GrdmRegisteredFileMetadataFields } from '../../src/types/file-metadata';
+import { GrdmRegisteredFile } from '../../src/types/project-metadata';
 
 describe('parseGrdmMetaRecord (schema ①: public-funding)', () => {
   it('should return schemaType public-funding', () => {
@@ -209,5 +211,60 @@ describe('parseMs2ProjectMetaRecord (schema ②: ms2-mibyodb)', () => {
       'grdm-files': buildField('not valid json{{{'),
     });
     expect(result.grdmFiles).toBeUndefined();
+  });
+});
+
+describe('parseGrdmFiles', () => {
+  const legacyFile = {
+    path: 'osfstorage/legacy.txt',
+    urlpath: '/legacy/',
+    metadata: {
+      'grdm-file:data-man-name-ja': { value: '山田太郎', extra: [], comments: [] },
+      'grdm-file:creators': {
+        value: [{ number: '12345', name_ja: '山田太郎', name_en: 'Taro Yamada' }],
+        extra: [],
+        comments: [],
+      },
+    },
+  };
+  const currentFolder = {
+    path: 'osfstorage/analysis/',
+    urlpath: '/analysis/',
+    folder: true,
+    metadata: {
+      'grdm-file:data-man-name-ja': { value: { last: '山田太郎', middle: '', first: '' }, extra: [], comments: [] },
+      'grdm-file:creators': {
+        value: [{ number: '12345', 'name-ja': { last: '山田太郎', middle: '', first: '' }, 'name-en': null }],
+        extra: [],
+        comments: [],
+      },
+    },
+  };
+
+  it('should return legacy and current snapshots unchanged', () => {
+    const result = parseGrdmFiles<GrdmRegisteredFileMetadataFields>([legacyFile, currentFolder]);
+    expect(result[0]).toEqual(legacyFile);
+    expect(result[1]).toEqual(currentFolder);
+  });
+
+  it('should pass folder through only when it is a boolean', () => {
+    const result = parseGrdmFiles([currentFolder, legacyFile, { ...legacyFile, folder: 'yes' }]);
+    expect(result[0].folder).toBe(true);
+    expect('folder' in result[1]).toBe(false);
+    expect('folder' in result[2]).toBe(false);
+  });
+
+  it('should type the result with the given field type', () => {
+    const result: GrdmRegisteredFile<GrdmRegisteredFileMetadataFields>[] =
+      parseGrdmFiles<GrdmRegisteredFileMetadataFields>([legacyFile]);
+    expect(result[0].metadata['grdm-file:data-man-name-ja']?.value).toBe('山田太郎');
+  });
+
+  it('should type grdmFiles parsed from a public funding record as snapshot fields', () => {
+    const meta = parseGrdmMetaRecord({
+      'grdm-files': { value: JSON.stringify([legacyFile]), extra: [], comments: [] },
+    });
+    const files: GrdmRegisteredFile<GrdmRegisteredFileMetadataFields>[] | undefined = meta.grdmFiles;
+    expect(files?.[0].metadata['grdm-file:creators']?.value).toEqual(legacyFile.metadata['grdm-file:creators'].value);
   });
 });
