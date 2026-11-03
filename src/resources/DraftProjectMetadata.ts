@@ -62,8 +62,7 @@ export class DraftProjectMetadata extends BaseResource {
     }
 
     const schemaRelationship = item.relationships?.['registration_schema'] as
-      | GrdmRegistrationSchemaRelationship
-      | undefined;
+      GrdmRegistrationSchemaRelationship | undefined;
     const schemaId = schemaRelationship?.data?.id;
 
     if (schemaId === SCHEMA_ID_MS2_MIBYODB) {
