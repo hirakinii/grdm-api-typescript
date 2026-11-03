@@ -484,7 +484,37 @@ Unset person fields are `null` (not `""`). Folder items omit manuscript-related 
 
 These fields are used when `schema === SCHEMA_ID_MS2_MIBYODB`. Accessible after narrowing with `isMs2MibyoDbSchema`.
 
-All field values are `string | null` (`Ms2MibyoDbMetadataField`).
+Each field is an `Ms2MibyoDbMetadataField<T>` (`GrdmFileMetadataField<T>` with required `comments`). The value types follow the GRDM schema definition (`GET /v2/schemas/registrations/67e381081921b4000842c800/`, `schema_version` 2), which defines 90 fields. Observed values were verified on 2026-11-04:
+
+| Schema type | Fields | Value type (`T`) | When not set |
+|---|---|---|---|
+| `string` (text / textarea) | 65 | `string \| null` | `""` |
+| `choose` (single select) | 5 | `string \| null` | `""` |
+| `object` (`Label-*` headings) | 7 | `string \| null` | always `null` |
+| `array` (table) | 13 | `<Element>[] \| null` (see below) | `null` |
+
+#### Table fields (arrays of objects)
+
+Every element has all of its properties as strings, with `""` for empty cells.
+
+| API Key(s) | Element type | Element properties |
+|---|---|---|
+| `grdm-file:d-msr-measuring-device-name` | `Ms2MeasuringDevice` | `Measuring-device-name`, `Measuring-device-name-en` |
+| `grdm-file:d-msr-procedure` | `Ms2Procedure` | `Procedure`, `Procedure-en` |
+| `grdm-file:d-msr-user-defined-metadata-items`, `grdm-file:t-abt-user-defined-metadata-items` | `Ms2UserDefinedMetadataItem` | `Metadata-item-name`, `value-or-content`, `Metadata-item-name-en`, `value-or-content-en` |
+| `grdm-file:d-fol-Structure-or-descriptions-of-folders-jp` | `Ms2FolderDescription` | `folder-name`, `description-of-folder`, `description-of-folder-en`, `contents` |
+| `grdm-file:d-{txt,exl,img,abt}-file-name-convention-file-extension` | `Ms2FileNameConvention` | `storage-folder`, `file-name-convention-file-extension` |
+| `grdm-file:d-{txt,exl}-description-of-row`, `grdm-file:d-{txt,exl}-description-of-column` | `Ms2TermDescription` | `Position-of-row`, `Name-of-term`, `Description-of-term`, `Position-of-row-en`, `Name-of-term-en`, `Description-of-term-en` |
+
+```typescript
+if (schema && isMs2MibyoDbSchema(schema)) {
+  for (const step of schema.data['grdm-file:d-msr-procedure']?.value ?? []) {
+    console.log(step.Procedure, step['Procedure-en']);
+  }
+}
+```
+
+The same types apply to the `grdm-files` snapshots of MS2 draft registrations (`Ms2ProjectRegisteredMeta.grdmFiles`).
 
 The fields are grouped into six sections by file/data type. Each field key follows the pattern `grdm-file:<prefix>-<name>`.
 
@@ -511,9 +541,9 @@ The fields are grouped into six sections by file/data type. Each field key follo
 | `grdm-file:d-msr-data-type-en` | Data type (English) |
 | `grdm-file:d-msr-classification-of-measuring-devices-jp` | Classification of measuring devices (Japanese) |
 | `grdm-file:d-msr-classification-of-measuring-devices-en` | Classification of measuring devices (English) |
-| `grdm-file:d-msr-measuring-device-name` | Measuring device name |
-| `grdm-file:d-msr-procedure` | Measurement procedure |
-| `grdm-file:d-msr-user-defined-metadata-items` | User-defined metadata items |
+| `grdm-file:d-msr-measuring-device-name` | Measuring device name (array: `Ms2MeasuringDevice[]`) |
+| `grdm-file:d-msr-procedure` | Measurement procedure (array: `Ms2Procedure[]`) |
+| `grdm-file:d-msr-user-defined-metadata-items` | User-defined metadata items (array: `Ms2UserDefinedMetadataItem[]`) |
 | `grdm-file:d-msr-remarks-jp` | Remarks (Japanese) |
 | `grdm-file:d-msr-remarks-en` | Remarks (English) |
 
@@ -521,7 +551,7 @@ The fields are grouped into six sections by file/data type. Each field key follo
 
 | API Key | Description |
 |---------|-------------|
-| `grdm-file:d-fol-Structure-or-descriptions-of-folders-jp` | Folder structure or description (Japanese) |
+| `grdm-file:d-fol-Structure-or-descriptions-of-folders-jp` | Folder structure or description (Japanese) (array: `Ms2FolderDescription[]`) |
 | `grdm-file:d-fol-remarks-jp` | Remarks (Japanese) |
 | `grdm-file:d-fol-remarks-en` | Remarks (English) |
 
@@ -529,11 +559,11 @@ The fields are grouped into six sections by file/data type. Each field key follo
 
 | API Key | Description |
 |---------|-------------|
-| `grdm-file:d-txt-file-name-convention-file-extension` | File name convention / extension |
+| `grdm-file:d-txt-file-name-convention-file-extension` | File name convention / extension (array: `Ms2FileNameConvention[]`) |
 | `grdm-file:d-txt-description-jp` | Description (Japanese) |
 | `grdm-file:d-txt-description-en` | Description (English) |
-| `grdm-file:d-txt-description-of-row` | Description of rows |
-| `grdm-file:d-txt-description-of-column` | Description of columns |
+| `grdm-file:d-txt-description-of-row` | Description of rows (array: `Ms2TermDescription[]`) |
+| `grdm-file:d-txt-description-of-column` | Description of columns (array: `Ms2TermDescription[]`) |
 | `grdm-file:d-txt-data-preprocessing-jp` | Data preprocessing (Japanese) |
 | `grdm-file:d-txt-data-preprocessing-en` | Data preprocessing (English) |
 | `grdm-file:d-txt-temporal-measurement-data` | Temporal measurement data |
@@ -549,11 +579,11 @@ The fields are grouped into six sections by file/data type. Each field key follo
 
 | API Key | Description |
 |---------|-------------|
-| `grdm-file:d-exl-file-name-convention-file-extension` | File name convention / extension |
+| `grdm-file:d-exl-file-name-convention-file-extension` | File name convention / extension (array: `Ms2FileNameConvention[]`) |
 | `grdm-file:d-exl-description-jp` | Description (Japanese) |
 | `grdm-file:d-exl-description-en` | Description (English) |
-| `grdm-file:d-exl-description-of-row` | Description of rows |
-| `grdm-file:d-exl-description-of-column` | Description of columns |
+| `grdm-file:d-exl-description-of-row` | Description of rows (array: `Ms2TermDescription[]`) |
+| `grdm-file:d-exl-description-of-column` | Description of columns (array: `Ms2TermDescription[]`) |
 | `grdm-file:d-exl-data-preprocessing-jp` | Data preprocessing (Japanese) |
 | `grdm-file:d-exl-data-preprocessing-en` | Data preprocessing (English) |
 | `grdm-file:d-exl-temporal-measurement-data` | Temporal measurement data |
@@ -567,7 +597,7 @@ The fields are grouped into six sections by file/data type. Each field key follo
 
 | API Key | Description |
 |---------|-------------|
-| `grdm-file:d-img-file-name-convention-file-extension` | File name convention / extension |
+| `grdm-file:d-img-file-name-convention-file-extension` | File name convention / extension (array: `Ms2FileNameConvention[]`) |
 | `grdm-file:d-img-description-jp` | Description (Japanese) |
 | `grdm-file:d-img-description-en` | Description (English) |
 | `grdm-file:d-img-data-preprocessing-jp` | Data preprocessing (Japanese) |
@@ -589,7 +619,7 @@ The fields are grouped into six sections by file/data type. Each field key follo
 
 | API Key | Description |
 |---------|-------------|
-| `grdm-file:d-abt-file-name-convention-file-extension` | File name convention / extension |
+| `grdm-file:d-abt-file-name-convention-file-extension` | File name convention / extension (array: `Ms2FileNameConvention[]`) |
 | `grdm-file:d-abt-description-jp` | Description (Japanese) |
 | `grdm-file:d-abt-description-en` | Description (English) |
 | `grdm-file:d-abt-data-preprocessing-jp` | Data preprocessing (Japanese) |
@@ -609,7 +639,7 @@ The fields are grouped into six sections by file/data type. Each field key follo
 | `grdm-file:t-abt-compression-format` | Compression format |
 | `grdm-file:t-abt-delimiter` | Delimiter character |
 | `grdm-file:t-abt-character-code` | Character encoding |
-| `grdm-file:t-abt-user-defined-metadata-items` | User-defined metadata items |
+| `grdm-file:t-abt-user-defined-metadata-items` | User-defined metadata items (array: `Ms2UserDefinedMetadataItem[]`) |
 | `grdm-file:t-abt-remarks-jp` | Remarks (Japanese) |
 | `grdm-file:t-abt-remarks-en` | Remarks (English) |
 

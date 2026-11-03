@@ -5,6 +5,42 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.10.0] - 2026-11-04
+
+### Added
+
+- Element types for the table fields of the MS2 Mibyodb schema: `Ms2MeasuringDevice`, `Ms2Procedure`, `Ms2UserDefinedMetadataItem`, `Ms2FolderDescription`, `Ms2FileNameConvention`, `Ms2TermDescription`.
+- `Ms2MibyoDbMetadataField` is now generic: `Ms2MibyoDbMetadataField<T = string | null>`. Using it without a type argument is unchanged.
+
+### Changed
+
+- **Breaking (types only)**: 13 fields of `Ms2MibyoDbMetadataFields` are now typed as arrays of objects, matching the GRDM schema definition and the actual data. They were `string | null` before.
+  - `grdm-file:d-msr-measuring-device-name`: `Ms2MeasuringDevice[] | null`
+  - `grdm-file:d-msr-procedure`: `Ms2Procedure[] | null`
+  - `grdm-file:d-msr-user-defined-metadata-items`, `grdm-file:t-abt-user-defined-metadata-items`: `Ms2UserDefinedMetadataItem[] | null`
+  - `grdm-file:d-fol-Structure-or-descriptions-of-folders-jp`: `Ms2FolderDescription[] | null`
+  - `grdm-file:d-{txt,exl,img,abt}-file-name-convention-file-extension`: `Ms2FileNameConvention[] | null`
+  - `grdm-file:d-{txt,exl}-description-of-row`, `grdm-file:d-{txt,exl}-description-of-column`: `Ms2TermDescription[] | null`
+- These types also apply to the MS2 `grdm-files` snapshots (`Ms2ProjectRegisteredMeta.grdmFiles`).
+
+### Fixed
+
+- The documentation stated that all MS2 values are `string | null` and that there are 84 fields. There are 90 fields, and 13 of them are arrays.
+
+### Migration
+
+```typescript
+// Before (0.9.x): typed as string | null, but the value was actually an array
+const procedure = data['grdm-file:d-msr-procedure']?.value as unknown as Array<{ Procedure: string }>;
+
+// After (0.10.0)
+for (const step of data['grdm-file:d-msr-procedure']?.value ?? []) {
+  console.log(step.Procedure, step['Procedure-en']);
+}
+```
+
+Code that treated these fields as strings (for example `value?.trim()`) no longer compiles and must handle arrays.
+
 ## [0.9.1] - 2026-11-04
 
 ### Changed
@@ -232,6 +268,7 @@ data['grdm-file:data-man-name-ja'] = {
   - `list_all_projects.ts` — paginated listing of all accessible projects using three `PaginatedResult` patterns.
   - `examples/README.md` — usage instructions and environment variable reference for each example.
 
+[0.10.0]: https://github.com/hirakinii/grdm-api-typescript/releases/tag/v0.10.0
 [0.9.1]: https://github.com/hirakinii/grdm-api-typescript/releases/tag/v0.9.1
 [0.9.0]: https://github.com/hirakinii/grdm-api-typescript/releases/tag/v0.9.0
 [0.8.0]: https://github.com/hirakinii/grdm-api-typescript/releases/tag/v0.8.0

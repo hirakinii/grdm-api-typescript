@@ -277,8 +277,28 @@ if (schema && isPublicFundingSchema(schema)) {
 if (schema && isMs2MibyoDbSchema(schema)) {
   console.log(schema.data['grdm-file:d-msr-object-of-measurement-jp']?.value);
   console.log(schema.data['grdm-file:d-msr-data-type-en']?.value);
+
+  // 13 table fields are arrays of objects (null when not set)
+  for (const step of schema.data['grdm-file:d-msr-procedure']?.value ?? []) {
+    console.log(step.Procedure, step['Procedure-en']);
+  }
 }
 ```
+
+#### Table fields (schema ②)
+
+In `Ms2MibyoDbMetadataFields`, text and single-select fields are `string | null` (`""` when not set). The following 13 table fields hold arrays of objects, or `null` when not set. Every element has all of its properties as strings (`""` for empty cells).
+
+| Field(s) | Element type |
+|----------|--------------|
+| `d-msr-measuring-device-name` | `Ms2MeasuringDevice` |
+| `d-msr-procedure` | `Ms2Procedure` |
+| `d-msr-user-defined-metadata-items`, `t-abt-user-defined-metadata-items` | `Ms2UserDefinedMetadataItem` |
+| `d-fol-Structure-or-descriptions-of-folders-jp` | `Ms2FolderDescription` |
+| `d-{txt,exl,img,abt}-file-name-convention-file-extension` | `Ms2FileNameConvention` |
+| `d-{txt,exl}-description-of-row`, `d-{txt,exl}-description-of-column` | `Ms2TermDescription` |
+
+See `docs/specifications.md` §5.3 for the element properties.
 
 #### Person-name fields (schema ①)
 

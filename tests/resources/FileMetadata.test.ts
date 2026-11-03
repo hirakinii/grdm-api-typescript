@@ -145,6 +145,29 @@ describe('FileMetadata Resource (v1 API)', () => {
       }
     });
 
+    it('should return MS2 table fields as arrays and unset ones as null', async () => {
+      fetchMock.mockResponseOnce(JSON.stringify(ms2MibyoDbResponse));
+
+      const metadata = await fileMetadata.getActiveMetadata('ms2db', 'osfstorage/sample.csv');
+
+      if (!metadata || !isMs2MibyoDbSchema(metadata)) {
+        throw new Error('Expected isMs2MibyoDbSchema to return true for MS2 Mibyodb fixture');
+      }
+      expect(metadata.data['grdm-file:d-msr-procedure']?.value).toEqual([
+        { Procedure: '試料を室温で 10 分静置する', 'Procedure-en': 'Leave the sample at room temperature for 10 minutes' },
+        { Procedure: '測定する', 'Procedure-en': '' },
+      ]);
+      expect(metadata.data['grdm-file:d-msr-measuring-device-name']?.value?.[0]['Measuring-device-name-en']).toBe(
+        'Sphygmomanometer',
+      );
+      expect(metadata.data['grdm-file:d-fol-Structure-or-descriptions-of-folders-jp']?.value?.[0]['folder-name']).toBe(
+        'raw',
+      );
+      expect(metadata.data['grdm-file:d-exl-description-of-row']?.value?.[0]['Name-of-term-en']).toBe('Time');
+      expect(metadata.data['grdm-file:d-txt-description-of-row']?.value).toBeNull();
+      expect(metadata.data['grdm-file:t-abt-user-defined-metadata-items']?.value).toBeNull();
+    });
+
     it('should return undefined if no active metadata exists', async () => {
       fetchMock.mockResponseOnce(JSON.stringify(fileMetadataResponse));
 
