@@ -184,20 +184,20 @@ TDD: write each test first (RED), confirm it fails, implement (GREEN), then refa
 
 ### Phase 1: Types
 
-- [ ] Write failing type tests for the array fields and element types (RED)
-- [ ] Add the element interfaces, make `Ms2MibyoDbMetadataField` generic, type the 13 fields, fix the JSDoc (GREEN)
+- [x] Write failing type tests for the array fields and element types (RED)
+- [x] Add the element interfaces, make `Ms2MibyoDbMetadataField` generic, type the 13 fields, fix the JSDoc (GREEN)
 
 ### Phase 2: Fixtures, tests and examples
 
-- [ ] Update the MS2 fixture with dummy arrays
-- [ ] Update the resource, parser and example code
+- [x] Update the MS2 fixture with dummy arrays
+- [x] Update the resource, parser and example code
 
 ### Phase 3: Documentation and release
 
-- [ ] Read-only smoke test on real MS2 data (counts only; throttle requests to avoid HTTP 429)
-- [ ] All tests, lint, type-check, build and examples type-check pass; coverage ≥ 80%
-- [ ] Security check (`~/.claude/rules/security.md`): no real values in fixtures, tests or docs
-- [ ] Update a part of documents below if they are relevant to the changes in this plan:
-    - [ ] `docs/specifications.md`
-    - [ ] `README.md`
-    - [ ] `CHANGELOG.md` (0.10.0) and the `package.json` version
+- [x] Read-only smoke test on real MS2 data (counts only; throttled), 2026-11-04: 19 projects; every array element matched its element type exactly (live 16, snapshots 16), and all other array values were `null` (live 49, snapshots 23)
+- [x] All tests, lint, type-check, build and examples type-check pass; coverage ≥ 80%
+- [x] Security check (`~/.claude/rules/security.md`): no real values in fixtures, tests or docs
+- [x] Update a part of documents below if they are relevant to the changes in this plan:
+    - [x] `docs/specifications.md`
+    - [x] `README.md`
+    - [x] `CHANGELOG.md` (0.10.0) and the `package.json` version
