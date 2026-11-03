@@ -6,6 +6,97 @@ import {
   GrdmPersonName,
   GrdmPerson,
 } from '../../src/types/project-metadata';
+import { GrdmFileMetadataFields, GrdmRegisteredFileMetadataFields } from '../../src/types/file-metadata';
+import { Ms2MibyoDbMetadataFields, Ms2ProjectRegisteredMeta } from '../../src/types/ms2-mibyodb-metadata';
+
+describe('grdm-files snapshot types', () => {
+  const legacyFields: GrdmRegisteredFileMetadataFields = {
+    'grdm-file:title-ja': { value: 'タイトル', extra: [], comments: [] },
+    'grdm-file:data-man-name-ja': { value: '山田太郎', extra: [], comments: [] },
+    'grdm-file:data-man-name-en': { value: '', extra: [], comments: [] },
+    'grdm-file:creators': {
+      value: [{ number: '12345', name_ja: '山田太郎', name_en: 'Taro Yamada' }],
+      extra: [],
+      comments: [],
+    },
+  };
+
+  const currentFields: GrdmRegisteredFileMetadataFields = {
+    'grdm-file:data-man-name-ja': { value: { last: '山田太郎', middle: '', first: '' }, extra: [], comments: [] },
+    'grdm-file:creators': {
+      value: [
+        {
+          number: '12345',
+          'name-ja': { last: '山田太郎', middle: '', first: '' },
+          'name-en': null,
+        },
+      ],
+      extra: [],
+      comments: [],
+    },
+    'grdm-file:authors': {
+      value: [{ number: '1', name_ja: '山田太郎', name_en: null }],
+      extra: [],
+      comments: [],
+    },
+  };
+
+  it('should accept both the legacy and the current person-name shapes', () => {
+    expect(legacyFields['grdm-file:data-man-name-ja']?.value).toBe('山田太郎');
+    expect(currentFields['grdm-file:creators']?.value?.[0]).toBeDefined();
+  });
+
+  it('should require narrowing before reading current-shape keys of a creators entry', () => {
+    const entry = legacyFields['grdm-file:creators']!.value![0];
+    // @ts-expect-error the entry may be a legacy GrdmCreator without 'name-ja'
+    const nameJa: GrdmPersonName | null = entry['name-ja'];
+    expect(nameJa).toBeUndefined();
+  });
+
+  it('should reject a number for a string field', () => {
+    const fields: GrdmRegisteredFileMetadataFields = {
+      // @ts-expect-error a number is not a string field value
+      'grdm-file:title-ja': { value: 1, extra: [] },
+    };
+    expect(fields).toBeDefined();
+  });
+
+  it('should not be assignable to GrdmFileMetadataFields without normalization', () => {
+    // @ts-expect-error legacy person-name shapes are not GrdmFileMetadataFields
+    const fields: GrdmFileMetadataFields = legacyFields;
+    expect(fields).toBeDefined();
+  });
+
+  it('should type grdmFiles of the public funding schema with the snapshot fields', () => {
+    const meta: GrdmRegisteredMeta = {
+      schemaType: 'public-funding',
+      grdmFiles: [{ path: 'osfstorage/a', urlpath: '/a/', folder: false, metadata: legacyFields }],
+    };
+    const metadata: GrdmRegisteredFileMetadataFields | undefined = meta.grdmFiles?.[0].metadata;
+    expect(metadata).toBe(legacyFields);
+    expect(meta.grdmFiles?.[0].folder).toBe(false);
+  });
+
+  it('should type grdmFiles of the MS2 schema with the MS2 fields', () => {
+    const meta: Ms2ProjectRegisteredMeta = {
+      schemaType: 'ms2-mibyodb',
+      grdmFiles: [
+        {
+          path: 'osfstorage/b',
+          urlpath: '/b/',
+          metadata: { 'grdm-file:d-msr-remarks-jp': { value: '備考', extra: [], comments: [] } },
+        },
+      ],
+    };
+    const metadata: Ms2MibyoDbMetadataFields | undefined = meta.grdmFiles?.[0].metadata;
+    expect(metadata?.['grdm-file:d-msr-remarks-jp']?.value).toBe('備考');
+  });
+
+  it('should keep an untyped record when no type argument is given', () => {
+    const file: GrdmRegisteredFile = { path: 'p', urlpath: 'u', metadata: { 'any-key': { value: 1, extra: [] } } };
+    expect(file.metadata['any-key'].value).toBe(1);
+  });
+});
 
 describe('GrdmPersonName / GrdmPerson', () => {
   it('should allow a GrdmPersonName with all three parts', () => {
@@ -90,7 +181,7 @@ describe('ProjectMetadata Types', () => {
     };
     expect(meta.funder).toBe('JSPS');
     expect(meta.grdmFiles?.[0].path).toBe('osfstorage/README.md');
-    expect(meta.grdmFiles?.[0].metadata['grdm-file:title-ja'].value).toBe('タイトル');
+    expect(meta.grdmFiles?.[0].metadata['grdm-file:title-ja']?.value).toBe('タイトル');
   });
 
   it('should allow creators in metadata', () => {

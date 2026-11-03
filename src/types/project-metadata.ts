@@ -1,5 +1,6 @@
 import { OsfRegistrationAttributes, OsfDraftRegistrationAttributes } from 'osf-api-v2-typescript';
 import { Ms2ProjectRegisteredMeta } from './ms2-mibyodb-metadata';
+import type { GrdmRegisteredFileMetadataFields } from './file-metadata';
 
 /**
  * GRDM-specific extension of the registration_schema relationship.
@@ -40,7 +41,7 @@ export interface GrdmRegisteredMeta {
   japanGrantNumber?: string;
   fundingStreamCode?: string;
   projectResearchField?: string;
-  grdmFiles?: GrdmRegisteredFile[];
+  grdmFiles?: GrdmRegisteredFile<GrdmRegisteredFileMetadataFields>[];
   registrationSupplement?: string;
 }
 
@@ -51,12 +52,16 @@ export interface GrdmRegisteredMeta {
 export type GrdmParsedMeta = GrdmRegisteredMeta | Ms2ProjectRegisteredMeta;
 
 /**
- * Represents a file entry within the `grdm-files` field of `registered_meta`.
+ * A file entry within the `grdm-files` snapshot of a draft registration / registration.
+ * `TFields` is the schema-specific metadata type; the default keeps an untyped record
+ * for unknown schemas.
  */
-export interface GrdmRegisteredFile {
+export interface GrdmRegisteredFile<TFields = Record<string, GrdmFileMetadataField>> {
   path: string;
   urlpath: string;
-  metadata: Record<string, GrdmFileMetadataField>;
+  /** Present in some snapshots. */
+  folder?: boolean;
+  metadata: TFields;
 }
 
 /**
@@ -97,7 +102,9 @@ export interface GrdmPerson {
 /**
  * Legacy shape of a `grdm-file:creators` entry.
  * It is not used by the current file metadata (v1 API), but it can still appear in
- * `grdm-files` snapshots of draft registrations / registrations.
+ * `grdm-files` snapshots of draft registrations / registrations
+ * (see `GrdmRegisteredFileMetadataFields`). Use `isLegacyCreator` to narrow and
+ * `normalizePerson` / `normalizeRegisteredFile` to convert to `GrdmPerson`.
  *
  * @deprecated Do not use for current file metadata or for writing back to GRDM; use `GrdmPerson`.
  * Kept to describe legacy snapshot data, so it will not be removed.

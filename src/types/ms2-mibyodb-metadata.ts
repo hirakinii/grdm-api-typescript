@@ -59,7 +59,7 @@ export interface Ms2ProjectRegisteredMeta {
   dateUpdatedInMetadata?: string;
   disclaimerVersion?: string;
   disclaimerCheckDate?: string;
-  grdmFiles?: GrdmRegisteredFile[];
+  grdmFiles?: GrdmRegisteredFile<Ms2MibyoDbMetadataFields>[];
   /** Checklist1–Checklist13 entries keyed by field name */
   checklists?: Record<string, string[]>;
 }

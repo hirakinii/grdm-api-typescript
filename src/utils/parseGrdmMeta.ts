@@ -1,5 +1,11 @@
 import { GrdmRegisteredMeta, GrdmRegisteredFile, GrdmFileMetadataField } from '../types/project-metadata';
-import { Ms2ProjectRegisteredMeta, Ms2Person, Ms2Keyword } from '../types/ms2-mibyodb-metadata';
+import {
+  Ms2ProjectRegisteredMeta,
+  Ms2Person,
+  Ms2Keyword,
+  Ms2MibyoDbMetadataFields,
+} from '../types/ms2-mibyodb-metadata';
+import { GrdmRegisteredFileMetadataFields } from '../types/file-metadata';
 
 /**
  * Parse GRDM metadata from a raw registration_metadata / registered_meta record
@@ -32,7 +38,7 @@ export function parseGrdmMetaRecord(metaRecord: Record<string, unknown>): GrdmRe
   if (typeof grdmFilesJson === 'string' && grdmFilesJson) {
     try {
       const files = JSON.parse(grdmFilesJson) as Record<string, unknown>[];
-      meta.grdmFiles = parseGrdmFiles(files);
+      meta.grdmFiles = parseGrdmFiles<GrdmRegisteredFileMetadataFields>(files);
     } catch {
       // Ignore parse errors
     }
@@ -139,7 +145,7 @@ export function parseMs2ProjectMetaRecord(metaRecord: Record<string, unknown>): 
   if (typeof grdmFilesJson === 'string' && grdmFilesJson) {
     try {
       const files = JSON.parse(grdmFilesJson) as Record<string, unknown>[];
-      meta.grdmFiles = parseGrdmFiles(files);
+      meta.grdmFiles = parseGrdmFiles<Ms2MibyoDbMetadataFields>(files);
     } catch {
       // Ignore parse errors
     }
@@ -173,19 +179,28 @@ function parseMs2Person(raw: Record<string, string>): Ms2Person {
 }
 
 /**
- * Parse grdm-files metadata array into typed GrdmRegisteredFile objects.
+ * Parse a grdm-files snapshot array into GrdmRegisteredFile objects.
+ *
+ * The metadata is returned unchanged and cast to `TFields`; it is not validated, so
+ * snapshots may contain shapes the type does not describe. Use `normalizeRegisteredFile`
+ * to convert legacy Public Funding person-name shapes to the current ones.
  *
  * @param files - Array of raw file objects from the grdm-files JSON string
- * @returns Array of GrdmRegisteredFile
+ * @returns Array of GrdmRegisteredFile; `folder` is included only when it is a boolean
  */
-export function parseGrdmFiles(files: Record<string, unknown>[]): GrdmRegisteredFile[] {
+export function parseGrdmFiles<TFields = Record<string, GrdmFileMetadataField>>(
+  files: Record<string, unknown>[],
+): GrdmRegisteredFile<TFields>[] {
   return files.map((file) => {
-    const metadata = { ...(file.metadata as Record<string, GrdmFileMetadataField>) };
-
-    return {
+    const metadata = { ...(file.metadata as Record<string, unknown>) } as TFields;
+    const parsed: GrdmRegisteredFile<TFields> = {
       path: file.path as string,
       urlpath: file.urlpath as string,
       metadata,
     };
+    if (typeof file.folder === 'boolean') {
+      parsed.folder = file.folder;
+    }
+    return parsed;
   });
 }

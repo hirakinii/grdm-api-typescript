@@ -1,4 +1,4 @@
-import { GrdmFileMetadataField, GrdmPerson, GrdmPersonName } from './project-metadata';
+import { GrdmCreator, GrdmFileMetadataField, GrdmPerson, GrdmPersonName } from './project-metadata';
 import { Ms2MibyoDbMetadataFields } from './ms2-mibyodb-metadata';
 export { Ms2MibyoDbMetadataField, Ms2MibyoDbMetadataFields } from './ms2-mibyodb-metadata';
 export { SCHEMA_ID_PUBLIC_FUNDING, SCHEMA_ID_MS2_MIBYODB } from './schema-ids';
@@ -150,4 +150,24 @@ export interface GrdmFileMetadataFields {
   'grdm-file:remarks-en'?: StringField;
   'grdm-file:metadata-access-rights'?: StringField;
   'grdm-file:creators'?: PersonListField;
+}
+
+/** Person-name keys whose values in `grdm-files` snapshots may still use the legacy shape. */
+type LegacyPersonKeys =
+  'grdm-file:data-man-name-ja' | 'grdm-file:data-man-name-en' | 'grdm-file:creators' | 'grdm-file:authors';
+
+/**
+ * Metadata fields of a Public Funding (schema ①) file in a `grdm-files` snapshot of a
+ * draft registration / registration (`GrdmRegisteredMeta.grdmFiles[].metadata`).
+ *
+ * Same as `GrdmFileMetadataFields`, except that the person-name fields may hold the legacy
+ * shape (`GrdmCreator` entries, plain-string names). A draft snapshot is rebuilt whenever the
+ * file metadata is PATCHed, so it keeps the shape of the file's last update; snapshots in
+ * registrations are frozen. Use `normalizeRegisteredFile` to convert to `GrdmFileMetadataFields`.
+ */
+export interface GrdmRegisteredFileMetadataFields extends Omit<GrdmFileMetadataFields, LegacyPersonKeys> {
+  'grdm-file:data-man-name-ja'?: GrdmFileMetadataField<GrdmPersonName | string | null>;
+  'grdm-file:data-man-name-en'?: GrdmFileMetadataField<GrdmPersonName | string | null>;
+  'grdm-file:creators'?: GrdmFileMetadataField<Array<GrdmPerson | GrdmCreator> | null>;
+  'grdm-file:authors'?: GrdmFileMetadataField<Array<GrdmPerson | GrdmCreator> | null>;
 }
