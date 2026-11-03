@@ -1,6 +1,7 @@
 import { DraftProjectMetadata } from '../../src/resources/DraftProjectMetadata';
 import { HttpClient } from 'osf-api-v2-typescript';
-import { GrdmCreator, GrdmRegisteredMeta } from '../../src/types/project-metadata';
+import { GrdmRegisteredMeta } from '../../src/types/project-metadata';
+import { isLegacyCreator, normalizeRegisteredFile } from '../../src/utils/normalizeRegisteredFile';
 import { Ms2ProjectRegisteredMeta } from '../../src/types/ms2-mibyodb-metadata';
 import draftRegistrationResponse from '../fixtures/draft-registration-response.json';
 import draftRegistrationMs2Response from '../fixtures/draft-registration-ms2-response.json';
@@ -64,10 +65,56 @@ describe('DraftProjectMetadata Resource', () => {
 
       const meta2 = result.data[0].grdmMeta as GrdmRegisteredMeta;
       const file = meta2.grdmFiles?.[0];
-      const creators = file?.metadata['grdm-file:creators']?.value as GrdmCreator[];
+      const creators = file?.metadata['grdm-file:creators']?.value ?? [];
       expect(creators).toHaveLength(1);
       expect(creators[0].number).toBe('10880916');
+      // The fixture holds the legacy snapshot shape
+      if (!isLegacyCreator(creators[0])) {
+        throw new Error('Expected a legacy creators entry in the fixture');
+      }
       expect(creators[0].name_en).toBe('Toshiyuki Hiraki');
+    });
+
+    it('should return a current-shape snapshot unchanged and normalize a legacy one', async () => {
+      const currentCreators = [
+        {
+          number: '12345',
+          'name-ja': { last: '山田太郎', middle: '', first: '' },
+          'name-en': { last: 'Taro Yamada', middle: '', first: '' },
+        },
+      ];
+      const response = structuredClone(draftRegistrationResponse);
+      const draft = response.data[0].attributes.registration_metadata as Record<string, { value: unknown }>;
+      draft['grdm-files'].value = JSON.stringify([
+        {
+          path: 'osfstorage/current.txt',
+          urlpath: '/current/',
+          metadata: {
+            'grdm-file:data-man-name-ja': { value: { last: '山田太郎', middle: '', first: '' }, extra: [], comments: [] },
+            'grdm-file:creators': { value: currentCreators, extra: [], comments: [] },
+          },
+        },
+      ]);
+      fetchMock.mockResponseOnce(JSON.stringify(response));
+
+      const result = await draftProjectMetadata.listByNode('uzdsn');
+      const file = (result.data[0].grdmMeta as GrdmRegisteredMeta).grdmFiles?.[0];
+      expect(file?.metadata['grdm-file:creators']?.value).toEqual(currentCreators);
+      expect(file && normalizeRegisteredFile(file).metadata['grdm-file:creators']?.value).toEqual(currentCreators);
+
+      fetchMock.mockResponseOnce(JSON.stringify(draftRegistrationResponse));
+      const legacy = await draftProjectMetadata.listByNode('uzdsn');
+      const legacyFile = (legacy.data[0].grdmMeta as GrdmRegisteredMeta).grdmFiles?.[0];
+      const legacyCreator = legacyFile?.metadata['grdm-file:creators']?.value?.[0];
+      if (!legacyCreator || !isLegacyCreator(legacyCreator)) {
+        throw new Error('Expected a legacy creators entry in the fixture');
+      }
+      const normalized = legacyFile && normalizeRegisteredFile(legacyFile);
+      expect(normalized?.metadata['grdm-file:creators']?.value?.[0]['name-en']).toEqual({
+        last: legacyCreator.name_en,
+        middle: '',
+        first: '',
+      });
     });
 
     it('should not set registrationSupplement (not present in draft registrations)', async () => {
