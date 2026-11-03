@@ -18,10 +18,7 @@ const NAME_SEPARATOR = /\s+/;
  * @param lang - Language that determines the order of the parts
  * @returns The formatted name
  */
-export function formatPersonName(
-  name: GrdmPersonName | string | null | undefined,
-  lang: PersonNameLanguage,
-): string {
+export function formatPersonName(name: GrdmPersonName | string | null | undefined, lang: PersonNameLanguage): string {
   if (name === null || name === undefined) {
     return '';
   }
@@ -54,7 +51,10 @@ export function formatPersonName(
  * @returns A structured name with `last`, `first` and `middle` set
  */
 export function parsePersonName(fullName: string, lang: PersonNameLanguage): GrdmPersonName {
-  const tokens = fullName.trim().split(NAME_SEPARATOR).filter((token) => token !== '');
+  const tokens = fullName
+    .trim()
+    .split(NAME_SEPARATOR)
+    .filter((token) => token !== '');
 
   if (tokens.length === 0) {
     return { last: '', middle: '', first: '' };
