@@ -5,6 +5,12 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.9.1] - 2026-11-04
+
+### Changed
+
+- Updated `osf-api-v2-typescript` from `^0.4.4` to `^0.5.1`. Its MCP server packages (`@modelcontextprotocol/sdk`, `ts-morph`) are now optional peer dependencies, so installing this library no longer installs the MCP server stack (express, hono, ts-morph, …) or inherits its `npm audit` advisories. `npm audit --omit=dev` now reports 0 advisories (previously 4 moderate). The library API is unchanged.
+
 ## [0.9.0] - 2026-11-04
 
 ### Added
@@ -226,6 +232,7 @@ data['grdm-file:data-man-name-ja'] = {
   - `list_all_projects.ts` — paginated listing of all accessible projects using three `PaginatedResult` patterns.
   - `examples/README.md` — usage instructions and environment variable reference for each example.
 
+[0.9.1]: https://github.com/hirakinii/grdm-api-typescript/releases/tag/v0.9.1
 [0.9.0]: https://github.com/hirakinii/grdm-api-typescript/releases/tag/v0.9.0
 [0.8.0]: https://github.com/hirakinii/grdm-api-typescript/releases/tag/v0.8.0
 [0.7.0]: https://github.com/hirakinii/grdm-api-typescript/releases/tag/v0.7.0
