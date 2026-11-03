@@ -257,6 +257,56 @@ if (schema && isMs2MibyoDbSchema(schema)) {
 }
 ```
 
+#### Person-name fields (schema ①)
+
+In `GrdmFileMetadataFields`, every field value is typed. Person names are structured objects, not strings:
+
+| Field | Value type |
+|-------|-----------|
+| `grdm-file:data-man-name-ja` / `-en` | `GrdmPersonName \| null` |
+| `grdm-file:creators` / `grdm-file:authors` | `GrdmPerson[] \| null` |
+| All other fields | `string \| null` (`""` when not set) |
+
+```typescript
+interface GrdmPersonName {
+  last: string;
+  first: string;
+  middle: string; // not required by GRDM, but always stored ("" when empty)
+}
+
+interface GrdmPerson {
+  number: string | null;
+  'name-ja': GrdmPersonName | null;
+  'name-en': GrdmPersonName | null;
+  'affiliation-name-ja'?: string | null; // present in authors, absent in creators
+  'affiliation-name-en'?: string | null;
+}
+```
+
+GRDM often stores the whole name in `last` and leaves `first` and `middle` empty. Use the helpers to display names and to build values for writing back:
+
+```typescript
+import { formatPersonName, parsePersonName, isPublicFundingSchema } from 'grdm-api-typescript';
+
+if (schema && isPublicFundingSchema(schema)) {
+  // "last middle first" for ja, "first middle last" for en; empty parts are skipped
+  const manager = formatPersonName(schema.data['grdm-file:data-man-name-ja']?.value, 'ja');
+
+  // Prefer the Japanese name and fall back to the English one
+  const creators = (schema.data['grdm-file:creators']?.value ?? []).map(
+    (p) => formatPersonName(p['name-ja'], 'ja') || formatPersonName(p['name-en'], 'en'),
+  );
+}
+
+// Splits on whitespace (including the full-width space); a single token goes to `last`
+parsePersonName('山田 太郎', 'ja'); // { last: '山田', middle: '', first: '太郎' }
+parsePersonName('John Q. Public', 'en'); // { last: 'Public', middle: 'Q.', first: 'John' }
+```
+
+> **Note:** `String()` and template literals accept values of any type, so `String(field.value)` still compiles and prints `[object Object]` for a person name. Consider enabling the ESLint rules `@typescript-eslint/no-base-to-string` and `@typescript-eslint/restrict-template-expressions` in your project.
+
+`GrdmCreator` (`{ number, name_ja, name_en }`) is deprecated for file metadata. It describes the legacy shape that can still appear in `grdm-files` snapshots of draft registrations (`grdmMeta.grdmFiles`), whose metadata stays untyped.
+
 #### `updateFileMetadata(projectId, fileItem)`
 
 Updates the metadata of a specific file via a PATCH request to the GRDM v1 API. The target file URL is derived from `fileItem.path` (e.g., `"osfstorage/README.md"`). Returns `Promise<void>` and throws on non-2xx responses.
@@ -268,7 +318,7 @@ if (fileItem) {
   const updated = {
     ...fileItem,
     items: fileItem.items?.map((schema) =>
-      schema.active
+      schema.active && isPublicFundingSchema(schema)
         ? {
             ...schema,
             data: {

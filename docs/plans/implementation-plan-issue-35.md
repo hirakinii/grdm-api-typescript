@@ -42,6 +42,7 @@ Align the TypeScript types of the Public Funding schema (`66d7d4ec299c4f00071be8
 | `tests/resources/FileMetadata.test.ts` | Assert person-name shapes read from the fixture |
 | `tests/fixtures/file-metadata-response.json` | Rewrite person fields to the actual shape; add manuscript and folder items |
 | `examples/fetch_grdm_file_metadata.ts` | Use `formatPersonName` instead of reading `name_ja` |
+| `examples/update_grdm_file_metadata.ts` | Narrow with `isPublicFundingSchema` instead of casting `schema.data` to a loose record (surfaced by the new types) |
 | `docs/specifications.md` | Update §5.1, §5.2 (`authors`, Creators, Data Manager) and §8.3 |
 | `README.md` | Document the new types and helpers |
 | `CHANGELOG.md`, `package.json` | Add a 0.8.0 entry with migration notes; bump the version |
@@ -237,24 +238,25 @@ TDD: write each test first (RED), confirm it fails, implement (GREEN), then refa
 
 ### Phase 1: Types
 
-- [ ] Write failing type tests for `GrdmPersonName`, `GrdmPerson` and typed `GrdmFileMetadataFields` (RED)
-- [ ] Make `GrdmFileMetadataField` generic; add `GrdmPersonName` and `GrdmPerson`; deprecate `GrdmCreator` (GREEN)
-- [ ] Type all keys of `GrdmFileMetadataFields`; refactor `Ms2MibyoDbMetadataField`
-- [ ] Update existing tests that rely on `GrdmCreator` / `name_ja`
+- [x] Write failing type tests for `GrdmPersonName`, `GrdmPerson` and typed `GrdmFileMetadataFields` (RED)
+- [x] Make `GrdmFileMetadataField` generic; add `GrdmPersonName` and `GrdmPerson`; deprecate `GrdmCreator` (GREEN)
+- [x] Type all keys of `GrdmFileMetadataFields`; refactor `Ms2MibyoDbMetadataField`
+- [x] Update existing tests that rely on `GrdmCreator` / `name_ja`
 
 ### Phase 2: Helpers
 
-- [ ] Write failing tests for `formatPersonName` / `parsePersonName` (RED)
-- [ ] Implement `src/utils/personName.ts` and re-export it (GREEN)
+- [x] Write failing tests for `formatPersonName` / `parsePersonName` (RED)
+- [x] Implement `src/utils/personName.ts` and re-export it (GREEN)
 
 ### Phase 3: Fixtures, examples and documentation
 
-- [ ] Rewrite the fixtures with dummy values in the observed shapes
-- [ ] Update `examples/fetch_grdm_file_metadata.ts`
-- [ ] Run the manual smoke tests against project `uzdsn`
-- [ ] All tests, lint, type-check and build pass; coverage ≥ 80%
-- [ ] Security check (`~/.claude/rules/security.md`): no real names, emails or tokens in fixtures or docs
-- [ ] Update a part of documents below if they are relevant to the changes in this plan:
-    - [ ] `docs/specifications.md`
-    - [ ] `README.md` in the root and `examples/README.md`
-    - [ ] `CHANGELOG.md` (0.8.0) and the `package.json` version
+- [x] Rewrite the fixtures with dummy values in the observed shapes
+- [x] Update `examples/fetch_grdm_file_metadata.ts`
+- [x] Manual smoke test 1: `examples/fetch_grdm_file_metadata.ts` against `uzdsn` prints readable names (no `[object Object]`)
+- [ ] Manual smoke test 2: PATCH round trip of `data-man-name-ja` on a dataset file (writes to production GRDM; run by the maintainer)
+- [x] All tests, lint, type-check and build pass; coverage ≥ 80%
+- [x] Security check (`~/.claude/rules/security.md`): no real names, emails or tokens in fixtures or docs
+- [x] Update a part of documents below if they are relevant to the changes in this plan:
+    - [x] `docs/specifications.md`
+    - [x] `README.md` in the root and `examples/README.md`
+    - [x] `CHANGELOG.md` (0.8.0) and the `package.json` version
