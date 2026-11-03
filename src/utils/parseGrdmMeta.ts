@@ -81,12 +81,10 @@ export function parseMs2ProjectMetaRecord(metaRecord: Record<string, unknown>): 
   meta.conflictOfInterest = unwrap('conflict-of-interest-Yes-or-No') as string | undefined;
   meta.necessityOfContactAndPermission = unwrap('necessity-of-contact-and-permission') as string | undefined;
   meta.necessityOfIncludingInAcknowledgments = unwrap('necessity-of-including-in-acknowledgments') as
-    | string
-    | undefined;
+    string | undefined;
   meta.namesToBeIncludedInAcknowledgments = unwrap('names-to-be-included-in-the-acknowledgments') as string | undefined;
   meta.namesToBeIncludedInAcknowledgmentsEn = unwrap('names-to-be-included-in-the-acknowledgments-en') as
-    | string
-    | undefined;
+    string | undefined;
   meta.repositoryInformation = unwrap('repository-information') as string | undefined;
   meta.repositoryUrlDoiLink = unwrap('repository-url-doi-link') as string | undefined;
   meta.dateRegisteredInMetadata = unwrap('date-registered-in-metadata') as string | undefined;
@@ -105,12 +103,10 @@ export function parseMs2ProjectMetaRecord(metaRecord: Record<string, unknown>): 
   if (typeof keywordsJson === 'string' && keywordsJson) {
     try {
       const raw = JSON.parse(keywordsJson) as Record<string, string>[];
-      meta.keywords = raw.map(
-        (k): Ms2Keyword => ({
-          filename: k['filename'] ?? '',
-          filenameEn: k['filename-en'] ?? '',
-        }),
-      );
+      meta.keywords = raw.map((k): Ms2Keyword => ({
+        filename: k['filename'] ?? '',
+        filenameEn: k['filename-en'] ?? '',
+      }));
     } catch {
       // Ignore parse errors
     }
