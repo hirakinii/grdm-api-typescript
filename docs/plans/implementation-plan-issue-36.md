@@ -24,7 +24,7 @@ This is a type-level breaking change only, with no runtime behaviour change. It 
 | Draft registrations (8 files) | Mostly current (`GrdmPerson[]`, `GrdmPersonName`); 1 file has `data-man-name-ja/en` as a legacy `string` | Mixed |
 
 - **When a draft snapshot is rebuilt (experiment, 2026-11-04):** a v1 `PATCH` of a file's metadata immediately rebuilds the `grdm-files` snapshot of every draft registration that contains the file. The draft's `datetime_updated` also changes. This was verified on the `uzdsn` draft `69c2a927…`: a temporary marker value written to `data-description-ja` appeared in the snapshot within the same second, and restoring the file metadata restored the snapshot. This explains why that draft switched from the legacy to the current shape after the #35 smoke tests PATCHed `osfstorage/README.md`.
-  - Consequence: a draft snapshot keeps whatever shape the file metadata had at the file's last PATCH. Example: in project `abped`, a draft (last updated 2026-07-29) still holds the legacy shape, while the live file metadata is current. The live data was apparently migrated without a PATCH.
+  - Consequence: a draft snapshot keeps whatever shape the file metadata had at the file's last PATCH. Example: in a shared project, a draft (last updated 2026-07-29) still holds the legacy shape, while the live file metadata is current. The live data was apparently migrated without a PATCH.
   - Snapshots in registrations (submitted) are frozen and were all legacy.
 - Every metadata wrapper had the keys `{ value, extra, comments }`. Non-person values in Public Funding snapshots were all strings.
 - File entries sometimes carry a `folder` key (`{ path, urlpath, folder, metadata }`), which `GrdmRegisteredFile` does not declare.
@@ -241,22 +241,23 @@ All resolved.
 
 ### Phase 1: Types
 
-- [ ] Write failing type tests for the snapshot types and the generic `GrdmRegisteredFile` (RED)
-- [ ] Make `GrdmRegisteredFile` generic; add `folder?`; add `GrdmRegisteredFileMetadataFields`; type both `grdmFiles` properties (GREEN)
-- [ ] Make `parseGrdmFiles` generic and pass `folder` through; update call sites
-- [ ] Update the existing tests affected by optional keys / removed casts
+- [x] Write failing type tests for the snapshot types and the generic `GrdmRegisteredFile` (RED)
+- [x] Make `GrdmRegisteredFile` generic; add `folder?`; add `GrdmRegisteredFileMetadataFields`; type both `grdmFiles` properties (GREEN)
+- [x] Make `parseGrdmFiles` generic and pass `folder` through; update call sites
+- [x] Update the existing tests affected by optional keys / removed casts
 
 ### Phase 2: Normalizer
 
-- [ ] Write failing tests for `isLegacyCreator`, `normalizePersonName`, `normalizePerson`, `normalizeRegisteredFile` (RED)
-- [ ] Implement `src/utils/normalizeRegisteredFile.ts` and re-export it (GREEN)
+- [x] Write failing tests for `isLegacyCreator`, `normalizePersonName`, `normalizePerson`, `normalizeRegisteredFile` (RED)
+- [x] Implement `src/utils/normalizeRegisteredFile.ts` and re-export it (GREEN)
 
 ### Phase 3: Documentation and release
 
-- [ ] Read-only smoke test on real drafts / registrations (shape counts only)
-- [ ] All tests, lint, type-check, build and examples type-check pass; coverage ≥ 80%
-- [ ] Security check (`~/.claude/rules/security.md`): no real names, numbers or tokens in fixtures, tests or docs
-- [ ] Update a part of documents below if they are relevant to the changes in this plan:
-    - [ ] `docs/specifications.md`
-    - [ ] `README.md`
-    - [ ] `CHANGELOG.md` (0.9.0) and the `package.json` version
+- [x] Read-only smoke test on real drafts / registrations (shape counts only), 2026-11-04: 8 draft files and 12 registration files. All 12 registration files had legacy `data-man-name-*`, and 7 had legacy `creators`; one draft file had a legacy `data-man-name-*`. `normalizeRegisteredFile` + `formatPersonName` produced readable names for both shapes.
+  - Finding (data, not library): in one shared demo project (read-only access), 6 live files and their draft snapshot store the literal string `"[object Object]"` in `data-man-name-ja/en.last`. This is apparently written back by the DMP Editor bug that motivated #35. It was reported to the maintainer and was not modified.
+- [x] All tests, lint, type-check, build and examples type-check pass; coverage ≥ 80%
+- [x] Security check (`~/.claude/rules/security.md`): no real names, numbers or tokens in fixtures, tests or docs
+- [x] Update a part of documents below if they are relevant to the changes in this plan:
+    - [x] `docs/specifications.md`
+    - [x] `README.md`
+    - [x] `CHANGELOG.md` (0.9.0) and the `package.json` version

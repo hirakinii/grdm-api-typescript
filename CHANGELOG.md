@@ -5,6 +5,43 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.9.0] - 2026-11-04
+
+### Added
+
+- **`GrdmRegisteredFileMetadataFields`**: metadata fields of a Public Funding file in a `grdm-files` snapshot. Same as `GrdmFileMetadataFields`, except that `data-man-name-ja/en` (`GrdmPersonName | string | null`) and `creators` / `authors` (`Array<GrdmPerson | GrdmCreator> | null`) also accept the legacy shape.
+- **Snapshot normalization helpers** (opt-in; `parseGrdmFiles` itself does not convert data):
+  - `isLegacyCreator(person)`: type guard for legacy `creators` / `authors` entries.
+  - `normalizePersonName(name)`: converts a legacy string name to `GrdmPersonName` (whole name in `last`, not split); empty names become `null`.
+  - `normalizePerson(person)`: converts a legacy entry to `GrdmPerson`.
+  - `normalizeRegisteredFile(file)`: returns a copy of a snapshot entry in the current shape, typed as `GrdmRegisteredFile<GrdmFileMetadataFields>`.
+- `GrdmRegisteredFile.folder` (optional): passed through when present in the snapshot.
+
+### Changed
+
+- **Breaking (types only)**: `GrdmRegisteredFile` is now generic (`GrdmRegisteredFile<TFields = Record<string, GrdmFileMetadataField>>`), and `grdmFiles` is typed per schema:
+  - `GrdmRegisteredMeta.grdmFiles`: `GrdmRegisteredFile<GrdmRegisteredFileMetadataFields>[]`
+  - `Ms2ProjectRegisteredMeta.grdmFiles`: `GrdmRegisteredFile<Ms2MibyoDbMetadataFields>[]`
+- `parseGrdmFiles` is generic over the field type. Runtime behaviour is unchanged: snapshots are returned as stored by GRDM.
+
+### Migration
+
+```typescript
+// Before (0.8.x): values were unknown
+const creators = file.metadata['grdm-file:creators'].value as GrdmCreator[];
+
+// After (0.9.0): keys are optional and values are typed unions
+const raw = file.metadata['grdm-file:creators']?.value ?? [];
+raw.forEach((p) => (isLegacyCreator(p) ? p.name_ja : p['name-ja']));
+
+// Or convert the whole entry to the current shape
+const { metadata } = normalizeRegisteredFile(file);
+metadata['grdm-file:creators']?.value?.map((p) => formatPersonName(p['name-ja'], 'ja'));
+```
+
+- Known keys are now optional, so `metadata['grdm-file:title-ja'].value` needs `?.`.
+- Dynamic access with a `string` key (`metadata[key]`) no longer compiles. Cast to `Record<string, GrdmFileMetadataField>` if needed.
+
 ## [0.8.0] - 2026-11-04
 
 ### Added
@@ -189,6 +226,7 @@ data['grdm-file:data-man-name-ja'] = {
   - `list_all_projects.ts` — paginated listing of all accessible projects using three `PaginatedResult` patterns.
   - `examples/README.md` — usage instructions and environment variable reference for each example.
 
+[0.9.0]: https://github.com/hirakinii/grdm-api-typescript/releases/tag/v0.9.0
 [0.8.0]: https://github.com/hirakinii/grdm-api-typescript/releases/tag/v0.8.0
 [0.7.0]: https://github.com/hirakinii/grdm-api-typescript/releases/tag/v0.7.0
 [0.6.0]: https://github.com/hirakinii/grdm-api-typescript/releases/tag/v0.6.0

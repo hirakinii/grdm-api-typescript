@@ -131,9 +131,32 @@ console.log(item.grdmMeta?.projectNameEn);
 | `fundingStreamCode` | `string` | `funding-stream-code` |
 | `projectResearchField` | `string` | `project-research-field` |
 | `registrationSupplement` | `string` | `registration_supplement` |
-| `grdmFiles` | `GrdmRegisteredFile[]` | `grdm-files` (JSON string, auto-parsed) |
+| `grdmFiles` | `GrdmRegisteredFile<GrdmRegisteredFileMetadataFields>[]` | `grdm-files` (JSON string, auto-parsed) |
 
 The `{ value, extra }` wrapper in `registered_meta` is automatically unwrapped.
+
+#### `grdmFiles` snapshots
+
+`grdmFiles` holds a snapshot of each file's metadata. The snapshot is returned as stored by GRDM, and its person-name fields can use either of two shapes:
+
+- **Legacy**: `creators` entries `{ number, name_ja, name_en }` (`GrdmCreator`) and plain-string `data-man-name-*`. Snapshots in registrations are frozen and typically use this shape.
+- **Current**: `GrdmPerson` / `GrdmPersonName`, the same as the live file metadata.
+
+GRDM rebuilds a draft's snapshot whenever the metadata of a file it contains is updated (v1 PATCH), so draft snapshots usually use the current shape.
+
+`GrdmRegisteredFileMetadataFields` types these fields as unions. Narrow with `isLegacyCreator`, or convert the whole entry with `normalizeRegisteredFile`:
+
+```typescript
+import { formatPersonName, normalizeRegisteredFile } from 'grdm-api-typescript';
+
+for (const file of meta.grdmFiles ?? []) {
+  // Returns a copy typed as GrdmRegisteredFile<GrdmFileMetadataFields>; the input is not changed.
+  // Legacy string names are stored whole in `last`; empty names become null.
+  const { metadata } = normalizeRegisteredFile(file);
+  const manager = formatPersonName(metadata['grdm-file:data-man-name-ja']?.value, 'ja');
+  const creators = (metadata['grdm-file:creators']?.value ?? []).map((p) => formatPersonName(p['name-ja'], 'ja'));
+}
+```
 
 ---
 
@@ -200,7 +223,7 @@ Same fields as `client.projectMetadata` (see above).
 | `repositoryInformation` | `string` | `repository-information` |
 | `dateRegisteredInMetadata` | `string` | `date-registered-in-metadata` |
 | `disclaimerVersion` | `string` | `disclaimer-version` |
-| `grdmFiles` | `GrdmRegisteredFile[]` | `grdm-files` (JSON string, auto-parsed) |
+| `grdmFiles` | `GrdmRegisteredFile<Ms2MibyoDbMetadataFields>[]` | `grdm-files` (JSON string, auto-parsed) |
 | `checklists` | `Record<string, string[]>` | `Checklist1`–`Checklist13` |
 
 `Ms2Person`: `{ name, nameEn, belonging, belongingEn, contact }`
